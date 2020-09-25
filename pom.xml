@@ -11,8 +11,6 @@
 	<description>Monitor the state of the office with home automation devices</description>
 
 	<modules>
-		<module>queue-resolver</module>
-		<module>middleware</module>
 		<module>sensor-ingestion</module>
 	</modules>
 </project>
