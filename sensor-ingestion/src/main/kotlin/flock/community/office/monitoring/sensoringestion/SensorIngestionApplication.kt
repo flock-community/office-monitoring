@@ -17,9 +17,3 @@ class SensorIngestionApplication
 fun main(args: Array<String>) {
     runApplication<SensorIngestionApplication>(*args)
 }
-
-@Bean
-fun taskScheduler(): TaskScheduler? {
-    //org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
-    return ThreadPoolTaskScheduler()
-}
