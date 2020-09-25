@@ -13,5 +13,6 @@
 	<modules>
 		<module>queue-resolver</module>
 		<module>middleware</module>
+		<module>sensor-ingestion</module>
 	</modules>
 </project>
