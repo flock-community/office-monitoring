@@ -40,11 +40,4 @@ class PahoDemo : MqttCallback {
     override fun deliveryComplete(token: IMqttDeliveryToken) {
         // TODO Auto-generated method stub
     }
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            PahoDemo().doDemo()
-        }
-    }
 }
