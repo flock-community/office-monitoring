@@ -1,0 +1,60 @@
+{
+  "name": "reactive-streaming-frontend",
+  "version": "0.0.1",
+  "private": false,
+  "engines": {
+    "node": ">=13"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.8.2",
+    "@material-ui/icons": "^4.5.1",
+    "chart.js": "^2.9.3",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.4.3",
+    "react-vis": "^1.11.7",
+    "rsocket-core": "latest",
+    "rsocket-websocket-client": "0.0.19",
+    "use-persisted-state": "^0.3.0"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.8.7",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.1.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "copy-webpack-plugin": "^5.1.1",
+    "html-webpack-plugin": "^3.2.0",
+    "http-proxy-middleware": "^0.20.0",
+    "prettier": "^1.19.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --mode development --host 0.0.0.0",
+    "build": "webpack --mode production ./",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      "last 5 chrome version",
+      "last 5 firefox version",
+      "last 5 safari version"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
