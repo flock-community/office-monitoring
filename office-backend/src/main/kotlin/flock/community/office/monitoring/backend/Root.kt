@@ -2,6 +2,7 @@ package flock.community.office.monitoring.backend
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -9,10 +10,12 @@ import org.springframework.web.bind.annotation.RestController
 class Root {
 
     @GetMapping
-    fun getRoot() = Greeting()
+    fun getGreeting(@RequestParam name: String?) = Greeting(name)
 
 }
 
-class Greeting {
-    val greet: String = "Hello World!"
+data class Greeting constructor(
+        private val name: String?,
+) {
+    val greeting: String get() = if (name.isNullOrBlank()) "Hello  World!" else "Hello $name!"
 }
