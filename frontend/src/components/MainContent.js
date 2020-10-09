@@ -4,8 +4,8 @@ import {Grid, Typography} from '@material-ui/core';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
-import LatestWords from "./LatestWords";
 import RSocketWordTrend from "./RSocketWordTrend";
+import {HelloWorld} from "./HelloWorld";
 
 
 const useStyles = makeStyles(theme => ({
@@ -29,7 +29,7 @@ function MainContent() {
 
     return (
         <main className={classes.fullWidth}>
-            <div className={classes.toolbar} />
+            <div className={classes.toolbar}/>
             <div className={classes.title}>
                 <Typography variant='h6'>Trending words</Typography>
             </div>
@@ -39,6 +39,7 @@ function MainContent() {
                     nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem
                     felis nec erat
                 </Typography>
+                <HelloWorld/>
                 <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <Typography variant="h6">Using rSocket</Typography>
@@ -47,7 +48,7 @@ function MainContent() {
                         <Card>
                             <CardHeader title="WordTrend"></CardHeader>
                             <CardContent>
-                                <RSocketWordTrend />
+                                <RSocketWordTrend/>
                             </CardContent>
                         </Card>
 
