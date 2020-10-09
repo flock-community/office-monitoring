@@ -1,10 +1,10 @@
-package flock.community.office.monitoring.sensoringestion
+package flock.community.office.monitoring.backend
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class SensorIngestionApplicationTests {
+class OfficeBackendApplicationTests {
 
 	@Test
 	fun contextLoads() {

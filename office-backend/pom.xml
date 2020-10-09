@@ -9,11 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>flock.community.office.monitoring</groupId>
-	<artifactId>sensor-ingestion</artifactId>
+	<artifactId>office-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sensor-ingestion</name>
+	<name>office-backend</name>
 	<description>Demo project for Spring Boot</description>
-
 
 	<properties>
 		<java.version>11</java.version>
@@ -97,7 +96,7 @@
 						<image>gcr.io/flock-office/service</image>
 					</to>
 					<container>
-						<mainClass>flock.community.office.monitoring.sensoringestion.SensorIngestionApplicationKt</mainClass>
+						<mainClass>flock.community.office.monitoring.backend.OfficeBackendApplicationKt</mainClass>
 					</container>
 				</configuration>
 			</plugin>

@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.sensoringestion
+package flock.community.office.monitoring.backend
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

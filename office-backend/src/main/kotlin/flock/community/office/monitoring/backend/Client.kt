@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.sensoringestion
+package flock.community.office.monitoring.backend
 
 import org.eclipse.paho.client.mqttv3.*
 import org.springframework.stereotype.Service

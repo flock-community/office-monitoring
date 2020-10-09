@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.sensoringestion.configuration
+package flock.community.office.monitoring.backend.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
