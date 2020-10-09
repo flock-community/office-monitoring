@@ -11,6 +11,6 @@
 	<description>Monitor the state of the office with home automation devices</description>
 
 	<modules>
-		<module>sensor-ingestion</module>
+		<module>office-backend</module>
 	</modules>
 </project>
