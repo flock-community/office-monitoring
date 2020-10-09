@@ -12,5 +12,6 @@
 
 	<modules>
 		<module>office-backend</module>
+		<module>mqtt-to-queue-connector</module>
 	</modules>
 </project>

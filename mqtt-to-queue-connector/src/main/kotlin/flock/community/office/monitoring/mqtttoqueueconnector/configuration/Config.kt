@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.backend.configuration
+package flock.community.office.monitoring.mqtttoqueueconnector.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -10,5 +10,4 @@ class Config {
 
     @Bean
     fun taskScheduler(): TaskScheduler = ThreadPoolTaskScheduler()
-
 }
