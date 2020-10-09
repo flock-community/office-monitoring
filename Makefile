@@ -1,5 +1,5 @@
 be-build:
-	docker build -t flock/office-service:latest sensor-ingestion
+	docker build -t flock/office-service:latest office-backend
 .PHONY: be-build
 
 be-run:

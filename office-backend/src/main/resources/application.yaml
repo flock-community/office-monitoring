@@ -1,0 +1,4 @@
+logging.level.org.springframework.integration: WARN
+logging.level.org.eclipse.paho: WARN
+
+spring.cloud.gcp.project-id: "flock-office-290609"

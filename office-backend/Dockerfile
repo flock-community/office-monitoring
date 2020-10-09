@@ -27,4 +27,4 @@ COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
 COPY --from=builder /app/target/dependency /tmp
 EXPOSE 8080
 
-ENTRYPOINT ["java",  "-cp","app:app/lib/*","flock.community.office.monitoring.sensoringestion.SensorIngestionApplicationKt"]
+ENTRYPOINT ["java",  "-cp","app:app/lib/*","flock.community.office.monitoring.backend.OfficeBackendApplicationKt"]
