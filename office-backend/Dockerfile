@@ -1,4 +1,4 @@
-# Use the official maven/Java 8 image to create a build artifact.
+# Use the official maven/Java 11 image to create a build artifact.
 # https://hub.docker.com/_/maven
 FROM maven:3.6.3-openjdk-11-slim as builder
 
@@ -17,14 +17,11 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 # Runner
 FROM adoptopenjdk/openjdk14:alpine-jre
 
-VOLUME /tmp
-
 ARG DEPENDENCY=/app/target/dependency
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
 
-COPY --from=builder /app/target/dependency /tmp
 EXPOSE 8080
 
-ENTRYPOINT ["java",  "-cp","app:app/lib/*","flock.community.office.monitoring.backend.OfficeBackendApplicationKt"]
+ENTRYPOINT ["java", "-cp", "app:app/lib/*", "flock.community.office.monitoring.backend.OfficeBackendApplicationKt"]

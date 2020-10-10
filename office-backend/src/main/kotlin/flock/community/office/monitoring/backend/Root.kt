@@ -2,13 +2,20 @@ package flock.community.office.monitoring.backend
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 class Root {
 
     @GetMapping
-    fun getRoot() = "Hello World!"
+    fun getGreeting(@RequestParam name: String?) = Greeting(name)
 
+}
+
+data class Greeting constructor(
+        private val name: String?,
+) {
+    val greeting: String get() = if (name.isNullOrBlank()) "Hello  World!" else "Hello $name!"
 }
