@@ -1,6 +1,8 @@
 package flock.community.office.monitoring.backend.configuration
 
 import flock.community.office.monitoring.backend.DevicesRepository
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate
@@ -45,12 +47,13 @@ class ClientConfig(
 
     @Bean
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
-    fun messageReceiver(): MessageHandler {
-        return MessageHandler { message  ->
+    fun messageReceiver(): MessageHandler = runBlocking {
+        MessageHandler { message ->
             devicesRepository.receiveMessage(message.payload as ByteArray)
 
             val originalMessage = message.headers.get(GcpPubSubHeaders.ORIGINAL_MESSAGE, BasicAcknowledgeablePubsubMessage::class.java)
             originalMessage?.ack()
+
         }
     }
 }

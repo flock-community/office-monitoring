@@ -2,3 +2,10 @@ logging.level.org.springframework.integration: WARN
 logging.level.org.eclipse.paho: WARN
 
 spring.cloud.gcp.project-id: "flock-office-290609"
+
+spring:
+  rsocket:
+    server:
+      port: 9000
+      mapping-path: /ws
+      transport: websocket
