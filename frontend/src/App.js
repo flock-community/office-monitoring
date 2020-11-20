@@ -3,6 +3,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Grid, Typography} from "@material-ui/core";
 import {HelloWorld} from "./components/HelloWorld";
 import RSocketWord from "./components/RSocketWord";
+import SSEWord from "./components/SSEWord";
 
 
 const useStyles = makeStyles(theme => ({
@@ -27,7 +28,7 @@ const App = () => {
                     <Typography variant="h6">Updates ... </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <RSocketWord/>
+                    <SSEWord/>
                 </Grid>
             </Grid>
         </div>)

@@ -6,9 +6,9 @@ spring.cloud.gcp.project-id: "flock-office-290609"
 spring:
   rsocket:
     server:
-      port: ${PORT:9000}
+      port: 9000
       mapping-path: /ws
       transport: websocket
 
 server:
-  port: 8081
+  port: ${PORT:8080}
