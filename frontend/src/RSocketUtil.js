@@ -56,6 +56,7 @@ export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe
         },
         onError: error => {
             console.log(error);
+            onError(error)
 
         },
         onSubscribe: cancel => {

@@ -31,6 +31,7 @@ const RSocketWord = ({alignRight}) => {
     }, []);
 
     const subscribeToWords = () => {
+        console.log("Connecting to update stream...")
         const rSocketClient = createRSocketClient();
         setClient(rSocketClient)
 
@@ -47,10 +48,12 @@ const RSocketWord = ({alignRight}) => {
 
         const onComplete = () => {
             setConnected(false)
+            setTimeout(subscribeToWords, 5000)
         }
 
         const onError = () => {
             setConnected(false)
+            setTimeout(subscribeToWords, 5000)
         }
 
 
