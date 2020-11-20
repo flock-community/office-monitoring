@@ -1,28 +1,13 @@
 import React, {useEffect, useState} from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import {makeStyles} from "@material-ui/core/styles";
 import {Input} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 
+const Word = ({onRequest, words, initialRequest=1}) => {
+    const [wordRequestBatchSize, setwordRequestBatch] = useState(10);
+    const [toReceiveCount, setToReceiveCount] = useState(initialRequest);
 
-const useStyles = makeStyles({
-        align: {
-            textAlign: "right",
-            display: "flex",
-            flexDirection: "row-reverse"
-        },
-        card: {
-            border: "5px solid black",
-        }
-    });
-
-
-const Word = ({alignRight, onRequest, words}) => {
-    const [wordRequestBatchSize, setwordRequestBatch] = useState(1);
-    const [toReceiveCount, setToReceiveCount] = useState(0);
-
-    const classes = useStyles();
 
     useEffect(() => {
         setToReceiveCount(prevState => Math.max(0,prevState-1))
@@ -31,7 +16,6 @@ const Word = ({alignRight, onRequest, words}) => {
     const requestWord = () => {
         console.debug(`Requesting $wordRequestBatchSize words`);
         setToReceiveCount(toReceiveCount + wordRequestBatchSize)
-        // subscription.request(wordRequestBatchSize);
         onRequest(wordRequestBatchSize)
     };
 
@@ -53,7 +37,7 @@ const Word = ({alignRight, onRequest, words}) => {
 
     return (
         <>
-            <Grid container spacing={5}>
+            <Grid item container spacing={5}>
                 <Grid item xs={4}>
                     <Input onChange={changeWordRequestBatch} defaultValue={wordRequestBatchSize} type="number"/>
                 </Grid>

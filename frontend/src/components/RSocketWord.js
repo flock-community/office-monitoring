@@ -2,13 +2,25 @@ import React, {useEffect, useState} from "react";
 import {connectAndSubscribeToEndpoint, createRSocketClient} from "../RSocketUtil";
 import Word from "./Word";
 import {useAddToList} from "./Util";
+import {Grid} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
+import PulsatingDot from "./PulsatingDot";
+import RedDot from "./RedDot";
 
+
+const useStyles = makeStyles(theme => ({
+    root: {
+        display: 'flex',
+    },
+}));
 
 const RSocketWord = ({alignRight}) => {
     const [words, addWord] = useAddToList();
     const [subscription, setSubscription] = useState(undefined);
     const [client, setClient] = useState(undefined)
+    const [connected, setConnected] = useState(false)
 
+    const classes = useStyles()
     useEffect(() => {
         console.log("RSocketWord is here");
         subscribeToWords();
@@ -25,6 +37,7 @@ const RSocketWord = ({alignRight}) => {
         let onNext = payload => {
             console.log(payload)
             addWord(JSON.stringify(payload.data))
+            setConnected(true)
         };
 
         let onSubscribe = sub => {
@@ -32,7 +45,16 @@ const RSocketWord = ({alignRight}) => {
             sub.request(2147483647);
         };
 
-        connectAndSubscribeToEndpoint(rSocketClient, "start", onNext, onSubscribe)
+        const onComplete = () => {
+            setConnected(false)
+        }
+
+        const onError = () => {
+            setConnected(false)
+        }
+
+
+        connectAndSubscribeToEndpoint(rSocketClient, "start", onNext, onSubscribe, onComplete, onError)
     };
 
     const cancelWords = () => {
@@ -44,7 +66,14 @@ const RSocketWord = ({alignRight}) => {
         subscription.request(number);
     };
 
-    return <Word alignRight={alignRight} words={words} onRequest={requestWords}/>
+    return <Grid item container spacing={2}>
+        <Grid item={12}>
+            Connected: {connected ? (<PulsatingDot />) : (<RedDot />)}
+        </Grid>
+        <Grid item xs={12}>
+            <Word alignRight={alignRight} words={words} onRequest={requestWords} initialRequest={2147483647}/>
+        </Grid>
+    </Grid>
 };
 
 export default RSocketWord

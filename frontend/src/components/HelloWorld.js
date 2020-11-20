@@ -8,6 +8,6 @@ export function HelloWorld() {
 
     return loading
         ? (<div>loading</div>)
-        : (<div>{helloWorld.greet}</div>)
+        : (<div>{helloWorld.greeting}</div>)
 
 }

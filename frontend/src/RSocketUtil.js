@@ -25,14 +25,12 @@ export const createRSocketClient = () => {
             metadataMimeType: 'message/x.rsocket.routing.v0',
         },
         transport: new RSocketWebSocketClient({
-            // connect to middleware, or directly to producer
             url: `ws://localhost:9000/ws`
-            // url: `ws://localhost:8083/ws`
         }),
     });
 };
 
-export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe) => {
+export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe, onComplete= () => {}, onError = (e)=> {}) => {
     let metadata = String.fromCharCode(route.length) + route;
 
     return  client.connect().subscribe({
@@ -43,16 +41,22 @@ export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe
                 data: null,
                 metadata: metadata,
             }).subscribe({
-                onComplete: () => console.log('complete'),
+                onComplete: () => {
+                    console.log('complete')
+                    onComplete()
+                },
                 onError: error => {
                     console.log(error);
+                    onError(error)
                 },
                 onNext: onNext,
                 onSubscribe: onSubscribe,
+
             });
         },
         onError: error => {
             console.log(error);
+
         },
         onSubscribe: cancel => {
             console.log(`subscribed for ${route}`)
