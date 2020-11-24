@@ -1,0 +1,10 @@
+runtime: java11
+#env: flex
+instance_class: B4
+env_variables:
+  # Explicitly set the memory limit and maximum heap size for the Spring Boot app
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAM=1024 -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Dspring.profiles.active=cloud"
+#entrypoint: java -jar office-backend-0.0.1-SNAPSHOT.jar
+basic_scaling:
+  max_instances: 1
+  idle_timeout: 60m
