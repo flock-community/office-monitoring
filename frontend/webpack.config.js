@@ -64,10 +64,7 @@ module.exports = env => {
             proxy: {
                 "/ws/**": "http://localhost:8080",
                 "/sockjs-node/**": "http://localhost:8080",
-                '/api': {
-                    target: 'http://localhost:8080',
-                    pathRewrite: {'^/api': ''}
-                },
+                '/api': 'http://localhost:8080'
             },
         }
     }
