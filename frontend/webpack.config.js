@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const EnvironmentPlugin = require("webpack/lib/EnvironmentPlugin");
 
 module.exports = env => {
-    // console.log("process.env: ", process.env)
+    console.log("process.env: ", process.env)
 
     const production = process.env.NODE_ENV !== 'DEBUG'
     if (production) {
