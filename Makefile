@@ -23,7 +23,7 @@ be-destroy:
 .PHONY: be-destroy
 
 fe-build:
-	docker build -t flock/office-ui:latest frontend
+	docker build -t flock/office-ui:latest --build-arg _HOST frontend
 .PHONY: fe-build
 
 fe-run:

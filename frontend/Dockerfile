@@ -4,6 +4,9 @@ WORKDIR /app
 COPY package*.json /app/
 RUN npm ci
 COPY . /app
+
+ARG _HOST
+RUN printenv
 RUN npm run build
 
 FROM nginx:1.15
