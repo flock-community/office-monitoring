@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "office-backend"
+  namespace: "default"
+  labels:
+    app: "office-backend"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "office-backend"
+  template:
+    metadata:
+      labels:
+        app: "office-backend"
+    spec:
+      containers:
+      - name: "office-backend-sha256-1"
+        image: "gcr.io/flock-office-290609/office-backend@sha256:11c1b04494508e8fde64585ca83553aba81d04188dee9579d9dbe8779803d854"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "office-backend-hpa-f6np"
+  namespace: "default"
+  labels:
+    app: "office-backend"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "office-backend"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
