@@ -28,7 +28,7 @@ const App = () => {
                     <Typography variant="h6">Updates ... </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <SSEWord/>
+                    <RSocketWord/>
                 </Grid>
             </Grid>
         </div>)

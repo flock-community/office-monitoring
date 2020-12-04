@@ -46,13 +46,19 @@ module.exports = {
     historyApiFallback: true,
     port: 3000,
     proxy: {
-      "/api":"http://localhost:8080",
-      "/wordclouds": "http://localhost:8080",
-      "/wordclouds/**": "http://localhost:8080",
-      "/device-updates": "http://localhost:8080",
-      "/device-updates/**": "http://localhost:8080",
-      "/ws/**": "http:localhost:8080",
-      "/sockjs-node/**": "http:localhost:8080"
-    }
+      "/ws/**": "http://localhost:8080",
+      "/sockjs-node/**": "http://localhost:8080",
+      '/api': {
+        target: 'http://34.91.246.132:8081',
+        pathRewrite: {'^/api' : ''}
+      },
+    },
+    // proxy: {
+      // "/api":"http://localhost:8080",
+      // "/wordclouds": "http://localhost:8080",
+      // "/wordclouds/**": "http://localhost:8080",
+      // "/device-updates": "http://localhost:8080",
+      // "/device-updates/**": "http://localhost:8080",
+    // }
   }
 };

@@ -134,11 +134,15 @@
 					</container>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>appengine-maven-plugin</artifactId>
-				<version>1.2.1</version>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>com.google.cloud.tools</groupId>-->
+<!--				<artifactId>appengine-maven-plugin</artifactId>-->
+<!--				<version>2.1.0</version>-->
+<!--				<configuration>-->
+<!--					<version>GCLOUD_CONFIG</version>-->
+<!--					<projectId>GCLOUD_CONFIG</projectId>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 

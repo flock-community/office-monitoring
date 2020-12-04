@@ -27,7 +27,7 @@ const SSEWord = ({alignRight = false}) => {
             setTimeout(subscribeToWords, 5000)
         }
 
-        const source = createEventSource(`//api.office.flock.community/device-updates`, handleNewWord, onError)
+        const source = createEventSource(`/api/device-updates`, handleNewWord, onError)
         setSource(source);
         setConnected(true)
     };

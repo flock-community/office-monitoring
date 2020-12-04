@@ -25,7 +25,9 @@ export const createRSocketClient = () => {
             metadataMimeType: 'message/x.rsocket.routing.v0',
         },
         transport: new RSocketWebSocketClient({
-            url: `ws://api.office.flock.community/ws`
+            // url: `wss://flock-office-290609.ew.r.appspot.com/ws`
+            // url: `ws://localhost:9000/ws`
+            url: `ws://34.91.246.132:9000/ws`
         }),
     });
 };
