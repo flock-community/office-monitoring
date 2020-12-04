@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: "office-backend-sha256-1"
-        image: "gcr.io/flock-office-290609/office-backend@sha256:11c1b04494508e8fde64585ca83553aba81d04188dee9579d9dbe8779803d854"
+        image: "eu.gcr.io/flock-office-290609/office-monitoring/flock-office-backend"
 ---
 apiVersion: "autoscaling/v2beta1"
 kind: "HorizontalPodAutoscaler"
