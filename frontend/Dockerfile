@@ -1,8 +1,10 @@
 FROM tiangolo/node-frontend:10 as build-stage
 
 WORKDIR /app
+COPY package*.json /app
+RUN npm ci
 COPY . /app
-RUN npm install && npm run build
+RUN npm run build
 
 FROM nginx:1.15
 

@@ -11,7 +11,6 @@ class Root {
 
     @GetMapping
     fun getGreeting(@RequestParam name: String?) = Greeting(name)
-
 }
 
 data class Greeting constructor(
