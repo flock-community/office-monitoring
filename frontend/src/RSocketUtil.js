@@ -25,7 +25,7 @@ export const createRSocketClient = () => {
             metadataMimeType: 'message/x.rsocket.routing.v0',
         },
         transport: new RSocketWebSocketClient({
-            url: `ws://${process.env.HOST}/ws`
+            url: `ws://${process.env._HOST}/ws`
         }),
     });
 };

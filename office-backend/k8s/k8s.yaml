@@ -33,7 +33,7 @@ spec:
     name: "office-backend"
     apiVersion: "apps/v1"
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 2
   metrics:
   - type: "Resource"
     resource:

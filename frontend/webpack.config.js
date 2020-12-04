@@ -54,7 +54,7 @@ module.exports = env => {
                 "./manifest.json",
                 // "src/main/react/eventSource.js"
             ]),
-            new EnvironmentPlugin(['HOST'])
+            new EnvironmentPlugin(['_HOST'])
 
         ],
 
