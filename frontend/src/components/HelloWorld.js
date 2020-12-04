@@ -7,6 +7,6 @@ export function HelloWorld() {
     const [helloWorld, loading] = usePromiseState(getHelloWorld, '')
 
     return loading
-        ? (<div>loading</div>)
+        ? (<div>Loading 🕸</div>)
         : (<div>Greeting: {helloWorld.greeting}</div>)
 }
