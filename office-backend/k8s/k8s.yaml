@@ -1,0 +1,51 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "office-backend"
+  namespace: "default"
+  labels:
+    app: "office-backend"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "office-backend"
+  template:
+    metadata:
+      labels:
+        app: "office-backend"
+    spec:
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: flock-office-pubsub-subscriber
+      containers:
+      - name: "office-backend-sha256-1"
+        image: "eu.gcr.io/flock-office-290609/office-monitoring/flock-office-backend"
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "office-backend-hpa-f6np"
+  namespace: "default"
+  labels:
+    app: "office-backend"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "office-backend"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
