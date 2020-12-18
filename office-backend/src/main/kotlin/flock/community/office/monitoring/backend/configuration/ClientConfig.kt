@@ -26,6 +26,7 @@ class ClientConfig(
     companion object {
         private val log = getLogger(this::class.java)
         private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend"
+//        private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend-local"
         private const val INPUT_CHANNEL = "pubsubInputChannel"
     }
 
@@ -49,6 +50,7 @@ class ClientConfig(
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
     fun messageReceiver(): MessageHandler = runBlocking {
         MessageHandler { message ->
+            log.info("Received a message: $message")
             devicesRepository.receiveMessage(message.payload as ByteArray)
 
             val originalMessage = message.headers.get(GcpPubSubHeaders.ORIGINAL_MESSAGE, BasicAcknowledgeablePubsubMessage::class.java)
