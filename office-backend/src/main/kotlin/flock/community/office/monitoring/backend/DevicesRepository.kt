@@ -14,13 +14,16 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import java.time.ZonedDateTime
 
+@ExperimentalCoroutinesApi
 @Component
 class UpdatesModel {
 
-    private var _state = MutableStateFlow<DeviceMessageWrapperDTO>(DeviceMessageWrapperDTO("one,", ZonedDateTime.now(),"none"))
+    private val log = getLogger(javaClass)
+    private var _state = MutableStateFlow(DeviceMessageWrapperDTO("one,", ZonedDateTime.now(),"none"))
     val state: StateFlow<DeviceMessageWrapperDTO> get() = _state
 
     fun update(deviceMessage: DeviceMessageWrapperDTO) {
+        log.info("Updating state with $deviceMessage")
         _state.value = deviceMessage
     }
 }
