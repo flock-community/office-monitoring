@@ -23,7 +23,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        // use: ["style-loader", "css-loader"]
+        use: ["style-loader", "css-loader"]
       }
     ]
   },
@@ -49,6 +49,8 @@ module.exports = {
       "/api":"http://localhost:8080",
       "/wordclouds": "http://localhost:8080",
       "/wordclouds/**": "http://localhost:8080",
+      "/device-updates": "http://localhost:8080",
+      "/device-updates/**": "http://localhost:8080",
       "/ws/**": "http:localhost:8080",
       "/sockjs-node/**": "http:localhost:8080"
     }

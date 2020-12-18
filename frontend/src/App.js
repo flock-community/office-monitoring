@@ -1,9 +1,10 @@
 import React from "react";
-import SideMenu from "./components/SideMenu";
-import TopMenu from "./components/TopMenu";
-import Footer from "./components/Footer";
-import MainContent from "./components/MainContent";
 import {makeStyles} from "@material-ui/core/styles";
+import {Grid, Typography} from "@material-ui/core";
+import {HelloWorld} from "./components/HelloWorld";
+import RSocketWord from "./components/RSocketWord";
+import SSEWord from "./components/SSEWord";
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -11,15 +12,25 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+
+
 const App = () => {
     const classes = useStyles();
 
     return (
         <div className={classes.root}>
-            <TopMenu/>
-            <SideMenu/>
-            <MainContent/>
-            <Footer/>
+            <Grid container spacing={1}>
+                <Grid item xs={12}>
+                    <Typography variant="h6">Hello world?  </Typography>
+                </Grid>
+                <Grid item xs={12}><HelloWorld/></Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h6">Updates ... </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <SSEWord/>
+                </Grid>
+            </Grid>
         </div>)
 
 };
