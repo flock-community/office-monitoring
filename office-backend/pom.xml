@@ -2,21 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.3.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<artifactId>office-monitoring</artifactId>
+		<groupId>com.github.flock-community</groupId>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>flock.community.office.monitoring</groupId>
+
 	<artifactId>office-backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>office-backend</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Flock office monitoring backend application</description>
 
 	<properties>
 		<java.version>11</java.version>
-		<kotlin.version>1.4.10</kotlin.version>
+		<kotlin.version>1.4.21</kotlin.version>
 	</properties>
 
 	<dependencies>
@@ -37,11 +36,23 @@
 			<artifactId>jackson-module-kotlin</artifactId>
 		</dependency>
 
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.flock-community</groupId>
+			<artifactId>queue-messages</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.flock-community</groupId>
+			<artifactId>utils</artifactId>
 		</dependency>
 
 		<dependency>
@@ -56,48 +67,5 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.jetbrains.kotlin</groupId>
-				<artifactId>kotlin-maven-plugin</artifactId>
-				<configuration>
-					<args>
-						<arg>-Xjsr305=strict</arg>
-					</args>
-					<compilerPlugins>
-						<plugin>spring</plugin>
-					</compilerPlugins>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.jetbrains.kotlin</groupId>
-						<artifactId>kotlin-maven-allopen</artifactId>
-						<version>${kotlin.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>2.1.0</version>
-				<configuration>
-					<to>
-						<image>gcr.io/flock-office/service</image>
-					</to>
-					<container>
-						<mainClass>flock.community.office.monitoring.backend.OfficeBackendApplicationKt</mainClass>
-					</container>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>
