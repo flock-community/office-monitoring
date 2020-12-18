@@ -1,7 +1,7 @@
 package flock.community.office.monitoring.mqtttoqueueconnector.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import flock.community.office.monitoring.utilslogging.Loggable.Companion.logger
+import flock.community.office.monitoring.utils.logging.Loggable.Companion.logger
 import flock.community.office.monitoring.mqtttoqueueconnector.queue.Publisher
 import flock.community.office.monitoring.queue.message.SensorEventQueueMessage
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken

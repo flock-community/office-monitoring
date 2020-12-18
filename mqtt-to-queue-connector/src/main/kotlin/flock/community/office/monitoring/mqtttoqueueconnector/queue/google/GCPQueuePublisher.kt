@@ -1,6 +1,6 @@
 package flock.community.office.monitoring.mqtttoqueueconnector.queue.google
 
-import flock.community.office.monitoring.utilslogging.Loggable.Companion.logger
+import flock.community.office.monitoring.utils.logging.Loggable.Companion.logger
 import flock.community.office.monitoring.mqtttoqueueconnector.queue.Publisher
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate

@@ -13,25 +13,6 @@
 	<name>office-backend</name>
 	<description>Flock office monitoring backend application</description>
 
-
-<!--	<dependencyManagement>-->
-<!--		<dependencies>-->
-<!--			<dependency>-->
-<!--				<groupId>org.springframework.cloud</groupId>-->
-<!--				<artifactId>spring-cloud-dependencies</artifactId>-->
-<!--				<version>${spring-cloud.version}</version>-->
-<!--				<type>pom</type>-->
-<!--				<scope>import</scope>-->
-<!--			</dependency>-->
-<!--		</dependencies>-->
-<!--	</dependencyManagement>-->
-
-	<properties>
-		<java.version>11</java.version>
-		<kotlin.version>1.4.21</kotlin.version>
-		<kotlin-coroutines.version>1.3.8</kotlin-coroutines.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
