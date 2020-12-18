@@ -26,6 +26,7 @@ class ClientConfig(
     companion object {
         private val log = getLogger(this::class.java)
         private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend"
+//        private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend-local"
         private const val INPUT_CHANNEL = "pubsubInputChannel"
     }
 

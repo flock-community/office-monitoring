@@ -1,6 +1,7 @@
 package flock.community.office.monitoring.backend.controller
 
 import flock.community.office.monitoring.backend.DeviceMessageWrapperDTO
+import flock.community.office.monitoring.backend.DeviceStateHistoryService
 import flock.community.office.monitoring.backend.UpdatesModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -12,7 +13,7 @@ import java.time.ZonedDateTime
 
 @ExperimentalCoroutinesApi
 @Controller
-internal class StreamRoot(private val updatesModel: UpdatesModel) {
+internal class StreamRoot(private val historyService: DeviceStateHistoryService,private val updatesModel: UpdatesModel) {
 
     companion object {
         private val log = getLogger(this::class.java)
@@ -25,7 +26,9 @@ internal class StreamRoot(private val updatesModel: UpdatesModel) {
     @MessageMapping("start")
     internal fun start(): Flow<DeviceMessageWrapperDTO> {
         log.info("Receiving")
-        return listOf(starterMessage,
+        val history = flow {historyService.getHistory().map { emit(it) }}
+        return listOf(
+            history,
             updatesModel.state
                 .onStart { starterMessage }
                 .onEach { log.info("Sending to client: $it") }
