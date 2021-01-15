@@ -1,7 +1,6 @@
 package flock.community.office.monitoring.backend.controller
 
-import flock.community.office.monitoring.backend.DeviceMessageWrapperDTO
-import flock.community.office.monitoring.backend.UpdatesModel
+import flock.community.office.monitoring.backend.eventbus.DeviceStateEventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,7 +14,7 @@ import java.time.ZonedDateTime
 @RestController
 @RequestMapping(path = ["/device-updates"])
 @ExperimentalCoroutinesApi
-internal class RestStreamController(private val updatesModel: UpdatesModel) {
+internal class RestStreamController(private val deviceStateEventBus: DeviceStateEventBus) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
@@ -27,7 +26,7 @@ internal class RestStreamController(private val updatesModel: UpdatesModel) {
     @GetMapping
     internal fun start(): Flow<DeviceMessageWrapperDTO> {
         log.info("Receiving")
-        return updatesModel.state.onStart {  starterMessage }
+        return deviceStateEventBus.state.onStart {  starterMessage }
     }
 
 }
