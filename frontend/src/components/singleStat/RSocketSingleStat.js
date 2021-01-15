@@ -3,8 +3,6 @@ import {connectAndSubscribeToEndpoint, createRSocketClient} from "../../RSocketU
 import SingleStat from "./SingleStat";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import PulsatingDot from "../PulsatingDot";
-import RedDot from "../RedDot";
 
 
 const useStyles = makeStyles(theme => ({
@@ -13,23 +11,22 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const RSocketSingleStat = ({alignRight}) => {
+const RSocketSingleStat = ({property, deviceType,background }) => {
     const [deviceState, setDeviceState] = useState(undefined)
     const [subscription, setSubscription] = useState(undefined);
     const [client, setClient] = useState(undefined)
     const [connected, setConnected] = useState(false)
 
-    const classes = useStyles()
     useEffect(() => {
         console.log("RSocketSingleStat is here");
-        subscribeToWords();
+        subscribeToDeviceState();
 
         return () => {
             cancelWords();
         }
     }, []);
 
-    const subscribeToWords = () => {
+    const subscribeToDeviceState = () => {
         console.log("Connecting to update stream...")
         const rSocketClient = createRSocketClient();
         setClient(rSocketClient)
@@ -47,17 +44,17 @@ const RSocketSingleStat = ({alignRight}) => {
 
         const onComplete = () => {
             setConnected(false)
-            setTimeout(subscribeToWords, 5000)
+            setTimeout(subscribeToDeviceState, 5000)
         }
 
         const onError = () => {
             setConnected(false)
-            setTimeout(subscribeToWords, 5000)
+            setTimeout(subscribeToDeviceState, 5000)
         }
 
         const requestParams = {
-            deviceId:"1234abc",
-            deviceType: "CONTACT_SENSOR",
+            deviceId: "1234abc",
+            deviceType: deviceType || "CONTACT_SENSOR",
             since: new Date().toISOString()
         }
 
@@ -67,14 +64,11 @@ const RSocketSingleStat = ({alignRight}) => {
     const cancelWords = () => {
         client.close();
     };
-    return <Grid item container spacing={2}>
-        <Grid item={12}>
-            Connected: {connected ? (<PulsatingDot />) : (<RedDot />)}
+    return (
+        <Grid item container xs={12} >
+            <SingleStat deviceState={deviceState} connected={connected} property={property} background={background}/>
         </Grid>
-        <Grid item xs={12}>
-            <SingleStat deviceState={deviceState} />
-        </Grid>
-    </Grid>
+    )
 };
 
 export default RSocketSingleStat

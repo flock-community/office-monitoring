@@ -89,7 +89,7 @@ internal class StreamRoot(
                 voltage = Random.nextInt(0, 100),
                 humidity = Random.nextDouble(0.0, 100.0),
                 pressure = Random.nextInt(0, 100),
-                temperature = Random.nextDouble(0.0, 100.0)
+                temperature = Random.nextDouble(0.0, 40.0)
             )
             DeviceType.SWITCH -> SwitchMessageDTO(
                 last_seen = ZonedDateTime.now(),
