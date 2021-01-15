@@ -37,7 +37,7 @@ const RSocketWord = ({alignRight}) => {
 
         let onNext = payload => {
             console.log(payload)
-            addWord(JSON.stringify(payload.data))
+            addWord(JSON.stringify(payload.data, null, '\t'))
             setConnected(true)
         };
 
@@ -62,7 +62,7 @@ const RSocketWord = ({alignRight}) => {
             since: new Date().toISOString()
         }
 
-        connectAndSubscribeToEndpoint(rSocketClient, "start", requestParams,onNext, onSubscribe, onComplete, onError)
+        connectAndSubscribeToEndpoint(rSocketClient, "mock", requestParams,onNext, onSubscribe, onComplete, onError)
     };
 
     const cancelWords = () => {

@@ -29,7 +29,7 @@ const Word = ({onRequest, words, initialRequest=1}) => {
             (
                 <Grid key={idx} item xs={12}>
                     <Typography variant="h6" >
-                        <span>{value}</span>
+                        <span><pre>{value}</pre></span>
                     </Typography>
                 </Grid>
             )

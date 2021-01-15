@@ -3,6 +3,7 @@ package flock.community.office.monitoring.backend.controller
 import flock.community.office.monitoring.backend.ContactSensorMessageDTO
 import flock.community.office.monitoring.backend.DeviceState
 import flock.community.office.monitoring.backend.UpdatesModel
+import flock.community.office.monitoring.backend.configuration.DeviceType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,13 +23,17 @@ internal class RestStreamController(private val updatesModel: UpdatesModel) {
     }
 
     private val starterMessage = DeviceState(
-        0, "test", "test_id", ContactSensorMessageDTO(ZonedDateTime.now(), -1, -1, false)
+        eventId = 0,
+        id = "starter-message",
+        type = DeviceType.SWITCH,
+        timeStamp = ZonedDateTime.now(),
+        state = ContactSensorMessageDTO(ZonedDateTime.now(), -1, -1, false)
     )
 
     @GetMapping
     internal fun start(): Flow<DeviceState> {
         log.info("Receiving")
-        return updatesModel.state.onStart { emit(starterMessage) }.distinctUntilChanged()
+        return updatesModel.state.onStart { emit(UpdatesModel.nullValue) }.distinctUntilChanged()
     }
 
 }

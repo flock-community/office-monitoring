@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
 @ExperimentalCoroutinesApi
@@ -28,15 +28,19 @@ class UpdatesModel {
     }
 
     companion object {
-        private val nullValue = DeviceState(null, "", "",
-            ContactSensorMessageDTO(ZonedDateTime.now(), 0, 0, false)
+        val nullValue = DeviceState(
+            eventId = null,
+            id = "starter-message",
+            type = DeviceType.TEMPERATURE_SENSOR,
+            timeStamp = ZonedDateTime.now(),
+            state = ContactSensorMessageDTO(ZonedDateTime.now(), 0, 0, false)
         )
     }
 }
 
-@Repository
+@Service
 @ExperimentalCoroutinesApi
-class DevicesRepository(
+class EventSaveService(
     private val objectMapper: ObjectMapper,
     private val deviceStateRepository: DeviceStateRepository,
     private val updatesModel: UpdatesModel
@@ -53,8 +57,9 @@ class DevicesRepository(
 
             val deviceState = DeviceState(
                 id = deviceConfig.id,
-                iotDeviceId = deviceMessage.topic,
-                state = objectMapper.writeValueAsString(messageDTO)
+                type = deviceConfig.type,
+                timeStamp = deviceMessage.received,
+                state = messageDTO
             )
 
             deviceStateRepository.save(deviceState)

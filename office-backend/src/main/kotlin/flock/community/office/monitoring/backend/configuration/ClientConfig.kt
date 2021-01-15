@@ -1,7 +1,6 @@
 package flock.community.office.monitoring.backend.configuration
 
-import flock.community.office.monitoring.backend.DevicesRepository
-import kotlinx.coroutines.coroutineScope
+import flock.community.office.monitoring.backend.EventSaveService
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,8 +20,8 @@ import org.springframework.messaging.MessageHandler
 
 @Configuration
 class ClientConfig(
-        private val devicesRepository: DevicesRepository,
-        @Value("\${pubsub.subscription-name}")
+    private val eventSaveService: EventSaveService,
+    @Value("\${pubsub.subscription-name}")
         private val subscriptionName : String
 ) {
 
@@ -52,7 +51,7 @@ class ClientConfig(
     fun messageReceiver(): MessageHandler = runBlocking {
         MessageHandler { message ->
             log.info("Received a message: $message")
-            devicesRepository.receiveMessage(message.payload as ByteArray)
+            eventSaveService.receiveMessage(message.payload as ByteArray)
 
             val originalMessage = message.headers.get(GcpPubSubHeaders.ORIGINAL_MESSAGE, BasicAcknowledgeablePubsubMessage::class.java)
             originalMessage?.ack()
