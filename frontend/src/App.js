@@ -2,7 +2,7 @@ import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import {Grid, Typography} from "@material-ui/core";
 import {HelloWorld} from "./components/HelloWorld";
-import RSocketWord from "./components/RSocketWord";
+import RSocketRawDeviceStateList from "./components/RSocketRawDeviceStateList";
 import SSEWord from "./components/SSEWord";
 
 
@@ -28,7 +28,7 @@ const App = () => {
                     <Typography variant="h6">Updates ... </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <RSocketWord/>
+                    <RSocketRawDeviceStateList/>
                 </Grid>
             </Grid>
         </div>)

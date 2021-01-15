@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {connectAndSubscribeToEndpoint, createRSocketClient} from "../RSocketUtil";
-import Word from "./Word";
+import RawDeviceStateList from "./RawDeviceStateList";
 import {useAddToList} from "./Util";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
@@ -14,15 +14,15 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const RSocketWord = ({alignRight}) => {
-    const [words, addWord] = useAddToList();
+const RSocketRawDeviceStateList = ({alignRight}) => {
+    const [deviceState, setDeviceState] = useState(undefined)
     const [subscription, setSubscription] = useState(undefined);
     const [client, setClient] = useState(undefined)
     const [connected, setConnected] = useState(false)
 
     const classes = useStyles()
     useEffect(() => {
-        console.log("RSocketWord is here");
+        console.log("RSocketRawDeviceStateList is here");
         subscribeToWords();
 
         return () => {
@@ -37,7 +37,7 @@ const RSocketWord = ({alignRight}) => {
 
         let onNext = payload => {
             console.log(payload)
-            addWord(JSON.stringify(payload.data, null, '\t'))
+            setDeviceState(payload.data)
             setConnected(true)
         };
 
@@ -79,9 +79,10 @@ const RSocketWord = ({alignRight}) => {
             Connected: {connected ? (<PulsatingDot />) : (<RedDot />)}
         </Grid>
         <Grid item xs={12}>
-            <Word alignRight={alignRight} words={words} onRequest={requestWords} initialRequest={2147483647}/>
+
+            <RawDeviceStateList alignRight={alignRight} deviceState={deviceState} onRequest={requestWords} initialRequest={2147483647}/>
         </Grid>
     </Grid>
 };
 
-export default RSocketWord
+export default RSocketRawDeviceStateList

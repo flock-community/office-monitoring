@@ -1,13 +1,14 @@
 import {useState} from "react";
 
 let ITEMS_LIMIT = 100;
-export const useAddToList = () => {
-    const [words, setWords] = useState([])
+export const useAddToList = (itemsLimit = ITEMS_LIMIT) => {
+    const [items, setWords] = useState([])
 
-    const addToList = (stringToAdd) => {
+    const addToList = (itemToAdd) => {
+        if (!itemToAdd) return
         setWords(prevState => {
-            const newArray = [stringToAdd].concat(prevState)
-            if (newArray.length > ITEMS_LIMIT) {
+            const newArray = [itemToAdd].concat(prevState)
+            if (newArray.length > itemsLimit) {
                 newArray.pop()
             }
 
@@ -15,8 +16,9 @@ export const useAddToList = () => {
         })
     }
 
-    return [words, addToList]
+    return [items, addToList]
 }
+
 const mapToRadialChartFormat = (distributionDTO) => {
     return Object.entries(distributionDTO.wordDistribution).map(([word, value]) => {
         return {angle: value, label: word, x:word, y:value}
