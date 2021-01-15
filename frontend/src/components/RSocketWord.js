@@ -56,8 +56,13 @@ const RSocketWord = ({alignRight}) => {
             setTimeout(subscribeToWords, 5000)
         }
 
+        const requestParams = {
+            deviceId:"1234abc",
+            deviceType: "CONTACT_SENSOR",
+            since: new Date().toISOString()
+        }
 
-        connectAndSubscribeToEndpoint(rSocketClient, "start", onNext, onSubscribe, onComplete, onError)
+        connectAndSubscribeToEndpoint(rSocketClient, "start", requestParams,onNext, onSubscribe, onComplete, onError)
     };
 
     const cancelWords = () => {

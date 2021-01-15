@@ -5,6 +5,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate
 import org.springframework.cloud.gcp.pubsub.integration.AckMode
 import org.springframework.cloud.gcp.pubsub.integration.inbound.PubSubInboundChannelAdapter
@@ -20,13 +21,13 @@ import org.springframework.messaging.MessageHandler
 
 @Configuration
 class ClientConfig(
-        private val devicesRepository: DevicesRepository
+        private val devicesRepository: DevicesRepository,
+        @Value("\${pubsub.subscription-name}")
+        private val subscriptionName : String
 ) {
 
     companion object {
         private val log = getLogger(this::class.java)
-        private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend"
-//        private const val SUBSCRIPTION_NAME = "projects/flock-office-290609/subscriptions/office-backend-local"
         private const val INPUT_CHANNEL = "pubsubInputChannel"
     }
 
@@ -35,7 +36,7 @@ class ClientConfig(
             @Qualifier(INPUT_CHANNEL) inputChannel: MessageChannel,
             pubSubTemplate: PubSubTemplate
     ): PubSubInboundChannelAdapter {
-        val adapter = PubSubInboundChannelAdapter(pubSubTemplate, SUBSCRIPTION_NAME)
+        val adapter = PubSubInboundChannelAdapter(pubSubTemplate, subscriptionName)
         adapter.outputChannel = inputChannel
         adapter.ackMode = AckMode.MANUAL
         return adapter

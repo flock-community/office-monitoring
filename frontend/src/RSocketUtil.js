@@ -30,7 +30,7 @@ export const createRSocketClient = () => {
     });
 };
 
-export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe, onComplete= () => {}, onError = (e)=> {}) => {
+export const connectAndSubscribeToEndpoint = (client, route, data,  onNext, onSubscribe, onComplete= () => {}, onError = (e)=> {}) => {
     let metadata = String.fromCharCode(route.length) + route;
 
     return  client.connect().subscribe({
@@ -38,7 +38,7 @@ export const connectAndSubscribeToEndpoint = (client, route, onNext, onSubscribe
             // socket provides the rsocket interactions fire/forget, request/response,
             // request/stream, etc as well as methods to close the socket.
             socket.requestStream({
-                data: null,
+                data: data,
                 metadata: metadata,
             }).subscribe({
                 onComplete: () => {
