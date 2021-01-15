@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import {useAddToList} from "./Util";
+import {useAddToList} from "../Util";
 
 const RawDeviceStateList = ({deviceState}) => {
     const [deviceStates, addToList] = useAddToList(2);

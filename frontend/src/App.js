@@ -2,8 +2,8 @@ import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import {Grid, Typography} from "@material-ui/core";
 import {HelloWorld} from "./components/HelloWorld";
-import RSocketRawDeviceStateList from "./components/RSocketRawDeviceStateList";
-import SSEWord from "./components/SSEWord";
+import RSocketSingleStat from "./components/singleStat/RSocketSingleStat";
+import RSocketRawDeviceStateList from "./components/rawDeviceState/RSocketRawDeviceStateList";
 
 
 const useStyles = makeStyles(theme => ({
@@ -27,7 +27,10 @@ const App = () => {
                 <Grid item xs={12}>
                     <Typography variant="h6">Updates ... </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={6}>
+                    <RSocketSingleStat/>
+                </Grid>
+                <Grid item xs={6}>
                     <RSocketRawDeviceStateList/>
                 </Grid>
             </Grid>

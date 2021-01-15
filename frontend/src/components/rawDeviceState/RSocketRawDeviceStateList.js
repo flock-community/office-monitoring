@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {connectAndSubscribeToEndpoint, createRSocketClient} from "../RSocketUtil";
+import {connectAndSubscribeToEndpoint, createRSocketClient} from "../../RSocketUtil";
 import RawDeviceStateList from "./RawDeviceStateList";
-import {useAddToList} from "./Util";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import PulsatingDot from "./PulsatingDot";
-import RedDot from "./RedDot";
+import PulsatingDot from "../PulsatingDot";
+import RedDot from "../RedDot";
 
 
 const useStyles = makeStyles(theme => ({
@@ -22,7 +21,7 @@ const RSocketRawDeviceStateList = ({alignRight}) => {
 
     const classes = useStyles()
     useEffect(() => {
-        console.log("RSocketRawDeviceStateList is here");
+        console.log("RSocketSingleStat is here");
         subscribeToWords();
 
         return () => {
@@ -68,19 +67,12 @@ const RSocketRawDeviceStateList = ({alignRight}) => {
     const cancelWords = () => {
         client.close();
     };
-
-    const requestWords = (number) => {
-        console.log(`Requesting ${number} words`)
-        subscription.request(number);
-    };
-
     return <Grid item container spacing={2}>
         <Grid item={12}>
             Connected: {connected ? (<PulsatingDot />) : (<RedDot />)}
         </Grid>
         <Grid item xs={12}>
-
-            <RawDeviceStateList alignRight={alignRight} deviceState={deviceState} onRequest={requestWords} initialRequest={2147483647}/>
+            <RawDeviceStateList deviceState={deviceState}/>
         </Grid>
     </Grid>
 };
