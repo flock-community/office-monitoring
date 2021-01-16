@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import {useAddToList} from "../Util";
 
 const RawDeviceStateList = ({deviceState}) => {
-    const [deviceStates, addToList] = useAddToList(2);
+    const [deviceStates, addToList] = useAddToList(10);
 
     useEffect(() => {
         addToList(JSON.stringify(deviceState, null, '\t'))
