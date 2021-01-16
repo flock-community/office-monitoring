@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.backend.repository.model
+package flock.community.office.monitoring.backend.domain.repository.entities
 
 import flock.community.office.monitoring.backend.configuration.DeviceType
 import org.springframework.cloud.gcp.data.datastore.core.mapping.Entity

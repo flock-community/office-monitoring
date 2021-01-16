@@ -1,7 +1,7 @@
 package flock.community.office.monitoring.backend
 
 import flock.community.office.monitoring.backend.configuration.DeviceType
-import flock.community.office.monitoring.backend.repository.model.DeviceStateEntity
+import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

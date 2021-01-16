@@ -1,23 +1,25 @@
 package flock.community.office.monitoring.backend.domain.service
 
-import flock.community.office.monitoring.backend.controller.DeviceMessageWrapperDTO
-import flock.community.office.monitoring.backend.domain.model.DeviceState
 import flock.community.office.monitoring.backend.domain.repository.DeviceStateRepository
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import java.time.ZonedDateTime
+import flock.community.office.monitoring.backend.domain.repository.mapping.DeviceStateMapper
+import flock.community.office.monitoring.utils.logging.loggerFor
+import kotlinx.coroutines.flow.*
+import org.springframework.stereotype.Service
 
-@Component
-class DeviceStateHistoryService(private val repository: DeviceStateRepository){
+@Service
+class DeviceStateHistoryService(
+    private val repository: DeviceStateRepository,
+    private val deviceStateMapper: DeviceStateMapper,
+) {
 
+    private val logger = loggerFor<DeviceStateHistoryService>()
 
-    private val log = LoggerFactory.getLogger(javaClass)
+    fun getHistory() = repository.findAll().asFlow()
+        .onStart { logger.info("Start fetching DeviceState history") }
+        .onCompletion { logger.info("Finished fetching DeviceSate history") }
+        .catch { logger.info("Error fetching DeviceState history") }
+        .take(10)
+        .map { deviceStateMapper.map(it) }
 
-    fun getHistory(): List<DeviceMessageWrapperDTO> {
-        val findAll: MutableIterable<DeviceState> = repository.findAll()
-        return findAll.take(10).map{
-            DeviceMessageWrapperDTO("history", ZonedDateTime.now(), it.state)
-        }
-    }
 
 }

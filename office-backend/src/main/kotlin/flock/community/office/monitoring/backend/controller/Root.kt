@@ -14,7 +14,7 @@ class Root {
 }
 
 data class Greeting constructor(
-        private val name: String?,
+    private val name: String?,
 ) {
     val greeting: String get() = if (name.isNullOrBlank()) "H🤦‍♀️llo  World!" else "Hello $name!"
 }
