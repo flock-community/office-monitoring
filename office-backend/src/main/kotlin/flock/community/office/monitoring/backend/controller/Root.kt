@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.backend
+package flock.community.office.monitoring.backend.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

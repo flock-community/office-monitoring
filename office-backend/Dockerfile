@@ -4,13 +4,13 @@ FROM maven:3.6.3-openjdk-11-slim as builder
 
 WORKDIR app
 
-COPY pom.xml .
+COPY . /
 RUN mvn dependency:go-offline -B
 
 COPY src ./src
 
 # Build a release artifact.
-RUN mvn verify
+RUN mvn verify -pl office-backend -am
 
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 

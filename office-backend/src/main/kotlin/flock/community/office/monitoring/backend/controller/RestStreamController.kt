@@ -4,6 +4,7 @@ import flock.community.office.monitoring.backend.ContactSensorMessageDTO
 import flock.community.office.monitoring.backend.DeviceState
 import flock.community.office.monitoring.backend.UpdatesModel
 import flock.community.office.monitoring.backend.configuration.DeviceType
+import flock.community.office.monitoring.backend.eventbus.DeviceStateEventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -17,7 +18,7 @@ import java.time.ZonedDateTime
 @RestController
 @RequestMapping(path = ["/device-updates"])
 @ExperimentalCoroutinesApi
-internal class RestStreamController(private val updatesModel: UpdatesModel) {
+internal class RestStreamController(private val updatesModel: DeviceStateEventBus) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
