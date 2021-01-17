@@ -2,16 +2,9 @@ import React, {useEffect, useState} from "react";
 import {connectAndSubscribeToEndpoint, createRSocketClient} from "../../RSocketUtil";
 import RawDeviceStateList from "./RawDeviceStateList";
 import {Grid} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
 import PulsatingDot from "../PulsatingDot";
 import RedDot from "../RedDot";
 
-
-const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex',
-    },
-}));
 
 const RSocketRawDeviceStateList = ({alignRight}) => {
     const [deviceState, setDeviceState] = useState(undefined)
@@ -19,9 +12,8 @@ const RSocketRawDeviceStateList = ({alignRight}) => {
     const [client, setClient] = useState(undefined)
     const [connected, setConnected] = useState(false)
 
-    const classes = useStyles()
+
     useEffect(() => {
-        console.log("RSocketSingleStat is here");
         subscribeToWords();
 
         return () => {
@@ -56,12 +48,12 @@ const RSocketRawDeviceStateList = ({alignRight}) => {
         }
 
         const requestParams = {
-            deviceId:"1234abc",
+            deviceId: "1234abc",
             deviceType: "CONTACT_SENSOR",
             since: new Date().toISOString()
         }
 
-        connectAndSubscribeToEndpoint(rSocketClient, "mock", requestParams,onNext, onSubscribe, onComplete, onError)
+        connectAndSubscribeToEndpoint(rSocketClient, "mock", requestParams, onNext, onSubscribe, onComplete, onError)
     };
 
     const cancelWords = () => {
@@ -69,7 +61,7 @@ const RSocketRawDeviceStateList = ({alignRight}) => {
     };
     return <Grid item container spacing={2}>
         <Grid item={12}>
-            Connected: {connected ? (<PulsatingDot />) : (<RedDot />)}
+            Connected: {connected ? (<PulsatingDot/>) : (<RedDot/>)}
         </Grid>
         <Grid item xs={12}>
             <RawDeviceStateList deviceState={deviceState}/>

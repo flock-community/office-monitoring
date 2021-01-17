@@ -51,7 +51,6 @@ export const connectAndSubscribeToEndpoint = (client, route, data,  onNext, onSu
                 },
                 onNext: onNext,
                 onSubscribe: onSubscribe,
-
             });
         },
         onError: error => {

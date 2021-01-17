@@ -1,4 +1,3 @@
-
 export const createEventSource = (url, onMessage, onError = (e)=> {}) => {
     const eventSource = new EventSource(url);
     eventSource.onmessage = onMessage;
