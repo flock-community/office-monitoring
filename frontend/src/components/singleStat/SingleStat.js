@@ -6,13 +6,8 @@ import RedDot from "../RedDot";
 import useDeviceState from "../../hooks/useDeviceState.hook";
 
 
-const requestParams = {
-    deviceId: "1234abc",
-    deviceType: "CONTACT_SENSOR",
-    since: new Date().toISOString()
-}
 const SingleStat = ({
-                        request = requestParams,
+                        request,
                         property = "contact",
                         background = (p) => `background-${p === 'false' ? 'red' : p === 'true' ? 'green' : 'yellow'}`
                     }) => {
