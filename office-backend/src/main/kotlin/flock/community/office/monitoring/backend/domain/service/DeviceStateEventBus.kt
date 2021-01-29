@@ -2,7 +2,9 @@ package flock.community.office.monitoring.backend.domain.service
 
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import kotlinx.coroutines.flow.*
+import org.springframework.stereotype.Service
 
+@Service
 class DeviceStateEventBus() {
 
     private val _events: MutableSharedFlow<DeviceStateEntity> = MutableSharedFlow(replay = 1)
@@ -13,7 +15,11 @@ class DeviceStateEventBus() {
         _events.emit(deviceState)
     }
 
-    fun subscribe(deviceId: String): Flow<DeviceStateEntity> {
-        return events.filter { it.deviceId == deviceId }
+    fun subscribe(deviceId: String?): Flow<DeviceStateEntity> {
+        return if (deviceId != null) {
+            events.filter { it.deviceId == deviceId }
+        } else {
+            events
+        }
     }
 }
