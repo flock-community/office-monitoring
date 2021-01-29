@@ -5,6 +5,7 @@ import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.ContactSensorStateBody
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,7 +26,7 @@ internal class DeviceStateEventBusTest() {
     lateinit var objectMapper: ObjectMapper
 
     @Test
-    fun `test when saveService publishes messages subscribe publishes them`() = runBlocking {
+    fun `test when publishing messages to eventBus subscribe retrieves them`() = runBlocking {
         val contactSensorStateBody = ContactSensorStateBody(
                 lastSeen = Instant.parse("2021-01-29T10:00:00.00Z"),
                 battery = Random.nextInt(0, 100),
@@ -43,6 +44,6 @@ internal class DeviceStateEventBusTest() {
 
         testBus.publish(testEntity)
 
-        assertEquals(testEntity, testBus.events.replayCache[0])
+        assertEquals(testEntity, testBus.subscribe(null).first())
     }
 }
