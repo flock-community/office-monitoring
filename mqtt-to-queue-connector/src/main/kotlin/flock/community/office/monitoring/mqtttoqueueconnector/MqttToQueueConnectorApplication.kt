@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class MqttToQueueConnectorApplication
 
 fun main(args: Array<String>) {
-	runApplication<MqttToQueueConnectorApplication>(*args)
+    runApplication<MqttToQueueConnectorApplication>(*args)
 }

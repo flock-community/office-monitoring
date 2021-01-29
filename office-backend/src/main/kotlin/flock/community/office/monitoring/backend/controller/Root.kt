@@ -1,4 +1,4 @@
-package flock.community.office.monitoring.backend
+package flock.community.office.monitoring.backend.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,7 +14,7 @@ class Root {
 }
 
 data class Greeting constructor(
-        private val name: String?,
+    private val name: String?,
 ) {
     val greeting: String get() = if (name.isNullOrBlank()) "H🤦‍♀️llo  World!" else "Hello $name!"
 }
