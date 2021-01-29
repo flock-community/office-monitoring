@@ -18,6 +18,8 @@ const fileLoaderRule = {
 	]
 };
 
+const Dotenv = require('dotenv-webpack');
+
 module.exports = {
 	client: {
 		entry: { main: config.client.entry().main.replace(/\.js$/, '.ts') },
@@ -52,6 +54,7 @@ module.exports = {
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode)
 			}),
+			new Dotenv()
 		].filter(Boolean),
 		devtool: dev && 'inline-source-map'
 	},

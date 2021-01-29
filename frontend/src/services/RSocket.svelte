@@ -7,14 +7,11 @@
   import RSocketWebSocketClient from "rsocket-websocket-client";
   import { writable } from "svelte/store";
 
-  export interface DeviceDto {
-    id: String;
-    name: String;
-    type: String;
-  }
+  let backendUrl = process.env.BACKEND_URL
 
   export const connectSocket = (route: String) => {
-    const { subscribe, set, update } = writable(Array<DeviceDto>());
+
+    const store = writable(Array());
 
     const client = new RSocketClient({
       serializers: {
@@ -28,29 +25,17 @@
         metadataMimeType: "message/x.rsocket.routing.v0",
       },
       transport: new RSocketWebSocketClient({
-        url: "ws://localhost:9000/ws/" + route,
+        url: backendUrl + route,
       }),
     });
-    let onNext = (payload) => {
-      console.log(payload);
-    };
 
-    let onSubscribe = (sub) => {
-      sub.request(2147483647);
-    };
-
-    const requestParams = {
-      deviceId: "1234abc",
-      deviceType: "CONTACT_SENSOR",
-      since: new Date().toISOString(),
-    };
     let metadata = String.fromCharCode(route.length) + route;
 
     client.connect().subscribe({
       onComplete: (socket) => {
         socket
           .requestStream({
-            data: requestParams,
+            data: null,
             metadata: metadata,
           })
           .subscribe({
@@ -60,9 +45,8 @@
               console.error(error);
             },
             onNext: (value) => {
-              console.log(value.data);
-
-              update((devices) => devices.concat(value.data as DeviceDto));
+              console.log("Received: " + value.data);
+              store.update((devices) => devices.concat(value.data as DeviceDto));
             },
             // Nothing happens until `request(n)` is called
             onSubscribe: (sub) => {
@@ -79,10 +63,6 @@
       },
     });
 
-    console.log(client);
-
-    return {
-      subscribe,
-    };
+    return store
   };
 </script>

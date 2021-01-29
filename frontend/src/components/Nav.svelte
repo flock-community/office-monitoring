@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<div class="h-24 p-8 header-bg text-3xl shadow">Office monitor</div>
+<div class="h-24 flex-grow-0 p-8 header-bg text-3xl shadow">Office monitor</div>
 
 <style>
   .header-bg {

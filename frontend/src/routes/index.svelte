@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { connectSocket } from "../services/RSocket.svelte";
-  import Device from "./_devices/device.svelte";
+  import { connectSocket } from "../services/RSocketStore.svelte";
+  import Device from "./devices/device.svelte";
 
   let devices = connectSocket("devices");
 </script>
