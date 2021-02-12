@@ -1,71 +1,113 @@
-const path = require("path");
-const HtmlWebPackPlugin = require("html-webpack-plugin"); // eslint-disable-line import/no-extraneous-dependencies
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const EnvironmentPlugin = require("webpack/lib/EnvironmentPlugin");
+const webpack = require('webpack');
+const WebpackModules = require('webpack-modules');
+const sveltePreprocess = require('svelte-preprocess');
+const path = require('path');
+const config = require('sapper/config/webpack.js');
+const pkg = require('./package.json');
 
-module.exports = env => {
-    console.log("process.env: ", process.env)
+const mode = process.env.NODE_ENV;
+const dev = mode === 'development';
 
-    const production = process.env.NODE_ENV !== 'DEBUG'
-    if (production) {
-        console.log('Welcome to production');
-    } else {
-        console.log("Welcome to non-production")
-    }
-    if (process.env.DEBUG) {
-        console.log('Debugging output');
-    }
+const alias = { svelte: path.resolve('node_modules', 'svelte') };
+const extensions = ['.mjs', '.js', '.ts', '.json', '.svelte', '.html'];
+const mainFields = ['svelte', 'module', 'browser', 'main'];
+const fileLoaderRule = {
+	test: /\.(png|jpe?g|gif)$/i,
+	use: [
+		'file-loader',
+	]
+};
 
-    return {
-        entry: [
-            // 'babel-polyfill',
-            path.join(__dirname)
-        ],
-        devtool: "cheap-module-source-map",
-        module: {
-            rules: [
-                {
-                    test: /\.js|jsx$/,
-                    exclude: /node_modules\/(?!(@flock-eco)\/).*/,
-                    use: {
-                        loader: "babel-loader",
-                        options: {
-                            plugins: ["@babel/plugin-proposal-class-properties"],
-                            presets: ["@babel/preset-env", "@babel/preset-react"]
-                        }
-                    }
-                },
-                {
-                    test: /\.css$/i,
-                    use: ["style-loader", "css-loader"]
-                }
-            ]
-        },
+const Dotenv = require('dotenv-webpack');
 
-        plugins: [
-            new HtmlWebPackPlugin({
-                template: path.join(__dirname, "index.html"),
-                filename: "./index.html"
-            }),
-            new CopyWebpackPlugin([
-                // "src/main/react/images"
-                // {from: "react/images", to: "images", context: "src/main" },
-                // { from: "react/manifest.json", to: "webapp/", context: "src/main" },
-                "./manifest.json",
-                // "src/main/react/eventSource.js"
-            ]),
-            new EnvironmentPlugin(['_HOST'])
+module.exports = {
+	client: {
+		entry: { main: config.client.entry().main.replace(/\.js$/, '.ts') },
+		output: config.client.output(),
+		resolve: { alias, extensions, mainFields },
+		module: {
+			rules: [
+				{
+					test: /\.ts$/,
+					loader: 'ts-loader'
+				},
+				{
+					test: /\.(svelte|html)$/,
+					use: {
+						loader: 'svelte-loader',
+						options: {
+							dev,
+							hydratable: true,
+							preprocess: sveltePreprocess(),
+							hotReload: false // pending https://github.com/sveltejs/svelte/issues/2377
+						}
+					}
+				},
+				fileLoaderRule
+			]
+		},
+		mode,
+		plugins: [
+			// pending https://github.com/sveltejs/svelte/issues/2377
+			// dev && new webpack.HotModuleReplacementPlugin(),
+			new webpack.DefinePlugin({
+				'process.browser': true,
+				'process.env.NODE_ENV': JSON.stringify(mode)
+			}),
+			new Dotenv()
+		].filter(Boolean),
+		devtool: dev && 'inline-source-map'
+	},
 
-        ],
+	server: {
+		entry: { server: config.server.entry().server.replace(/\.js$/, '.ts') },
+		output: config.server.output(),
+		target: 'node',
+		resolve: { alias, extensions, mainFields },
+		externals: Object.keys(pkg.dependencies).concat('encoding'),
+		module: {
+			rules: [
+				{
+					test: /\.ts$/,
+					loader: 'ts-loader'
+				},
+				{
+					test: /\.(svelte|html)$/,
+					use: {
+						loader: 'svelte-loader',
+						options: {
+							css: false,
+							generate: 'ssr',
+							hydratable: true,
+							preprocess: sveltePreprocess(),
+							dev
+						}
+					}
+				},
+				fileLoaderRule
+			]
+		},
+		mode,
+		plugins: [
+			new WebpackModules()
+		],
+		performance: {
+			hints: false // it doesn't matter if server.js is large
+		}
+	},
 
-        devServer: {
-            historyApiFallback: true,
-            port: 3000,
-            proxy: {
-                "/ws/**": "http://localhost:8080",
-                "/sockjs-node/**": "http://localhost:8080",
-                '/api': 'http://localhost:8080'
-            },
-        }
-    }
+	serviceworker: {
+		entry: { 'service-worker': config.serviceworker.entry()['service-worker'].replace(/\.js$/, '.ts') },
+		output: config.serviceworker.output(),
+		resolve: { extensions: ['.mjs', '.js', '.ts', '.json'] },
+		module: {
+			rules: [
+				{
+					test: /\.ts$/,
+					loader: 'ts-loader'
+				}
+			]
+		},
+		mode
+	}
 };
