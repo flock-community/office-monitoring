@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["/device-updates"])
-@ExperimentalCoroutinesApi
 internal class RestStreamController(private val updatesModel: UpdatesModel) {
 
     private val logger = loggerFor<RestStreamController>()

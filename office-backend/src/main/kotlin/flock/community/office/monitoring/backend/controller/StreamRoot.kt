@@ -7,12 +7,8 @@ import flock.community.office.monitoring.backend.domain.service.DeviceStateHisto
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.stereotype.Controller
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -40,10 +36,8 @@ internal class StreamRoot(
     // deviceType
     // deviceId
     @MessageMapping("start")
-    internal fun start(message: Request, headerAccessor: SimpMessageHeaderAccessor): Flow<DeviceState<StateBody>> = flow {
-        val attrs = headerAccessor.sessionAttributes
-
-        logger.info("Received request for DeviceState: $message, attr: $attrs")
+    internal fun start(message: Request): Flow<DeviceState<StateBody>> = flow {
+        logger.info("Received request for DeviceState: $message")
 
         historyService.getHistory().collect {
             emit(it)
@@ -52,6 +46,24 @@ internal class StreamRoot(
         // TODO also emit live messages
 
     }.onEach { logger.info("Sending: $it") }
+
+
+    @MessageMapping("stringsSplit")
+    fun stringsSplit(requests: Flow<String>): Flow<String> {
+        return requests
+            .onEach { logger.info("Next: $it") }
+            .flatMapConcat { input: String ->
+                flow {
+//                emit(input)
+                    for (i in input) {
+                        emit("$i")
+                    }
+                }
+
+            }
+            .onEach { logger.info("Next char: $it") }
+    }
+
 
     @MessageMapping("mock")
     internal fun mockedData(message: Request): Flow<DeviceState<StateBody>> {

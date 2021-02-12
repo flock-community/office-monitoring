@@ -15,7 +15,7 @@ class DeviceStateMapper(
 
     fun map(entity: DeviceStateEntity): DeviceState<StateBody> {
 
-        val deviceStateBody = DeviceType.values().find { it == entity.type }
+        val deviceStateBody: StateBody = DeviceType.values().find { it == entity.type }
             .let { deviceType ->
                 deviceType ?: throw DeviceException.UnmappedDeviceType(entity.type)
                 objectMapper.readValue(entity.state, deviceType.stateBody.java)

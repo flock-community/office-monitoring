@@ -9,17 +9,15 @@ class DeviceStateEventBus() {
 
     private val _events: MutableSharedFlow<DeviceStateEntity> = MutableSharedFlow(replay = 1)
 
-    val events: SharedFlow<DeviceStateEntity> = _events.asSharedFlow()
-
     suspend fun publish(deviceState: DeviceStateEntity) {
         _events.emit(deviceState)
     }
 
     fun subscribe(deviceId: String?): Flow<DeviceStateEntity> {
         return if (deviceId != null) {
-            events.filter { it.deviceId == deviceId }
+            _events.asSharedFlow().filter { it.deviceId == deviceId }
         } else {
-            events
+            _events.asSharedFlow()
         }
     }
 }
