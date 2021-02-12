@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.ContactSensorStateBody
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,13 +17,11 @@ import java.util.stream.IntStream.range
 import kotlin.random.Random
 
 @SpringBootTest
-internal class DeviceStateEventBusTest() {
-
-    private final val testBus = DeviceStateEventBus()
+internal class DeviceStateEventBusTest(@Autowired var objectMapper: ObjectMapper) {
 
     //Wat is het verschil tussen injectie en member autowiring? En wat doet de lateinit?
     @Autowired
-    lateinit var objectMapper: ObjectMapper
+    private final val testBus = DeviceStateEventBus()
 
     fun createTestMessages(amount: Int): List<DeviceStateEntity>{
         val contactSensorStateBody = ContactSensorStateBody(
