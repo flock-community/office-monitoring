@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.domain.service.DeviceStateSaveService
 import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate
 import org.springframework.cloud.gcp.pubsub.support.converter.JacksonPubSubMessageConverter
 import org.springframework.cloud.gcp.pubsub.support.converter.PubSubMessageConverter
@@ -24,7 +26,7 @@ class EventTopicSubscriber(
         pubSubTemplate.subscribeAndConvert("projects/flock-office-290609/subscriptions/office-backend", { message ->
 
             logger.debug("Received SensorEventQueueMessage: ${message.payload}")
-            deviceStateSaveService.saveSensorEventQueueMessage(message.payload)
+            GlobalScope.launch { deviceStateSaveService.saveSensorEventQueueMessage(message.payload)}
 
         }, DeviceStateEventQueueMessage::class.java)
     }
