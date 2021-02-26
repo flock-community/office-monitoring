@@ -1,5 +1,6 @@
 package flock.community.office.monitoring.backend.controller
 
+import com.fasterxml.jackson.databind.node.ObjectNode
 import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.DeviceState
 import flock.community.office.monitoring.backend.domain.model.StateBody
@@ -7,7 +8,7 @@ import java.time.Instant
 
 data class FlockMonitorCommand (
     val type: FlockMonitorCommandType,
-    val body: FlockMonitorCommandBody
+    val body: ObjectNode
 )
 
 data class FlockMonitorMessage (

@@ -1,7 +1,10 @@
 package flock.community.office.monitoring.backend.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.convertValue
 import flock.community.office.monitoring.backend.UpdatesModel
 import flock.community.office.monitoring.backend.configuration.DeviceType
+import flock.community.office.monitoring.backend.controller.FlockMonitorCommandBody.*
 import flock.community.office.monitoring.backend.domain.model.*
 import flock.community.office.monitoring.backend.domain.service.DeviceStateHistoryService
 import flock.community.office.monitoring.utils.logging.loggerFor
@@ -27,14 +30,25 @@ data class Request(
 internal class StreamRoot(
     private val historyService: DeviceStateHistoryService,
     private val updatesModel: UpdatesModel,
-    private val subscriptionHandler: SubscriptionHandler
+    private val subscriptionHandler: SubscriptionHandler,
+    private val objectMapper: ObjectMapper
 ) {
 
     private val logger = loggerFor<StreamRoot>()
 
     @MessageMapping("devices")
     suspend fun main(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> {
-        return subscriptionHandler.theStream(commands)
+
+        val bodies = commands.map {
+
+            when(it.type) {
+                FlockMonitorCommandType.GET_DEVICES_COMMAND -> objectMapper.convertValue<GetDevicesCommand>(it.body)
+                FlockMonitorCommandType.GET_DEVICE_STATE_COMMAND -> objectMapper.convertValue<GetDeviceStateCommand>(it.body)
+            }
+
+        }
+
+        return subscriptionHandler.theStream(bodies)
     }
 
     // TODO, handle request params
