@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { connectSocket } from "../services/RSocketStore.svelte";
   import Device from "./devices/device.svelte";
+  import * as rxjs from 'rxjs';
+  import {DeviceSubscription, DeviceX} from "../services/StreamDtos";
+  import {connectSocket} from "../services/RSocket.svelte"
+  import {map} from "rxjs/operators";
 
-  let devices = connectSocket("devices");
+  // TODO: Set up rxjs nicely here. Consider a store instead maybe? Or some centralised 'eventbus' - like something
+  let devices = connectSocket("devices", rxjs.interval(1000).pipe(map(_ => new DeviceSubscription(new DeviceX("id")))));
 </script>
 
 <svelte:head>
