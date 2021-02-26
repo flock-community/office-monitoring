@@ -17,7 +17,7 @@ data class FlockMonitorMessage (
 
 sealed class FlockMonitorCommandBody  {
     object GetDevicesCommand : FlockMonitorCommandBody()
-    data class GetDeviceStateCommand(val deviceId: String, val enabled: Boolean, val from: Instant) : FlockMonitorCommandBody()
+    data class GetDeviceStateCommand(val deviceId: String, val from: Instant) : FlockMonitorCommandBody()
 }
 
 sealed class FlockMonitorMessageBody {
@@ -31,6 +31,7 @@ enum class FlockMonitorCommandType {
     GET_DEVICES_COMMAND,
     GET_DEVICE_STATE_COMMAND
 }
+
 enum class FlockMonitorMessageType {
     // Messages
     DEVICE_LIST_MESSAGE,

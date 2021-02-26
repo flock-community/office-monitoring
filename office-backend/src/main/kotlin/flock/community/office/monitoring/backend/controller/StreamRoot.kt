@@ -26,10 +26,16 @@ data class Request(
 @Controller
 internal class StreamRoot(
     private val historyService: DeviceStateHistoryService,
-    private val updatesModel: UpdatesModel
+    private val updatesModel: UpdatesModel,
+    private val subscriptionHandler: SubscriptionHandler
 ) {
 
     private val logger = loggerFor<StreamRoot>()
+
+    @MessageMapping("devices")
+    suspend fun main(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> {
+        return subscriptionHandler.theStream(commands)
+    }
 
     // TODO, handle request params
     // startTime
