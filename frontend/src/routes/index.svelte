@@ -6,7 +6,7 @@
   import {map} from "rxjs/operators";
 
   // TODO: Set up rxjs nicely here. Consider a store instead maybe? Or some centralised 'eventbus' - like something
-  let devices = connectSocket("devices", rxjs.interval(1000).pipe(map(_ => new DeviceSubscription(new DeviceX("id")))));
+  let devices = connectSocket("devices", rxjs.interval(10000).pipe(map(_ => new DeviceSubscription())));
 </script>
 
 <svelte:head>

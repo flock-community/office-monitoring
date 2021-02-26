@@ -44,7 +44,7 @@
                         },
                         onNext: (value) => {
                             console.debug("RSocket requestStream onNext:", value);
-                            store.update((devices) => devices.concat(value.data as DeviceDto));
+                            store.update((devices) => devices.concat(value.data.body.devices as DeviceDto));
                         },
                         // Nothing happens until `request(n)` is called
                         onSubscribe: (subscription) => {
@@ -68,12 +68,12 @@
     const getMetadata = (route: string) => String.fromCharCode(route.length) + route
 
     const setupChannel = (route: String, commands: Observable<FlockMonitorCommand<any>>) => {
-        console.log("Setting up subscription for commands from application")
+        console.debug("Setting up subscription for commands from application")
         let subscription: Subscription | undefined = undefined
 
         return new Flowable<DeviceCommandDTO<any>>((subscriber) => {
             const processCommand = (command: FlockMonitorCommand<any>) => {
-                console.log("Process command")
+                console.debug("Process command", command)
 
                 let deviceCommandDto = new BaseDeviceCommandDTO(command, getMetadata(route));
                 subscriber.onNext(deviceCommandDto)
@@ -81,7 +81,7 @@
             };
 
             const processError = err => {
-                console.log("Processing error")
+                console.warn("Processing error", err)
                 subscriber.onError(err);
                 throw err;
 
@@ -96,12 +96,12 @@
 
             subscriber.onSubscribe({
                 cancel(): void {
-                    console.log("Cancel is called")
+                    console.warn("Cancel is called")
                     // Our subscriber send us a cancel signal
                     // 1. ensure request: n are stopped.
                     // ?? (cancel subscription to `commands`)
                     // console.warn("Not unsubscribing from subscription to backend")
-                    console.log("Unsubscribing from application observable..")
+                    console.info("Unsubscribing from application observable..")
                     subscription.unsubscribe()
 
                     // 2. Send completion signal (cause convention?)
@@ -118,7 +118,7 @@
                         subscription = something
                             .subscribe(
                                 // Added these logs for debug purposes
-                                command => console.log(`Received another command:`, command),
+                                command => console.debug(`Received another command:`, command),
                                 error => console.error(`Error occurred`, error),
                                 () => console.log("Subscription is finished")
                             )

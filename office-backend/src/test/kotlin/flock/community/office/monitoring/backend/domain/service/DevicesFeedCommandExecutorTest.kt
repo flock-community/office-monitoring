@@ -13,9 +13,9 @@ internal class DevicesFeedCommandExecutorTest (@Autowired val testExecutor: Devi
 
     }
 
-    @Test
-    fun getNewEventsForDevice() {
-        //val resultFlow = testExecutor.get("1")
-
-    }
+//    @Test
+//    fun getNewEventsForDevice() {
+//        val resultFlow = testExecutor.get("1")
+//
+//    }
 }

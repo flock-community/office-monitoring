@@ -4,38 +4,43 @@ export interface DeviceDto {
     type: String;
 }
 
-export interface DeviceCommandDTO<T>{
-    data: T;
+export interface DeviceCommandDTO {
+    data: FlockMonitorCommand;
     metadata: string;
 }
 
-export class BaseDeviceCommandDTO<T> implements  DeviceCommandDTO<T>{
-    data: T;
+export class BaseDeviceCommandDTO implements DeviceCommandDTO {
+    data: FlockMonitorCommand;
     metadata: string;
-    constructor(data: T, metadata: string) {
+
+    constructor(data: FlockMonitorCommand, metadata: string) {
         this.data = data
         this.metadata = metadata
     }
 }
 
-export interface FlockMonitorCommand<T> {
-    data: T
+export interface FlockMonitorCommand {
 }
 
-class BaseCommand<T> implements FlockMonitorCommand<T>{
-    data: T;
-    constructor(command: T) {
-        this.data = command
-    }
-
-
+enum FlockMonitorCommandType {
+    GET_DEVICES_COMMAND = "GET_DEVICES_COMMAND",
+    GET_DEVICE_STATE_COMMAND = "GET_DEVICE_STATE_COMMAND"
 }
 
-export class DeviceSubscription extends BaseCommand<DeviceX>{}
+class BaseCommand implements FlockMonitorCommand {
+    type: FlockMonitorCommandType;
+    body: FlockMonitorCommand;
 
-export class DeviceX{
-    id: String
-    constructor(id) {
-        this.id =id
+    constructor(type: FlockMonitorCommandType, body: FlockMonitorCommand) {
+        this.type = type
+        this.body = body
     }
 }
+
+export class DeviceSubscription extends BaseCommand {
+
+    constructor() {
+        super(FlockMonitorCommandType.GET_DEVICES_COMMAND, {});
+    }
+}
+
