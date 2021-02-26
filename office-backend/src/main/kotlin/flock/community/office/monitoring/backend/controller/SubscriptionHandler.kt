@@ -23,29 +23,29 @@ class SubscriptionHandler(
     // WIP
     // Think about concurrency, schedulers and those kind of things!
     // Should stream end?
-    suspend fun theStream(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> = flow {
+    suspend fun theStream(commands: Flow<FlockMonitorCommandBody>): Flow<FlockMonitorMessage> = flow {
 
-        val activeStreams: MutableMap<FlockMonitorCommand, Flow<FlockMonitorMessage>> = mutableMapOf()
+        val activeStreams: MutableMap<FlockMonitorCommandBody, Flow<FlockMonitorMessage>> = mutableMapOf()
 
         commands.collect { command ->
 
             if (activeStreams.containsKey(command)) {
                 logger.info("The $command commmand is already active")
             } else {
-                val commandFlow = commandDispatcher.dispatchCommand(command.body)
+                val commandFlow = commandDispatcher.dispatchCommand(command)
                 activeStreams[command] = commandFlow
                 emitAll(commandFlow)
             }
         }
     }
 
-    private fun processDeviceStateCommand(command: GetDeviceStateCommand): Pair<String, Flow<FlockMonitorMessage>?> =
-            "$GET_DEVICES_COMMAND-${command.deviceId}" to deviceStateEventBus.subscribe(command.deviceId)
-                    .map {
-                        FlockMonitorMessage(
-                                type = DEVICE_STATE,
-                                body = DeviceStateMessage(deviceStateMapper.map(it))
-                        )
-                    }
+//    private fun processDeviceStateCommand(command: GetDeviceStateCommand): Pair<String, Flow<FlockMonitorMessage>?> =
+//            "$GET_DEVICES_COMMAND-${command.deviceId}" to deviceStateEventBus.subscribe(command.deviceId)
+//                    .map {
+//                        FlockMonitorMessage(
+//                                type = DEVICE_STATE,
+//                                body = DeviceStateMessage(deviceStateMapper.map(it))
+//                        )
+//                    }
 
 }
