@@ -39,8 +39,7 @@ internal class StreamRoot(
     @MessageMapping("devices")
     suspend fun main(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> {
 
-        val bodies = commands.map {
-
+        val monitorCommandBodies = commands.map {
             when(it.type) {
                 FlockMonitorCommandType.GET_DEVICES_COMMAND -> objectMapper.convertValue<GetDevicesCommand>(it.body)
                 FlockMonitorCommandType.GET_DEVICE_STATE_COMMAND -> objectMapper.convertValue<GetDeviceStateCommand>(it.body)
@@ -48,7 +47,7 @@ internal class StreamRoot(
 
         }
 
-        return subscriptionHandler.theStream(bodies)
+        return subscriptionHandler.subscribeForCommands(monitorCommandBodies)
     }
 
     // TODO, handle request params

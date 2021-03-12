@@ -3,6 +3,8 @@ package flock.community.office.monitoring.backend.domain.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.ContactSensorStateBody
+import flock.community.office.monitoring.backend.domain.model.DeviceState
+import flock.community.office.monitoring.backend.domain.model.StateBody
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -23,23 +25,25 @@ internal class DeviceStateEventBusTest(@Autowired var objectMapper: ObjectMapper
     @Autowired
     private final val testBus = DeviceStateEventBus()
 
-    fun createTestMessages(amount: Int): List<DeviceStateEntity>{
-        val contactSensorStateBody = ContactSensorStateBody(
+    fun createTestMessages(amount: Int): List<DeviceState<ContactSensorStateBody>> {
+
+        return (0L..amount).map{
+
+            val contactSensorStateBody = ContactSensorStateBody(
                 lastSeen = Instant.parse("2021-01-29T10:00:00.00Z"),
                 battery = Random.nextInt(0, 100),
                 voltage = Random.nextInt(0, 100),
                 contact = Random.nextBoolean())
 
-        val list: MutableList<DeviceStateEntity> = mutableListOf()
-        for (i in range(0, amount)){
-            val dse = DeviceStateEntity(UUID.randomUUID().toString(),
-                    DeviceType.CONTACT_SENSOR,
-                    "zigbee2mqtt/0x00158d000578385c",
-                    Instant.now().minus(i.toLong(), ChronoUnit.MINUTES),
-                    objectMapper.writeValueAsString(contactSensorStateBody))
-            list.add(dse)
+            DeviceState(
+                UUID.randomUUID().toString(),
+                DeviceType.CONTACT_SENSOR,
+                "zigbee2mqtt/0x00158d000578385c",
+                Instant.now().minus(it, ChronoUnit.MINUTES),
+                contactSensorStateBody
+            )
+
         }
-        return list
     }
 
     @Test

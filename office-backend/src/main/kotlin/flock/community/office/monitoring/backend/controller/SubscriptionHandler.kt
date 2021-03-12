@@ -23,7 +23,7 @@ class SubscriptionHandler(
     // WIP
     // Think about concurrency, schedulers and those kind of things!
     // Should stream end?
-    suspend fun theStream(commands: Flow<FlockMonitorCommandBody>): Flow<FlockMonitorMessage> = flow {
+    suspend fun subscribeForCommands(commands: Flow<FlockMonitorCommandBody>): Flow<FlockMonitorMessage> = flow {
 
         val activeStreams: MutableMap<FlockMonitorCommandBody, Flow<FlockMonitorMessage>> = mutableMapOf()
 
@@ -38,14 +38,4 @@ class SubscriptionHandler(
             }
         }
     }
-
-//    private fun processDeviceStateCommand(command: GetDeviceStateCommand): Pair<String, Flow<FlockMonitorMessage>?> =
-//            "$GET_DEVICES_COMMAND-${command.deviceId}" to deviceStateEventBus.subscribe(command.deviceId)
-//                    .map {
-//                        FlockMonitorMessage(
-//                                type = DEVICE_STATE,
-//                                body = DeviceStateMessage(deviceStateMapper.map(it))
-//                        )
-//                    }
-
 }
