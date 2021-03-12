@@ -57,5 +57,5 @@ const devicesDummyData = () => {
   return devices;
 };
 
-deviceStateStore.update((stored) => [...stored, ...deviceStateDummyData()]);
-devicesStore.update((stored) => [...stored, ...devicesDummyData()]);
+// deviceStateStore.update((stored) => [...stored, ...deviceStateDummyData()]);
+// devicesStore.update((stored) => [...stored, ...devicesDummyData()]);

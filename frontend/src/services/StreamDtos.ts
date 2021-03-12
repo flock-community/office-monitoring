@@ -77,6 +77,14 @@ export class DeviceSubscription extends BaseCommand {
   }
 }
 
+export class DeviceStateSubscription extends BaseCommand {
+  constructor(deviceId: string, from: Date) {
+    super(FlockMonitorCommandType.GET_DEVICE_STATE_COMMAND, {
+      deviceId: deviceId,
+      from: from
+    });
+  }
+}
 
 export interface FlockMonitorMessage {
     type: FlockMonitorMessageType,

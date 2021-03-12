@@ -20,13 +20,20 @@ const handleMessage = (value: MessageDTO) => {
   let data: FlockMonitorMessage = value.data as FlockMonitorMessage;
   switch (data.type) {
     case FlockMonitorMessageType.DEVICE_STATE:
-      deviceStateStore.update((devices) =>
-          devices.concat(data.body.state as DeviceState<any>)
+      let state = data.body.state as DeviceState<any>;
+      deviceStateStore.update((devices) =>{
+          console.log("upserting deviceStateStore with: ", state);
+          state.date = new Date(state.date)
+          return [...devices, state];
+      }
       );
       break;
     case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
-      devicesStore.update((devices) =>
-          devices.concat(data.body.devices as DeviceDto)
+      let newDevices = data.body.devices as DeviceDto[];
+      devicesStore.update((devices) => {
+            console.log("upserting devicesStore with: ", newDevices);
+            return [...devices, ...newDevices]
+      }
       );
       break;
     default:
