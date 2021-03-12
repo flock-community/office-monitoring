@@ -3,7 +3,6 @@
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
   import * as am4plugins_timeline from "@amcharts/amcharts4/plugins/timeline";
-  import * as am4plugins_bullets from "@amcharts/amcharts4/plugins/bullets";
   import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
   import type { TimelineChartRecord } from "./model";
@@ -23,6 +22,7 @@
     chart.yAxisRadius = am4core.percent(25);
     chart.yAxisInnerRadius = am4core.percent(-25);
     chart.maskBullets = false;
+    chart.logo.disabled = true;
 
     let colorSet = new am4core.ColorSet();
     colorSet.saturation = 0.5;

@@ -24,3 +24,5 @@ export interface ContactSensorState extends StateBody {
   voltage: Number;
   contact: Boolean;
 }
+
+export interface TemperatureSensorState {}

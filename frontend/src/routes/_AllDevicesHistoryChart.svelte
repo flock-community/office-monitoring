@@ -1,6 +1,10 @@
 <script lang="ts">
   import { devicesStore, deviceStateStore } from "../services/stores";
-  import type { ContactSensorState, DeviceState } from "../services/StreamDtos";
+  import type {
+    ContactSensorState,
+    DeviceState,
+    TemperatureSensorState,
+  } from "../services/StreamDtos";
   import { DeviceType } from "../services/StreamDtos";
   import type { TimelineChartRecord } from "./model";
   import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
