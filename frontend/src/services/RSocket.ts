@@ -100,8 +100,6 @@ export const connectSocket = (
             console.debug(
               "RSocket requestStream received onSubscribed (from server)"
             );
-            // TODO: backpressure and stuff!
-            subscription.request(7000);
           },
         });
     },

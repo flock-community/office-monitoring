@@ -22,7 +22,7 @@ const deviceStateDummyData = () => {
       type: DeviceType.CONTACT_SENSOR,
       deviceId: "door-1",
       date: before,
-      body: {
+      state: {
         lastSeen: now,
         battery: 1,
         voltage: 1,
@@ -34,7 +34,7 @@ const deviceStateDummyData = () => {
       type: DeviceType.CONTACT_SENSOR,
       deviceId: "door-1",
       date: now,
-      body: {
+      state: {
         lastSeen: now,
         battery: 1,
         voltage: 1,

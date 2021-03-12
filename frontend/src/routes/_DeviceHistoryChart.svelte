@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import {beforeUpdate, onMount} from "svelte";
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
   import * as am4plugins_timeline from "@amcharts/amcharts4/plugins/timeline";
@@ -9,14 +9,35 @@
 
   export let chartData: TimelineChartRecord[];
 
+  let chart
   onMount(async () => {
     am4core.ready(onready);
   });
 
+
+  async function delay(msec) {
+    return new Promise(resolve => {  setTimeout(() => { resolve('') }, msec);})
+  }
+
+  let updating = false;
+  beforeUpdate(async () => {
+    if (updating) return;
+    updating = true;
+
+    console.log("Updating DeviceChartHistory")
+    await delay(100);
+    if (!!chart) {
+      chart.data = chartData
+    }
+    updating = false;
+
+  });
+
+
   function onready() {
     am4core.useTheme(am4themes_animated);
 
-    let chart = am4core.create("chartdiv", am4plugins_timeline.SerpentineChart);
+    chart = am4core.create("chartdiv", am4plugins_timeline.SerpentineChart);
     chart.curveContainer.padding(50, 20, 50, 20);
     chart.levelCount = 4;
     chart.yAxisRadius = am4core.percent(25);
@@ -54,6 +75,11 @@
       "alternativeBackground"
     );
     dateAxis.tooltip.label.paddingTop = 7;
+    const min = new Date()
+    min.setHours(min.getHours() - 2)
+
+    dateAxis.min = min.getTime();
+    dateAxis.max = new Date().getTime();
 
     let labelTemplate = dateAxis.renderer.labels.template;
     labelTemplate.verticalCenter = "middle";

@@ -22,7 +22,7 @@ const handleMessage = (value: MessageDTO) => {
     case FlockMonitorMessageType.DEVICE_STATE:
       let state = data.body.state as DeviceState<any>;
       deviceStateStore.update((devices) =>{
-          console.log("upserting deviceStateStore with: ", state);
+          console.debug("upserting deviceStateStore with: ", state);
           state.date = new Date(state.date)
           return [...devices, state];
       }
@@ -31,7 +31,7 @@ const handleMessage = (value: MessageDTO) => {
     case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
       let newDevices = data.body.devices as DeviceDto[];
       devicesStore.update((devices) => {
-            console.log("upserting devicesStore with: ", newDevices);
+            console.debug("upserting devicesStore with: ", newDevices);
             return [...devices, ...newDevices]
       }
       );
@@ -50,10 +50,10 @@ const messagesFlow: ISubscriber<MessageDTO> = {
   },
   onNext: (value ) => {
     console.debug("MessageFlow onNext:", value);
-    handleMessage(value)
+    handleMessage(value);
 
-    // Everytime a message is received, request a new one.
-    setTimeout(subscriptionX.request(1));
+    console.debug("Requesting another message");
+    subscriptionX.request(1);
   },
   // Nothing happens until `request(n)` is called
   onSubscribe: (subscription) => {

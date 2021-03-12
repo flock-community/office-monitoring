@@ -11,8 +11,8 @@
 	<description>Monitor the state of the office with home automation devices</description>
 
 	<properties>
-		<maven.compiler.source>14</maven.compiler.source>
-		<maven.compiler.target>14</maven.compiler.target>
+		<maven.compiler.source>13</maven.compiler.source>
+		<maven.compiler.target>13</maven.compiler.target>
 		<java.version>11</java.version>
 		<spring.boot.version>2.4.2</spring.boot.version>
 		<kotlin.version>1.4.21</kotlin.version>

@@ -6,7 +6,6 @@ import flock.community.office.monitoring.backend.domain.repository.DeviceStateRe
 import flock.community.office.monitoring.backend.domain.repository.mapping.DeviceStateMapper
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.flow.*
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,11 +16,11 @@ class DeviceStateHistoryService(
 
     private val logger = loggerFor<DeviceStateHistoryService>()
 
-    fun getHistory(): Flow<DeviceState<StateBody>> {
-        val findAll = repository.findAll(PageRequest.of(1,10))
+    fun getHistory(deviceId: String): Flow<DeviceState<StateBody>> {
+        logger.info("Start fetching DeviceState history")
+        val findAll = repository.findTop10ByDeviceId(deviceId)
+        logger.info("Done fetching DeviceState history")
         return findAll.asFlow()
-            .onStart { logger.info("Start fetching DeviceState history") }
-            .onCompletion { logger.info("Finished fetching DeviceSate history") }
             .catch { logger.info("Error fetching DeviceState history") }
             .take(10)
             .map { deviceStateMapper.map(it) }

@@ -9,11 +9,11 @@ export interface DeviceState<T extends StateBody> {
   type: DeviceType;
   deviceId: String;
   date: Date;
-  body: T;
+  state: T;
 }
 
 export enum DeviceType {
-  CONTACT_SENSOR,
+  CONTACT_SENSOR= "CONTACT_SENSOR",
 }
 
 export interface StateBody {}

@@ -8,10 +8,12 @@
     export let name: String;
 
 
-    console.log("Requesting stuff for device:", id)
     const date = new Date()
     date.setHours(date.getHours() - 10)
-    setTimeout(() => EventBus.request(new DeviceStateSubscription(id, date)),500);
+    setTimeout(() => {
+        console.log("Requesting deviceState for device:", id)
+        EventBus.request(new DeviceStateSubscription(id, date));
+    });
 
 </script>
 
