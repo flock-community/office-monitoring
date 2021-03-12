@@ -20,7 +20,7 @@
   <div class="h-2/6">
     <div class="grid grid-cols-3 gap-10">
       {#each $devices as { id, name, type }, i}
-        <Device {name} />
+        <Device {id} {name} />
       {/each}
     </div>
   </div>

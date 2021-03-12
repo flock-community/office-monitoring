@@ -25,6 +25,8 @@ export interface ContactSensorState extends StateBody {
   contact: Boolean;
 }
 
+export interface TemperatureSensorState {}
+
 export interface DeviceStateDto {}
 
 export interface DeviceCommandDTO {
