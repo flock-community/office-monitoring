@@ -1,29 +1,51 @@
 import type { ISubscriber } from "rsocket-types";
-import type { DeviceDto, FlockMonitorCommand } from "./StreamDtos";
+import {
+  DeviceDto,
+  MessageDTO,
+  DeviceState,
+  FlockMonitorCommand,
+  FlockMonitorMessage,
+  FlockMonitorMessageType
+} from "./StreamDtos";
 import { Flowable } from "rsocket-flowable";
 import * as uuid from "uuid";
 import { connectClient } from "./RSocket";
-import { devicesStore } from "./stores";
+import {devicesStore, deviceStateStore} from "./stores";
 
 const subscribers: Map<string, ISubscriber<FlockMonitorCommand>> = new Map();
 
 let subscriptionX;
-const messagesFlow: ISubscriber<any> = {
+
+const handleMessage = (value: MessageDTO) => {
+  let data: FlockMonitorMessage = value.data as FlockMonitorMessage;
+  switch (data.type) {
+    case FlockMonitorMessageType.DEVICE_STATE:
+      deviceStateStore.update((devices) =>
+          devices.concat(data.body.state as DeviceState<any>)
+      );
+      break;
+    case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
+      devicesStore.update((devices) =>
+          devices.concat(data.body.devices as DeviceDto)
+      );
+      break;
+    default:
+      console.error(`Received unsupported message type: ${value.data.type}`)
+  }
+};
+
+const messagesFlow: ISubscriber<MessageDTO> = {
   onComplete: () => {
     console.debug("MessageFlow completed");
-    // subscribers.forEach(x => x.onComplete())
   },
   onError: (error) => {
     console.debug("MessageFlow error", error);
-    // subscribers.forEach(x => x.onError(error))
   },
-  onNext: (value) => {
+  onNext: (value ) => {
     console.debug("MessageFlow onNext:", value);
-    // TODO: unpack value and store in correct store
-    devicesStore.update((devices) =>
-      devices.concat(value.data.body.devices as DeviceDto)
-    );
+    handleMessage(value)
 
+    // Everytime a message is received, request a new one.
     setTimeout(subscriptionX.request(1));
   },
   // Nothing happens until `request(n)` is called
@@ -51,10 +73,10 @@ const commandsFlow = new Flowable<FlockMonitorCommand>(
   }
 );
 
-const request = (event: FlockMonitorCommand) => {
+const request = (event: FlockMonitorCommand, tries = 3) => {
   if (subscribers.size < 1) {
     console.log("[EventBus] No subscribers yet, trying again to publish command in one second", event);
-    setTimeout(() => request(event), 1500);
+    if (tries-- > 1 )setTimeout(() => request(event, tries), 1500);
   } else {
     console.log("[Event] Publishing command: ", event);
     subscribers.forEach(
@@ -63,8 +85,6 @@ const request = (event: FlockMonitorCommand) => {
       }
     );
   }
-
-  return;
 };
 
 // On start

@@ -1,8 +1,8 @@
 import {IdentitySerializer, JsonSerializer, RSocketClient,} from "rsocket-core";
 import RSocketWebSocketClient from "rsocket-websocket-client";
 import {
-  BaseDeviceCommandDTO,
-  DeviceCommandDTO,
+  BaseCommandDTO,
+  CommandDTO,
   FlockMonitorCommand,
 } from "./StreamDtos";
 import { Flowable } from "rsocket-flowable";
@@ -122,10 +122,10 @@ const getMetadata = (route: string) =>
 const setupChannel2 = (
   route: string,
   commands: Flowable<FlockMonitorCommand>
-): Flowable<DeviceCommandDTO> => {
+): Flowable<CommandDTO> => {
   return commands.map((command) => {
     console.debug("Process command", command);
-    return new BaseDeviceCommandDTO(command, getMetadata(route));
+    return new BaseCommandDTO(command, getMetadata(route));
   });
 };
 
@@ -136,11 +136,11 @@ const setupChannel = (
   console.debug("Setting up subscription for commands from application");
   let subscription: Subscription | undefined = undefined;
 
-  return new Flowable<DeviceCommandDTO>((subscriber) => {
+  return new Flowable<CommandDTO>((subscriber) => {
     const processCommand = (command: FlockMonitorCommand) => {
       console.debug("Process command", command);
 
-      let deviceCommandDto = new BaseDeviceCommandDTO(
+      let deviceCommandDto = new BaseCommandDTO(
         command,
         getMetadata(route)
       );

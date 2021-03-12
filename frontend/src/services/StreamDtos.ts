@@ -29,12 +29,16 @@ export interface TemperatureSensorState {}
 
 export interface DeviceStateDto {}
 
-export interface DeviceCommandDTO {
+export interface MessageDTO {
+  data: FlockMonitorMessage;
+  metadata: string;
+}
+export interface CommandDTO {
   data: FlockMonitorCommand;
   metadata: string;
 }
 
-export class BaseDeviceCommandDTO implements DeviceCommandDTO {
+export class BaseCommandDTO implements CommandDTO {
   data: FlockMonitorCommand;
   metadata: string;
 
@@ -46,11 +50,11 @@ export class BaseDeviceCommandDTO implements DeviceCommandDTO {
 
 export interface FlockMonitorCommand {}
 
-enum FlockMonitorCommandType {
+export enum FlockMonitorCommandType {
   GET_DEVICES_COMMAND = "GET_DEVICES_COMMAND",
   GET_DEVICE_STATE_COMMAND = "GET_DEVICE_STATE_COMMAND",
 }
-enum FlockMonitorMessageType {
+export enum FlockMonitorMessageType {
   // Messages
   DEVICE_LIST_MESSAGE = "DEVICE_LIST_MESSAGE",
   DEVICE_STATE = "DEVICE_STATE"
@@ -72,6 +76,7 @@ export class DeviceSubscription extends BaseCommand {
     super(FlockMonitorCommandType.GET_DEVICES_COMMAND, {});
   }
 }
+
 
 export interface FlockMonitorMessage {
     type: FlockMonitorMessageType,
