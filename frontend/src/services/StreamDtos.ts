@@ -27,6 +27,12 @@ enum FlockMonitorCommandType {
   GET_DEVICES_COMMAND = "GET_DEVICES_COMMAND",
   GET_DEVICE_STATE_COMMAND = "GET_DEVICE_STATE_COMMAND",
 }
+enum FlockMonitorMessageType {
+  // Messages
+  DEVICE_LIST_MESSAGE = "DEVICE_LIST_MESSAGE",
+  DEVICE_STATE = "DEVICE_STATE"
+}
+
 
 class BaseCommand implements FlockMonitorCommand {
   type: FlockMonitorCommandType;
@@ -42,4 +48,9 @@ export class DeviceSubscription extends BaseCommand {
   constructor() {
     super(FlockMonitorCommandType.GET_DEVICES_COMMAND, {});
   }
+}
+
+export interface FlockMonitorMessage {
+    type: FlockMonitorMessageType,
+    body: any //FlockMonitorMessageBody
 }
