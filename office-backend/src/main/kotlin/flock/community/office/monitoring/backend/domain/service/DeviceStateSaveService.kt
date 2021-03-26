@@ -4,17 +4,17 @@ import flock.community.office.monitoring.backend.configuration.devicesMappingCon
 import flock.community.office.monitoring.backend.domain.exception.DeviceException
 import flock.community.office.monitoring.backend.domain.repository.DeviceStateRepository
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
+import flock.community.office.monitoring.backend.domain.repository.mapping.DeviceStateMapper
 import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class DeviceStateSaveService(
     val deviceStateRepository: DeviceStateRepository,
-    val deviceStateEventBus: DeviceStateEventBus
+    val deviceStateEventBus: DeviceStateEventBus,
+    val deviceStateMapper: DeviceStateMapper
 ) {
 
     val logger = loggerFor<DeviceStateSaveService>()
@@ -36,6 +36,6 @@ class DeviceStateSaveService(
             logger.debug("Saved device state to database: $it")
         }
 
-         deviceStateEventBus.publish(deviceStateEntity)
+        deviceStateEventBus.publish(deviceStateMapper.map(deviceStateEntity))
     }
 }
