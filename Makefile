@@ -1,17 +1,31 @@
+#!make
+#include .env
+include frontend/.env
+export $(shell sed 's/=.*//' frontend/.env)
+
+DOCKER_TAG=flock/office-monitoring
+DOCKER_TAG_BE=${DOCKER_TAG}-be:latest
+DOCKER_TAG_UI=${DOCKER_TAG}-ui:latest
+
+CONTAINER_NAME=flock-office-monitoring
+CONTAINER_NAME_BE=${CONTAINER_NAME}-be
+CONTAINER_NAME_UI=${CONTAINER_NAME}-ui
+
+
 be-build:
-	docker build -t flock/office-service:latest . -f Dockerfile-be
+	docker build -t ${DOCKER_TAG_BE} . -f Dockerfile-be
 .PHONY: be-build
 
 be-run:
-	docker run --name flock-office-service --rm -d -p8080:8080 flock/office-service:latest
+	docker run --name ${CONTAINER_NAME_BE} --rm -d -p8080:8080 ${DOCKER_TAG_BE}
 .PHONY: be-run
 
 be-log:
-	docker logs -f flock-office-service
+	docker logs -f ${CONTAINER_NAME_BE}
 .PHONY: be-log
 
 be-stop:
-	docker stop flock-office-service
+	docker stop ${CONTAINER_NAME_BE}
 .PHONY: be-stop
 
 be-publish:
@@ -19,23 +33,23 @@ be-publish:
 .PHONY: be-publish
 
 be-destroy:
-	docker rmi flock/office-service:latest
+	docker rmi ${DOCKER_TAG_BE}
 .PHONY: be-destroy
 
 fe-build:
-	docker build -t flock/office-ui:latest --build-arg _HOST frontend
+	docker build -t ${DOCKER_TAG_UI} --build-arg _HOST frontend
 .PHONY: fe-build
 
 fe-run:
-	docker run --name flock-office-ui --rm -d -p3000:80 flock/office-ui:latest
+	docker run --name ${CONTAINER_NAME_UI} --rm -d -p3000:80 ${DOCKER_TAG_UI}
 .PHONY: fe-run
 
 fe-log:
-	docker logs -f flock-office-ui
+	docker logs -f ${CONTAINER_NAME_UI}
 .PHONY: fe-log
 
 fe-stop:
-	docker stop flock-office-ui
+	docker stop ${CONTAINER_NAME_UI}
 .PHONY: fe-stop
 
 fe-publish:
@@ -43,5 +57,5 @@ fe-publish:
 .PHONY: fe-publish
 
 fe-destroy:
-	docker rmi flock/office-ui:latest
+	docker rmi ${DOCKER_TAG_UI}
 .PHONY: fe-destroy

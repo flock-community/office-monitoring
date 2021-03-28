@@ -1,12 +1,14 @@
-FROM tiangolo/node-frontend:10 as build-stage
+FROM node:14-alpine as build-stage
 
 WORKDIR /app
-COPY package*.json /app/
-COPY . /app
+COPY package*.json ./
+RUN npm ci
+
+COPY . ./
 
 ARG _HOST
 RUN printenv
-RUN npx sapper export
+RUN npm run export
 
 FROM nginx:1.15
 
