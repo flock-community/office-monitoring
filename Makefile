@@ -1,5 +1,5 @@
 be-build:
-	docker build -t flock/office-service:latest office-backend
+	docker build -t flock/office-service:latest . -f Dockerfile-be
 .PHONY: be-build
 
 be-run:
