@@ -106,6 +106,7 @@
 				<configuration>
 					<args>
 						<arg>-Xjsr305=strict</arg>
+                        <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
 					</args>
 					<compilerPlugins>
 						<plugin>spring</plugin>

@@ -1,39 +1,33 @@
 package flock.community.office.monitoring.backend.domain.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.ContactSensorStateBody
 import flock.community.office.monitoring.backend.domain.model.DeviceState
-import flock.community.office.monitoring.backend.domain.model.StateBody
-import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.stream.IntStream.range
 import kotlin.random.Random
 
-@SpringBootTest
-internal class DeviceStateEventBusTest(@Autowired var objectMapper: ObjectMapper) {
+@OptIn(ExperimentalCoroutinesApi::class)
+internal class DeviceStateEventBusTest {
 
-    //Wat is het verschil tussen injectie en member autowiring? En wat doet de lateinit?
-    @Autowired
-    private final val testBus = DeviceStateEventBus()
+    private val testBus = DeviceStateEventBus()
 
-    fun createTestMessages(amount: Int): List<DeviceState<ContactSensorStateBody>> {
+    private fun createTestMessages(amount: Int): List<DeviceState<ContactSensorStateBody>> {
 
-        return (0L..amount).map{
+        return (0L..amount).map {
 
             val contactSensorStateBody = ContactSensorStateBody(
                 lastSeen = Instant.parse("2021-01-29T10:00:00.00Z"),
                 battery = Random.nextInt(0, 100),
                 voltage = Random.nextInt(0, 100),
-                contact = Random.nextBoolean())
+                contact = Random.nextBoolean()
+            )
 
             DeviceState(
                 UUID.randomUUID().toString(),
@@ -46,8 +40,9 @@ internal class DeviceStateEventBusTest(@Autowired var objectMapper: ObjectMapper
         }
     }
 
+
     @Test
-    fun `test when publishing a message to eventBus subscribe retrieves it`() = runBlocking {
+    fun `When publishing a message to eventBus subscribe retrieves it`() = runBlockingTest {
         val testEntity = createTestMessages(1)[0]
         testBus.publish(testEntity)
 
@@ -55,7 +50,7 @@ internal class DeviceStateEventBusTest(@Autowired var objectMapper: ObjectMapper
     }
 
     @Test
-    fun `test when publishing multiple messages to eventBus subscribe retrieves the last one`() = runBlocking {
+    fun `When publishing multiple messages to eventBus subscribe retrieves the last one`() = runBlockingTest {
         val testEntities = createTestMessages(2)
         testBus.publish(testEntities[0])
 
