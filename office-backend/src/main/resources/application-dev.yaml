@@ -1,3 +1,4 @@
 
-pubsub:
-  subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend-local
+logging:
+  level:
+    flock.community.office.monitoring: DEBUG

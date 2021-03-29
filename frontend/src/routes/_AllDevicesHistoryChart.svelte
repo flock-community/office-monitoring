@@ -34,7 +34,6 @@
 
     let chartData = []
 
-    // TODO: Limit repaints to once every x msec?
     deviceStateStore.subscribe(state => {
             chartData = get(devicesStore)
                 .filter((device) => device.type === DeviceType.CONTACT_SENSOR)
@@ -52,3 +51,4 @@
 </script>
 
 <DeviceHistoryChart {chartData}/>
+<!--<pre>{JSON.stringify(chartData, null, 4)}</pre>-->

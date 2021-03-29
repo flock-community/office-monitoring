@@ -1,16 +1,12 @@
 <script lang="ts">
     import Device from "./devices/device.svelte";
-    import {DeviceStateSubscription, DeviceSubscription} from "../services/StreamDtos";
+    import {DeviceSubscription} from "../services/StreamDtos";
     import EventBus from "../services/EventBus"
     import {devicesStore} from "../services/stores";
     import AllDevicesHistoryChart from "./_AllDevicesHistoryChart.svelte";
 
     const devices = devicesStore
     EventBus.request(new DeviceSubscription())
-
-
-
-
 </script>
 
 <svelte:head>

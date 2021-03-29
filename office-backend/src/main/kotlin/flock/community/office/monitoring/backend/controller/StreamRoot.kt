@@ -50,11 +50,10 @@ internal class StreamRoot(
         }
 
         return subscriptionHandler.subscribeForCommands(monitorCommandBodies)
-//            .buffer(1,  )
             .onStart { logger.info("Received request from $requestId") }
             .onCompletion { logger.info("Finished serving requests to $requestId") }
             .catch {
-                logger.error("Error occured for $requestId.")
+                logger.error("Error occurred for $requestId.", it)
                 throw it
             }
 

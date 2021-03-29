@@ -37,7 +37,7 @@ class DevicesFeedCommandExecutor(val deviceStateHistoryService: DeviceStateHisto
 
     override fun getFlow(command: GetDeviceStateCommand ): Flow<FlockMonitorMessage> = flow {
 
-        deviceStateHistoryService.getHistory(command.deviceId).collect {
+        deviceStateHistoryService.getHistory(command.deviceId, command.from).collect {
             emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
         }
 

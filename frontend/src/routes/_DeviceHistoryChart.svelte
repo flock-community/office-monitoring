@@ -75,10 +75,10 @@
       "alternativeBackground"
     );
     dateAxis.tooltip.label.paddingTop = 7;
-    const min = new Date()
-    min.setHours(min.getHours() - 2)
+    // const min = new Date()
+    // min.setHours(min.getHours() - 2)
 
-    dateAxis.min = min.getTime();
+    // dateAxis.min = min.getTime();
     dateAxis.max = new Date().getTime();
 
     let labelTemplate = dateAxis.renderer.labels.template;

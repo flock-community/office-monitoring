@@ -1,6 +1,5 @@
 <script lang="ts">
     import DoorSensor from "./device-types/DoorSensor.svelte";
-    import {devicesStore} from "../../services/stores";
     import EventBus from "../../services/EventBus";
     import {DeviceStateSubscription} from "../../services/StreamDtos";
 

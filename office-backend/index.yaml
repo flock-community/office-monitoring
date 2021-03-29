@@ -1,0 +1,6 @@
+indexes:
+  - kind: deviceState
+    properties:
+      - name: deviceId
+      - name: date
+        direction: desc

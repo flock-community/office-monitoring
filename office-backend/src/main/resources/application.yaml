@@ -11,7 +11,9 @@ spring:
       transport: websocket
 
 server:
-  port: 8080
+  port: 8000 # server is not really used (cause of rsocket server), but this prevent a probably clash during deployments
 
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
+
+

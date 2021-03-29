@@ -19,7 +19,7 @@ class DeviceStateSaveService(
 
     val logger = loggerFor<DeviceStateSaveService>()
 
-    suspend fun saveSensorEventQueueMessage(deviceStateEventQueueMessage: DeviceStateEventQueueMessage) {
+    fun saveSensorEventQueueMessage(deviceStateEventQueueMessage: DeviceStateEventQueueMessage) {
 
         val deviceConfiguration =
             devicesMappingConfigurations[deviceStateEventQueueMessage.topic] ?: throw DeviceException.UnknownDevice(deviceStateEventQueueMessage.topic, deviceStateEventQueueMessage.message)

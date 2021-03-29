@@ -2,8 +2,12 @@ package flock.community.office.monitoring.backend.domain.service
 
 import flock.community.office.monitoring.backend.domain.model.DeviceState
 import flock.community.office.monitoring.backend.domain.model.StateBody
-import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,8 +15,8 @@ class DeviceStateEventBus() {
 
     private val _events: MutableSharedFlow<DeviceState<StateBody>> = MutableSharedFlow(replay = 1)
 
-    suspend fun publish(deviceState: DeviceState<StateBody>) {
-        _events.emit(deviceState)
+    fun publish(deviceState: DeviceState<StateBody>) {
+        GlobalScope.launch { _events.emit(deviceState) }
     }
 
     fun subscribe(deviceId: String?): Flow<DeviceState<StateBody>> {
