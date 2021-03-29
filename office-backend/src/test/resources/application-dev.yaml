@@ -1,0 +1,6 @@
+
+pubsub:
+  subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend-local
+
+weerlive:
+  api-key: aedcad93e4
