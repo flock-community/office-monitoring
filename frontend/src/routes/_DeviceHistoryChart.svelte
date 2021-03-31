@@ -12,25 +12,12 @@
   let chart
   onMount(async () => {
     am4core.ready(onready);
-  });
+  })
 
-
-  async function delay(msec) {
-    return new Promise(resolve => {  setTimeout(() => { resolve('') }, msec);})
-  }
-
-  let updating = false;
   beforeUpdate(async () => {
-    if (updating) return;
-    updating = true;
-
-    console.log("Updating DeviceChartHistory")
-    await delay(100);
     if (!!chart) {
       chart.data = chartData
     }
-    updating = false;
-
   });
 
 

@@ -9,7 +9,7 @@
 
     deviceStateStore.subscribe(value => {
         const deviceStates = value.filter((state) => state.deviceId === id)
-        console.log("Device state:", deviceStates.map(it => ({date: it.date, contact: (it.state as ContactSensorState).contact})));
+        // console.log("Device state:", deviceStates.map(it => ({date: it.date, contact: (it.state as ContactSensorState).contact})));
         if (deviceStates.length > 0) {
             let latestState = (deviceStates[
             deviceStates.length - 1

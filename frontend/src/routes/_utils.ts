@@ -11,3 +11,8 @@ export function groupBy<T>(list: Array<T>, keyGetter): Map<any, T> {
   });
   return map;
 }
+
+
+export async function delay(msec) {
+  return new Promise(resolve => {  setTimeout(() => { resolve('') }, msec);})
+}

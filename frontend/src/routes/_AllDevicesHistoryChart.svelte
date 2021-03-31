@@ -5,6 +5,15 @@
     import type {TimelineChartRecord} from "./model";
     import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
     import {get} from "svelte/store";
+    import {delay} from "./_utils";
+
+    enum ChartUpdateStatus {
+        IDLE,
+        UPDATING,
+        QUEUED
+    }
+
+    let chartData = []
 
     const convertToChartData = (
         deviceStates: DeviceState<ContactSensorState>[]
@@ -31,21 +40,39 @@
             .filter((s) => s !== undefined);
     };
 
+    let _updating : ChartUpdateStatus = ChartUpdateStatus.IDLE
+    const updateChartData = async () => {
+        if (_updating !== ChartUpdateStatus.IDLE) {
+            _updating = ChartUpdateStatus.QUEUED;
+            return;
+        }
 
-    let chartData = []
+        _updating = ChartUpdateStatus.UPDATING;
+
+        chartData = get(devicesStore)
+            .filter((device) => device.type === DeviceType.CONTACT_SENSOR)
+            .flatMap((contactSensor) => {
+                const contactSensorStates = get(deviceStateStore).filter(
+                    (state) => state.deviceId === contactSensor.id
+                );
+                console.debug(`Updating chart data for  contact sensor ${contactSensor.id}:`, contactSensorStates)
+                const contactSensorStatesTyped = contactSensorStates as DeviceState<ContactSensorState>[];
+                return convertToChartData(contactSensorStatesTyped);
+            })
+            .filter((chartData) => chartData !== undefined)
+
+
+        await delay(250);
+        if (_updating === ChartUpdateStatus.QUEUED) {
+            _updating = ChartUpdateStatus.IDLE;
+            await updateChartData()
+        } else {
+            _updating = ChartUpdateStatus.IDLE;
+        }
+    }
 
     deviceStateStore.subscribe(state => {
-            chartData = get(devicesStore)
-                .filter((device) => device.type === DeviceType.CONTACT_SENSOR)
-                .flatMap((contactSensor) => {
-                    const contactSensorStates = get(deviceStateStore).filter(
-                        (state) => state.deviceId === contactSensor.id
-                    );
-                    console.debug(`Updating chart data for  contact sensor ${contactSensor.id}:`, contactSensorStates)
-                    const contactSensorStatesTyped = contactSensorStates as DeviceState<ContactSensorState>[];
-                    return convertToChartData(contactSensorStatesTyped);
-                })
-                .filter((chartData) => chartData !== undefined)
+        updateChartData();
         }
     )
 </script>

@@ -53,7 +53,7 @@ const messagesFlow: ISubscriber<MessageDTO> = {
     handleMessage(value);
 
     console.debug("Requesting another message");
-    subscriptionX.request(1);
+    setTimeout(subscriptionX.request(1),50);
   },
   // Nothing happens until `request(n)` is called
   onSubscribe: (subscription) => {
