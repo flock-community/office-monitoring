@@ -8,7 +8,7 @@ import {
 } from "./StreamDtos";
 
 export const devicesStore = writable(new Array<DeviceDto>());
-export const deviceStateStore = writable(new Array<DeviceState<StateBody>>());
+export const deviceStateStore = writable(new Map<string,DeviceState<StateBody>[]>());
 
 // Dummy data
 const deviceStateDummyData = () => {

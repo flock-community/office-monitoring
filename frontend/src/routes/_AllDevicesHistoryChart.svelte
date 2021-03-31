@@ -1,7 +1,6 @@
 <script lang="ts">
-    import {devicesStore, deviceStateStore} from "../services/stores";
+    import {deviceStateStore} from "../services/stores";
     import type {ContactSensorState, DeviceState,} from "../services/StreamDtos";
-    import {DeviceType} from "../services/StreamDtos";
     import type {TimelineChartRecord} from "./model";
     import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
     import {get} from "svelte/store";
@@ -15,9 +14,7 @@
 
     let chartData = []
 
-    const convertToChartData = (
-        deviceStates: DeviceState<ContactSensorState>[]
-    ) => {
+    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
         return deviceStates
             .map((state: DeviceState<ContactSensorState>) => {
                 if (state.state.contact === false) {
@@ -26,7 +23,7 @@
                     // The states are per device so the next one must be the close state, if it's not found the sensor is still open
                     let closedOnDate =
                         deviceStates.find((s) => s.date > state.date && s.state.contact)
-                            ?.date || new Date();
+                             ?.date || new Date();
 
                     let record: TimelineChartRecord = {
                         category: state.deviceId,
@@ -49,18 +46,13 @@
 
         _updating = ChartUpdateStatus.UPDATING;
 
-        chartData = get(devicesStore)
-            .filter((device) => device.type === DeviceType.CONTACT_SENSOR)
-            .flatMap((contactSensor) => {
-                const contactSensorStates = get(deviceStateStore).filter(
-                    (state) => state.deviceId === contactSensor.id
-                );
-                console.debug(`Updating chart data for  contact sensor ${contactSensor.id}:`, contactSensorStates)
-                const contactSensorStatesTyped = contactSensorStates as DeviceState<ContactSensorState>[];
-                return convertToChartData(contactSensorStatesTyped);
-            })
-            .filter((chartData) => chartData !== undefined)
-
+        chartData = []
+        for( let [deviceId, deviceStateArray] of get(deviceStateStore).entries()){
+            // console.debug(`Updating chart data for  contact sensor ${deviceId} (${deviceStateArray.length} entries`)
+            // TODO: deal with all sorts of states (not only ContactSensor)
+            const contactSensorStatesTyped = deviceStateArray as DeviceState<ContactSensorState>[];
+            chartData = [...chartData, ...convertToChartData(contactSensorStatesTyped)];
+        }
 
         await delay(250);
         if (_updating === ChartUpdateStatus.QUEUED) {

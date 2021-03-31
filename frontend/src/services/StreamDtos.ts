@@ -1,13 +1,13 @@
 export interface DeviceDto {
-  id: String;
-  name: String;
+  id: string;
+  name: string;
   type: DeviceType;
 }
 
 export interface DeviceState<T extends StateBody> {
-  id: String;
+  id: string;
   type: DeviceType;
-  deviceId: String;
+  deviceId: string;
   date: Date;
   state: T;
 }

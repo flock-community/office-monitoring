@@ -4,3 +4,8 @@ indexes:
       - name: deviceId
       - name: date
         direction: desc
+  - kind: deviceState
+    properties:
+      - name: deviceId
+      - name: date
+        direction: asc

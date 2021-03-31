@@ -1,16 +1,17 @@
 import type { ISubscriber } from "rsocket-types";
 import {
   DeviceDto,
-  MessageDTO,
   DeviceState,
   FlockMonitorCommand,
   FlockMonitorMessage,
-  FlockMonitorMessageType
+  FlockMonitorMessageType,
+  MessageDTO,
+  StateBody,
 } from "./StreamDtos";
 import { Flowable } from "rsocket-flowable";
 import * as uuid from "uuid";
 import { connectClient } from "./RSocket";
-import {devicesStore, deviceStateStore} from "./stores";
+import { devicesStore, deviceStateStore } from "./stores";
 
 const subscribers: Map<string, ISubscriber<FlockMonitorCommand>> = new Map();
 
@@ -21,12 +22,20 @@ const handleMessage = (value: MessageDTO) => {
   switch (data.type) {
     case FlockMonitorMessageType.DEVICE_STATE:
       let state = data.body.state as DeviceState<any>;
-      deviceStateStore.update((devices) =>{
-          console.debug("upserting deviceStateStore with: ", state);
-          state.date = new Date(state.date)
-          return [...devices, state];
-      }
-      );
+
+      deviceStateStore.update((map) => {
+        const deviceId = state.deviceId;
+        const savedStates: DeviceState<StateBody>[] | undefined = map.get(deviceId);
+        if (!!savedStates) {
+          const safeSavedStates = savedStates as DeviceState<StateBody>[];
+          safeSavedStates.push(state);
+          map.set(deviceId, safeSavedStates);
+        } else {
+          map.set(deviceId, [state]);
+        }
+
+        return map
+      })
       break;
     case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
       let newDevices = data.body.devices as DeviceDto[];

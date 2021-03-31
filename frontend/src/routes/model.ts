@@ -1,5 +1,5 @@
 export interface TimelineChartRecord {
-  category: String;
+  category: string;
   start: Date;
   end: Date;
   //color: colorSet.getIndex(0),
