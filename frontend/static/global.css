@@ -34,3 +34,7 @@ code {
 		font-size: 16px;
 	}
 }
+
+.h-min-500{
+	min-height: 500px;
+}

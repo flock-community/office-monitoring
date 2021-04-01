@@ -3,6 +3,7 @@
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
   import * as am4plugins_timeline from "@amcharts/amcharts4/plugins/timeline";
+  import * as am4plugins_bullets from "@amcharts/amcharts4/plugins/bullets";
   import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
   import type { TimelineChartRecord } from "./model";
@@ -78,14 +79,19 @@
     labelTemplate.padding(7, 7, 7, 7);
 
     let series = chart.series.push(new am4plugins_timeline.CurveColumnSeries());
-    series.columns.template.height = am4core.percent(20);
-    series.columns.template.tooltipText =
-      "{category} geopend van [bold]{openDateX}[/] tot [bold]{dateX}[/]";
+    series.columns.template.height = am4core.percent(10);
+    series.columns.template.tooltipText = "{text}";
+
 
     series.dataFields.openDateX = "start";
     series.dataFields.dateX = "end";
     series.dataFields.categoryY = "category";
+    // series.columns.template.strokeOpacity = 0;
+
+    series.columns.template.propertyFields.fill = "color"; // get color from data
+    series.columns.template.propertyFields.stroke = "color";
     series.columns.template.strokeOpacity = 0;
+    series.columns.template.fillOpacity = 0.6;
 
     chart.scrollbarX = new am4core.Scrollbar();
     chart.scrollbarX.align = "center";
@@ -101,6 +107,35 @@
 
     dateAxis.renderer.tooltipLocation2 = 0;
     categoryAxis.cursorTooltipEnabled = false;
+
+    let imageBullet1 = series.bullets.push(new am4plugins_bullets.PinBullet());
+    imageBullet1.background.radius = 18;
+    imageBullet1.locationX = 1;
+    imageBullet1.propertyFields.stroke = "color";
+    imageBullet1.background.propertyFields.fill = "color";
+    imageBullet1.image = new am4core.Image();
+    imageBullet1.image.propertyFields.href = "icon";
+    imageBullet1.image.scale = 0.7;
+    imageBullet1.circle.radius = am4core.percent(100);
+    imageBullet1.background.fillOpacity = 0.8;
+    imageBullet1.background.strokeOpacity = 0;
+    imageBullet1.dy = -2;
+    imageBullet1.background.pointerBaseWidth = 10;
+    imageBullet1.background.pointerLength = 10
+    imageBullet1.tooltipText = "{text}";
+
+    imageBullet1.background.adapter.add("pointerAngle", (value, target) => {
+      if (target.dataItem) {
+        let position = dateAxis.valueToPosition(target.dataItem.openDateX.getTime());
+        return dateAxis.renderer.positionToAngle(position);
+      }
+      return value;
+    });
+
+    let hs = imageBullet1.states.create("hover")
+    hs.properties.scale = 1.3;
+    hs.properties.opacity = 1;
+
   }
 </script>
 
