@@ -40,7 +40,7 @@ const handleMessage = (value: MessageDTO) => {
     case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
       let newDevices = data.body.devices as DeviceDto[];
       devicesStore.update((devices) => {
-            console.debug("upserting devicesStore with: ", newDevices);
+            // console.debug("upserting devicesStore with: ", newDevices);
             return [...devices, ...newDevices]
       }
       );
@@ -58,10 +58,10 @@ const messagesFlow: ISubscriber<MessageDTO> = {
     console.debug("MessageFlow error", error);
   },
   onNext: (value ) => {
-    console.debug("MessageFlow onNext:", value);
+    // console.debug("MessageFlow onNext:", value);
     handleMessage(value);
 
-    console.debug("Requesting another message");
+    // console.debug("Requesting another message");
     setTimeout(subscriptionX.request(1),50);
   },
   // Nothing happens until `request(n)` is called

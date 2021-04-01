@@ -90,7 +90,7 @@ export const connectSocket = (
             console.debug("RSocket requestStream error", error);
           },
           onNext: (value) => {
-            console.debug("RSocket requestStream onNext:", value);
+            // console.debug("RSocket requestStream onNext:", value);
             // store.update((devices) =>
             //   devices.concat(value.data.body.devices as DeviceDto)
             // );

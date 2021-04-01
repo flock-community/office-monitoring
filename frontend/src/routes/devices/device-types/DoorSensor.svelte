@@ -15,7 +15,7 @@
                 ] as unknown).state as ContactSensorState;
             isOpen = !latestState.contact;
         } else {
-            console.warn("No state found for device (yet): " + id);
+            // console.warn("No state found for device (yet): " + id);
             isOpen = true;
         }
     });

@@ -54,7 +54,7 @@
                         start: openedOnDate,
                         end: closedOnDate,
                         icon: door,
-                        text: `${state.deviceId} geopend van [bold]${openedOnDate}[/] tot [bold]${closedOnDate}[/]`,
+                        text: `${getDeviceName(state.deviceId)} geopend van [bold]${openedOnDate}[/] tot [bold]${closedOnDate}[/]`,
                         color: getColor(state.deviceId)
                     };
                     return record;
