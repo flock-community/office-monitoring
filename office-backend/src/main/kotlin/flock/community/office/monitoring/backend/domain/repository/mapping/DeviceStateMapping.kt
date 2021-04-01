@@ -29,6 +29,16 @@ class DeviceStateMapper(
             state = deviceStateBody
         )
     }
+
+    fun map(deviceState: DeviceState<StateBody>) : DeviceStateEntity {
+        return DeviceStateEntity(
+            id = deviceState.id,
+            type = deviceState.type,
+            deviceId = deviceState.deviceId,
+            date = deviceState.date,
+            state = objectMapper.writeValueAsString(deviceState.state)
+        )
+    }
 }
 
 
