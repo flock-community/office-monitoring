@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {deviceStateStore} from "../services/stores";
+    import {devicesStore, deviceStateStore} from "../services/stores";
     import type {ContactSensorState, DeviceState,} from "../services/StreamDtos";
     import type {TimelineChartRecord} from "./model";
     import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
@@ -29,8 +29,15 @@
         return _color.get(deviceId)
     };
 
-    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
+    let _deviceNames = new Map<string, string>();
+    const getDeviceName: (deviceId: string) => string = (deviceId: string) => {
+        if (!_deviceNames.has(deviceId)) {
+            _deviceNames.set(deviceId, get(devicesStore).find(it => it.id == deviceId)?.name || "Roque device 42")
+        }
 
+        return _deviceNames.get(deviceId);
+    }
+    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
 
         return deviceStates
             .map((state: DeviceState<ContactSensorState>) => {
@@ -43,7 +50,7 @@
                             ?.date || new Date();
 
                     let record: TimelineChartRecord = {
-                        category: state.deviceId,
+                        category: getDeviceName(state.deviceId),
                         start: openedOnDate,
                         end: closedOnDate,
                         icon: door,

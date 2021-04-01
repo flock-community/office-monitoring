@@ -10,7 +10,8 @@ data class DeviceMappingConfiguration(val deviceType: DeviceType, val descriptio
 
 val devicesMappingConfigurations = mapOf(
     "zigbee2mqtt/0x00158d000578385c" to DeviceMappingConfiguration(DeviceType.CONTACT_SENSOR, "Linker deur"),
-    "zigbee2mqtt/0x00158d0004852389" to DeviceMappingConfiguration(DeviceType.CONTACT_SENSOR, "Rechter deur")
+    "zigbee2mqtt/0x00158d0004852389" to DeviceMappingConfiguration(DeviceType.CONTACT_SENSOR, "Rechter deur"),
+    "zigbee2mqtt/0x00158d00047d493d" to DeviceMappingConfiguration(DeviceType.CONTACT_SENSOR, "Deur dakterras")
 )
 
 enum class DeviceType(val stateBody: KClass<out StateBody>) {
