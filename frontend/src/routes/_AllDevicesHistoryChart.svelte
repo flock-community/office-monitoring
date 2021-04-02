@@ -7,6 +7,7 @@
     import {delay} from "./_utils";
     import type {Color} from "@amcharts/amcharts4/core";
     import * as am4core from "@amcharts/amcharts4/core";
+    import DateTimeFormat = Intl.DateTimeFormat;
 
 
     enum ChartUpdateStatus {
@@ -54,7 +55,7 @@
                         start: openedOnDate,
                         end: closedOnDate,
                         icon: door,
-                        text: `${getDeviceName(state.deviceId)} geopend van [bold]${openedOnDate}[/] tot [bold]${closedOnDate}[/]`,
+                        text: `${getDeviceName(state.deviceId)} geopend tot [bold]${new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"})}[/]`,
                         color: getColor(state.deviceId)
                     };
                     return record;

@@ -38,8 +38,8 @@
 
     chart.data = chartData;
 
-    chart.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm";
-    chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm";
+    chart.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss";
+    chart.dateFormatter.inputDateFormat = "i";
     chart.fontSize = 11;
 
     let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
@@ -59,13 +59,14 @@
     dateAxis.renderer.line.strokeOpacity = 0.6;
     dateAxis.tooltip.background.fillOpacity = 0.2;
     dateAxis.tooltip.background.cornerRadius = 5;
+    dateAxis.tooltip.label.fill = "color"
     dateAxis.tooltip.label.fill = new am4core.InterfaceColorSet().getFor(
       "alternativeBackground"
     );
     dateAxis.tooltip.label.paddingTop = 7;
     // const min = new Date()
-    // min.setHours(min.getHours() - 2)
-
+    // min.setHours(min.getHours() - 4)
+    //
     // dateAxis.min = min.getTime();
     dateAxis.max = new Date().getTime();
 
@@ -81,7 +82,10 @@
     let series = chart.series.push(new am4plugins_timeline.CurveColumnSeries());
     series.columns.template.height = am4core.percent(10);
     series.columns.template.tooltipText = "{text}";
-
+    series.tooltip.getFillFromObject = false;
+    // series.tooltip.label.propertyFields.fill = "color";
+    // series.tooltip.background.propertyFields.stroke = "color";
+    series.tooltip.background.propertyFields.fill = "color";
 
     series.dataFields.openDateX = "start";
     series.dataFields.dateX = "end";
@@ -92,6 +96,9 @@
     series.columns.template.propertyFields.stroke = "color";
     series.columns.template.strokeOpacity = 0;
     series.columns.template.fillOpacity = 0.6;
+
+    // series.columns.tooltip.template.propertyFields.fill = "color"
+    // series.tooltip.template.propertyFields.stroke = "color"
 
     chart.scrollbarX = new am4core.Scrollbar();
     chart.scrollbarX.align = "center";
@@ -122,7 +129,7 @@
     imageBullet1.dy = -2;
     imageBullet1.background.pointerBaseWidth = 10;
     imageBullet1.background.pointerLength = 10
-    imageBullet1.tooltipText = "{text}";
+    imageBullet1.tooltipText = "{openDateX}\n{text}";
 
     imageBullet1.background.adapter.add("pointerAngle", (value, target) => {
       if (target.dataItem) {

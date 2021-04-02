@@ -4,8 +4,8 @@ export interface TimelineChartRecord {
   category: string;
   start: Date;
   end: Date;
-  icon: String;
-  text: String;
+  icon: string;
+  text: string;
   color: Color;
   // task: String;
 }
