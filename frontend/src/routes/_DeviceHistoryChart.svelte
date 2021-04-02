@@ -81,7 +81,7 @@
 
     let series = chart.series.push(new am4plugins_timeline.CurveColumnSeries());
     series.columns.template.height = am4core.percent(10);
-    series.columns.template.tooltipText = "{text}";
+    series.columns.template.tooltipText = "{openDateX}\n{text}";
     series.tooltip.getFillFromObject = false;
     // series.tooltip.label.propertyFields.fill = "color";
     // series.tooltip.background.propertyFields.stroke = "color";

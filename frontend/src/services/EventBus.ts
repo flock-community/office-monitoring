@@ -62,13 +62,13 @@ const messagesFlow: ISubscriber<MessageDTO> = {
     handleMessage(value);
 
     // console.debug("Requesting another message");
-    setTimeout(subscriptionX.request(1),50);
+    setTimeout(subscriptionX.request(1),10);
   },
   // Nothing happens until `request(n)` is called
   onSubscribe: (subscription) => {
     console.debug("MessageFlow received onSubscribed (from server)");
     // TODO: backpressure and stuff!
-    subscription.request(10);
+    subscription.request(100);
     subscriptionX = subscription;
   },
 };
@@ -89,10 +89,10 @@ const commandsFlow = new Flowable<FlockMonitorCommand>(
   }
 );
 
-const request = (event: FlockMonitorCommand, tries = 3) => {
+const request = (event: FlockMonitorCommand, tries = 20) => {
   if (subscribers.size < 1) {
     console.log("[EventBus] No subscribers yet, trying again to publish command in one second", event);
-    if (tries-- > 1 )setTimeout(() => request(event, tries), 1500);
+    if (tries-- > 1 )setTimeout(() => request(event, tries), 3000);
   } else {
     console.log("[Event] Publishing command: ", event);
     subscribers.forEach(

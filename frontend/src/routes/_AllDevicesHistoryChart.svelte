@@ -81,7 +81,7 @@
             chartData = [...chartData, ...convertToChartData(contactSensorStatesTyped)];
         }
 
-        await delay(250);
+        await delay(500);
         if (_updating === ChartUpdateStatus.QUEUED) {
             _updating = ChartUpdateStatus.IDLE;
             await updateChartData()

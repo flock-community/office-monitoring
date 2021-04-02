@@ -18,11 +18,11 @@ class DeviceStateHistoryService(
     private val logger = loggerFor<DeviceStateHistoryService>()
 
     fun getHistory(deviceId: String, from: Instant): Flow<DeviceState<StateBody>> {
-        logger.info("Start fetching DeviceState history")
-        val findAll = repository.findTop100ByDeviceIdOrderByDateDesc(deviceId).reversed()
-        logger.info("Done fetching DeviceState history")
+        logger.info("Start fetching DeviceState history for $deviceId, since $from")
+        val findAll = repository.findAllByDeviceIdAndDateGreaterThanOrderByDateAsc(deviceId, from)
+        logger.info("Done fetching DeviceState history for $deviceId, since $from")
         return findAll.asFlow()
-            .catch { logger.info("Error fetching DeviceState history") }
+            .catch { logger.error("Error fetching DeviceState history", it) }
             .map { deviceStateMapper.map(it) }
     }
 
