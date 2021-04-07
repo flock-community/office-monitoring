@@ -7,8 +7,6 @@
     import {delay} from "./_utils";
     import type {Color} from "@amcharts/amcharts4/core";
     import * as am4core from "@amcharts/amcharts4/core";
-    import DateTimeFormat = Intl.DateTimeFormat;
-
 
     enum ChartUpdateStatus {
         IDLE,
@@ -16,8 +14,17 @@
         QUEUED
     }
 
-    let chartData = []
+    function getDateRelative(hours: number, minutes: number = 0) {
+        const x = new Date()
+        x.setHours(x.getHours() + hours);
+        x.setMinutes(x.getMinutes() + minutes);
+        return x;
+    }
+
     const door = "https://image.flaticon.com/icons/svg/59/59801.svg";
+    const unknown = "https://upload.wikimedia.org/wikipedia/commons/5/55/Emojione_1F937.svg";
+
+    let chartData = [];
     const colorSet = new am4core.ColorSet();
     let _color = new Map<string, Color>();
     const getColor: (deviceId: string) => Color = (deviceId: string) => {
@@ -74,7 +81,7 @@
         _updating = ChartUpdateStatus.UPDATING;
 
         chartData = []
-        for (let [deviceId, deviceStateArray] of get(deviceStateStore).entries()) {
+        for (let [_, deviceStateArray] of get(deviceStateStore).entries()) {
             // console.debug(`Updating chart data for  contact sensor ${deviceId} (${deviceStateArray.length} entries`)
             // TODO: deal with all sorts of states (not only ContactSensor)
             const contactSensorStatesTyped = deviceStateArray as DeviceState<ContactSensorState>[];
@@ -91,7 +98,19 @@
     }
 
     deviceStateStore.subscribe(state => {
-            updateChartData();
+            if (state.size > 0) {
+                updateChartData();
+            } else {
+                chartData = [{
+                    category: "loading . . .",
+                    start: getDateRelative(-10),
+                    end: getDateRelative(-10, 5),
+                    icon: unknown,
+                    text: "loading data ....",
+                    color: colorSet.getIndex(0),
+                    // task: String;
+                }]
+            }
         }
     )
 </script>

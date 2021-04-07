@@ -13,7 +13,7 @@
     <title>Flock.Office Monitor</title>
 </svelte:head>
 
-<div class="p-3 h-full">
+<div class="p-3 h-full w-full">
     <div class="h-4/6 h-min-500">
         <AllDevicesHistoryChart/>
     </div>
