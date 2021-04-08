@@ -9,18 +9,63 @@ import kotlin.test.assertEquals
 @SpringBootTest
 internal class WeatherServiceTest (@Autowired val testService: WeatherService){
 
-    val expectation = "{ \"liveweer\": [{\"plaats\": \"Utrecht\", \"temp\": \"13.1\", \"gtemp\": \"8.4\", \"samenv\": \"Licht bewolkt\", \"lv\": \"58\", \"windr\": \"ZZW\", \"windms\": \"7\", \"winds\": \"4\", \"windk\": \"13.6\", \"windkmh\": \"25.2\", \"luchtd\": \"1015.0\", \"ldmmhg\": \"761\", \"dauwp\": \"5\", \"zicht\": \"27\", \"verw\": \"Af en toe zon, vooral in de avond regen. Zaterdag eerst buien, later droger\", \"sup\": \"06:24\", \"sunder\": \"19:05\", \"image\": \"halfbewolkt\", \"d0weer\": \"bewolkt\", \"d0tmax\": \"13\", \"d0tmin\": \"4\", \"d0windk\": \"4\", \"d0windknp\": \"12\", \"d0windms\": \"6\", \"d0windkmh\": \"22\", \"d0windr\": \"ZW\", \"d0neerslag\": \"29\", \"d0zon\": \"22\", \"d1weer\": \"regen\", \"d1tmax\": \"8\", \"d1tmin\": \"4\", \"d1windk\": \"3\", \"d1windknp\": \"10\", \"d1windms\": \"5\", \"d1windkmh\": \"19\", \"d1windr\": \"W\", \"d1neerslag\": \"90\", \"d1zon\": \"30\", \"d2weer\": \"bewolkt\", \"d2tmax\": \"12\", \"d2tmin\": \"4\", \"d2windk\": \"3\", \"d2windknp\": \"10\", \"d2windms\": \"5\", \"d2windkmh\": \"19\", \"d2windr\": \"ZW\", \"d2neerslag\": \"30\", \"d2zon\": \"30\", \"alarm\": \"0\"}]}  "
+    val expectation = "{\n" +
+            "  \"coord\": {\n" +
+            "    \"lon\": 5.1223,\n" +
+            "    \"lat\": 52.0927\n" +
+            "  },\n" +
+            "  \"weather\": [\n" +
+            "    {\n" +
+            "      \"id\": 804,\n" +
+            "      \"main\": \"Clouds\",\n" +
+            "      \"description\": \"overcast clouds\",\n" +
+            "      \"icon\": \"04d\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"base\": \"stations\",\n" +
+            "  \"main\": {\n" +
+            "    \"temp\": 282.05,\n" +
+            "    \"feels_like\": 279.04,\n" +
+            "    \"temp_min\": 281.48,\n" +
+            "    \"temp_max\": 282.59,\n" +
+            "    \"pressure\": 1022,\n" +
+            "    \"humidity\": 57\n" +
+            "  },\n" +
+            "  \"visibility\": 10000,\n" +
+            "  \"wind\": {\n" +
+            "    \"speed\": 5.86,\n" +
+            "    \"deg\": 245,\n" +
+            "    \"gust\": 7.2\n" +
+            "  },\n" +
+            "  \"clouds\": {\n" +
+            "    \"all\": 98\n" +
+            "  },\n" +
+            "  \"dt\": 1617889783,\n" +
+            "  \"sys\": {\n" +
+            "    \"type\": 3,\n" +
+            "    \"id\": 2012962,\n" +
+            "    \"country\": \"NL\",\n" +
+            "    \"sunrise\": 1617857870,\n" +
+            "    \"sunset\": 1617906264\n" +
+            "  },\n" +
+            "  \"timezone\": 7200,\n" +
+            "  \"id\": 2745912,\n" +
+            "  \"name\": \"Utrecht\",\n" +
+            "  \"cod\": 200\n" +
+            "}"
 
     @Test
     fun `test get weather object`(){
-        assertEquals(testService.getPrediction()?.block()!!::class.java ,WeatherPrediction().javaClass)
+        val result = testService.getPrediction().block()!!
+        print(result)
+        assertEquals(result::class.java ,WeatherPrediction::class.java)
     }
 
     @Test
     fun `test parse weather object`(){
         val result = testService.getPrediction()
-        val plaats = result?.block()?.liveweer
-        assertEquals(WeatherPrediction().javaClass, result!!.javaClass)
+        val plaats = result.block()?.coord
+        assertEquals(WeatherPrediction::class.java, result::class.java)
     }
 
 }
