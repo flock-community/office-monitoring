@@ -1,5 +1,8 @@
 package flock.community.office.monitoring.backend.domain.service
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.api.client.json.Json
+import org.json.JSONArray
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -9,7 +12,8 @@ import kotlin.test.assertEquals
 @SpringBootTest
 internal class WeatherServiceTest (@Autowired val testService: WeatherService){
 
-    val expectation = "{\n" +
+    val mapper = jacksonObjectMapper()
+    val expectation = mapper.readValue<WeatherPrediction>("{\n" +
             "  \"coord\": {\n" +
             "    \"lon\": 5.1223,\n" +
             "    \"lat\": 52.0927\n" +
@@ -52,13 +56,12 @@ internal class WeatherServiceTest (@Autowired val testService: WeatherService){
             "  \"id\": 2745912,\n" +
             "  \"name\": \"Utrecht\",\n" +
             "  \"cod\": 200\n" +
-            "}"
+            "}", WeatherPrediction::class.java)
 
     @Test
     fun `test get weather object`(){
-        val result = testService.getPrediction().block()!!
-        print(result)
-        assertEquals(result::class.java ,WeatherPrediction::class.java)
+        print(expectation)
+        assertEquals(expectation, WeatherPrediction::class.java)
     }
 
     @Test
