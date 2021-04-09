@@ -7,6 +7,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito
 import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -38,14 +39,5 @@ internal class WeatherServiceTest (){
 
         Mockito.verify(xyz).uri(eq("?lat=52.09266175027509&lon=5.122345051397365&appid=fakeKey&units=metric"))
     }
-
-    @Test
-    fun `test parse weather object`(){
-        val result = testService.getPrediction()
-        val plaats = result.block()?.coord
-        assertEquals(WeatherPrediction::class.java, result::class.java)
-    }
-
-//    TODO: write more useful tests
-
 }
+
