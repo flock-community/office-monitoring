@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono
 @Service
 class WeatherService() {
 
+//    TODO: inject client in order to be able to mock it
+
     private val flockOfficeCoordinates: Pair<String, String> = Pair("52.09266175027509", "5.122345051397365")
 
     private var webClient: WebClient = WebClient.builder()

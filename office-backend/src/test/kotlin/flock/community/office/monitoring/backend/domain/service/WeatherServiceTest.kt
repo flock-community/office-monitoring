@@ -71,4 +71,6 @@ internal class WeatherServiceTest (@Autowired val testService: WeatherService){
         assertEquals(WeatherPrediction::class.java, result::class.java)
     }
 
+//    TODO: write more useful tests
+
 }
