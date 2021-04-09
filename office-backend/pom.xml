@@ -89,10 +89,24 @@
             <scope>test</scope>
         </dependency>
 		<dependency>
+			<groupId>nl.wykorijnsburger.kminrandom</groupId>
+			<artifactId>kminrandom</artifactId>
+			<version>1.0.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<version>3.3.6.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-test</artifactId>
 			<version>${kotlin-coroutines.version}</version>
 		</dependency>
+
     </dependencies>
 
 	<build>

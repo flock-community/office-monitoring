@@ -12,10 +12,10 @@ import reactor.core.publisher.Mono
 @Service
 class WeatherService(private val webClient: WebClient) {
 
-    private val flockOfficeCoordinates: Pair<String, String> = Pair("52.09266175027509", "5.122345051397365")
+    private val flockOfficeCoordinates: Coord = Coord(52.09266175027509, 5.122345051397365)
 
-    private fun buildUrl(coordinates: Pair<String, String>, apiKey: String): String =
-        "?lat=${coordinates.first}&lon=${coordinates.second}&appid=${apiKey}&units=metric"
+    private fun buildUrl(coordinates: Coord, apiKey: String): String =
+        "?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${apiKey}&units=metric"
 
     fun getPrediction(): Mono<WeatherPrediction> {
         return webClient.get()
@@ -36,7 +36,6 @@ class WeatherServiceConfig (){
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
-
 }
 
 data class WeatherPrediction(
