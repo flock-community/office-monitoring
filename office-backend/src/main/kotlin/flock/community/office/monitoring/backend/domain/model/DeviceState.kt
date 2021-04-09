@@ -56,6 +56,7 @@ data class ContactSensorStateBody(
 }
 
 data class TemperatureSensorStateBody(
+    @JsonProperty("last_seen")
     override val lastSeen: Instant,
     override val battery: Int,
     override val voltage: Int,
@@ -76,6 +77,7 @@ data class TemperatureSensorStateBody(
 }
 
 data class SwitchStateBody(
+    @JsonProperty("last_seen")
     override val lastSeen: Instant,
     val state: String
 ) : StateBody {

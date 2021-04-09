@@ -1,6 +1,7 @@
 <script lang="ts">
     import {devicesStore, deviceStateStore} from "../services/stores";
-    import type {ContactSensorState, DeviceState,} from "../services/StreamDtos";
+    import type {ContactSensorState, DeviceState, SwitchState, TemperatureSensorState,} from "../services/StreamDtos";
+    import {DeviceType} from "../services/StreamDtos";
     import type {TimelineChartRecord} from "./model";
     import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
     import {get} from "svelte/store";
@@ -21,8 +22,10 @@
         return x;
     }
 
-    const door = "https://image.flaticon.com/icons/svg/59/59801.svg";
-    const unknown = "https://upload.wikimedia.org/wikipedia/commons/5/55/Emojione_1F937.svg";
+    const door = "/icons/door.svg";
+    const unknown = "/icons/shrug.svg";
+    const socket = "/icons/socket.svg"
+    const thermometer = "/icons/thermometer.svg";
 
     let chartData = [];
     const colorSet = new am4core.ColorSet();
@@ -45,8 +48,8 @@
 
         return _deviceNames.get(deviceId);
     }
-    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
 
+    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
         return deviceStates
             .map((state: DeviceState<ContactSensorState>) => {
                 if (state.state.contact === false) {
@@ -71,6 +74,59 @@
             .filter((s) => s !== undefined);
     };
 
+    const convertToChartDataTemp = (deviceStates: DeviceState<TemperatureSensorState>[]) => {
+        let last: DeviceState<TemperatureSensorState>;
+        return deviceStates
+            .map((state: DeviceState<TemperatureSensorState>) => {
+                if (!!last && Math.abs(last.state.temperature - state.state.temperature) < 2) return undefined
+
+                last = state;
+
+                let openedOnDate = state.date;
+                let closedOnDate = state.date;
+
+
+
+                let record: TimelineChartRecord = {
+                    category: getDeviceName(state.deviceId),
+                    start: openedOnDate,
+                    end: closedOnDate,
+                    icon: thermometer,
+                    text: `${getDeviceName(state.deviceId)} temperatuur veranderd naar [bold]${state.state.temperature}[/]`,
+                    color: getColor(state.deviceId)
+                };
+                return record;
+            })
+            .filter((s) => s !== undefined);
+    };
+
+
+    const convertToChartDataSwitch = (deviceStates: DeviceState<SwitchState>[]) => {
+        return deviceStates
+            .map((state: DeviceState<SwitchState>) => {
+                if (state.state.state === "ON") {
+                    let openedOnDate = state.date;
+
+                    // The states are per device so the next one must be the close state, if it's not found the sensor is still open
+                    let closedOnDate =
+                        deviceStates.find((s) => s.date > state.date && s.state.state === "OFF")
+                            ?.date || new Date();
+
+                    let record: TimelineChartRecord = {
+                        category: getDeviceName(state.deviceId),
+                        start: openedOnDate,
+                        end: closedOnDate,
+                        icon: socket,
+                        text: `${getDeviceName(state.deviceId)} aangezet tot [bold]${new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"})}[/]`,
+                        color: getColor(state.deviceId)
+                    };
+                    return record;
+                }
+            })
+            .filter((s) => s !== undefined);
+    };
+
+
     let _updating: ChartUpdateStatus = ChartUpdateStatus.IDLE
     const updateChartData = async () => {
         if (_updating !== ChartUpdateStatus.IDLE) {
@@ -84,8 +140,21 @@
         for (let [_, deviceStateArray] of get(deviceStateStore).entries()) {
             // console.debug(`Updating chart data for  contact sensor ${deviceId} (${deviceStateArray.length} entries`)
             // TODO: deal with all sorts of states (not only ContactSensor)
-            const contactSensorStatesTyped = deviceStateArray as DeviceState<ContactSensorState>[];
-            chartData = [...chartData, ...convertToChartData(contactSensorStatesTyped)];
+
+            if (deviceStateArray.length > 0) {
+
+                switch (deviceStateArray[0].type) {
+                    case DeviceType.CONTACT_SENSOR:
+                        chartData = [...chartData, ...convertToChartData(deviceStateArray as DeviceState<ContactSensorState>[])];
+                        break;
+                    case DeviceType.TEMPERATURE_SENSOR:
+                        chartData = [...chartData, ...convertToChartDataTemp(deviceStateArray as DeviceState<TemperatureSensorState>[])];
+                        break;
+                    case DeviceType.SWITCH:
+                        chartData = [...chartData, ...convertToChartDataSwitch(deviceStateArray as DeviceState<SwitchState>[])];
+                        break;
+                }
+            }
         }
 
         await delay(500);
