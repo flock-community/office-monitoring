@@ -104,12 +104,12 @@
     const convertToChartDataSwitch = (deviceStates: DeviceState<SwitchState>[]) => {
         return deviceStates
             .map((state: DeviceState<SwitchState>) => {
-                if (state.state.state === "OFF") {
+                if (state.state.state === "ON") {
                     let openedOnDate = state.date;
 
                     // The states are per device so the next one must be the close state, if it's not found the sensor is still open
                     let closedOnDate =
-                        deviceStates.find((s) => s.date > state.date && s.state.state === "ON")
+                        deviceStates.find((s) => s.date > state.date && s.state.state === "OFF")
                             ?.date || new Date();
 
                     let record: TimelineChartRecord = {
