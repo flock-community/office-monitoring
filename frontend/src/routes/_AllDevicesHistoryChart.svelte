@@ -22,9 +22,10 @@
         return x;
     }
 
-    const door = "https://image.flaticon.com/icons/svg/59/59801.svg";
-    const unknown = "https://upload.wikimedia.org/wikipedia/commons/5/55/Emojione_1F937.svg";
+    const door = "/icons/door.svg";
+    const unknown = "/icons/shrug.svg";
     const socket = "/icons/socket.svg"
+    const thermometer = "/icons/thermometer.svg";
 
     let chartData = [];
     const colorSet = new am4core.ColorSet();
@@ -85,11 +86,12 @@
                 let closedOnDate = state.date;
 
 
+
                 let record: TimelineChartRecord = {
                     category: getDeviceName(state.deviceId),
                     start: openedOnDate,
                     end: closedOnDate,
-                    icon: "/icons/thermometer.svg",
+                    icon: thermometer,
                     text: `${getDeviceName(state.deviceId)} temperatuur veranderd naar [bold]${state.state.temperature}[/]`,
                     color: getColor(state.deviceId)
                 };
