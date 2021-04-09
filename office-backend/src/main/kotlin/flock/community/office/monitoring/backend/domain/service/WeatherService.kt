@@ -1,5 +1,8 @@
 package flock.community.office.monitoring.backend.domain.service
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -7,17 +10,9 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
 @Service
-class WeatherService() {
-
-//    TODO: inject client in order to be able to mock it
+class WeatherService(private val webClient: WebClient) {
 
     private val flockOfficeCoordinates: Pair<String, String> = Pair("52.09266175027509", "5.122345051397365")
-
-    private var webClient: WebClient = WebClient.builder()
-        .baseUrl("https://api.openweathermap.org/data/2.5/weather")
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .build()
-
 
     private fun buildUrl(coordinates: Pair<String, String>, apiKey: String): String =
         "?lat=${coordinates.first}&lon=${coordinates.second}&appid=${apiKey}&units=metric"
@@ -27,6 +22,19 @@ class WeatherService() {
             .uri(buildUrl(flockOfficeCoordinates, ""))
             .retrieve()
             .bodyToMono(WeatherPrediction::class.java)
+    }
+
+}
+
+@Configuration
+class WeatherServiceConfig (){
+
+    @Bean
+    fun weatherWebClient(): WebClient{
+        return WebClient.builder()
+            .baseUrl("https://api.openweathermap.org/data/2.5/weather")
+            .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+            .build()
     }
 
 }
