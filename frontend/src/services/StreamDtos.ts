@@ -14,6 +14,8 @@ export interface DeviceState<T extends StateBody> {
 
 export enum DeviceType {
   CONTACT_SENSOR= "CONTACT_SENSOR",
+  TEMPERATURE_SENSOR= "TEMPERATURE_SENSOR",
+  SWITCH = "SWITCH",
 }
 
 export interface StateBody {}
@@ -25,7 +27,21 @@ export interface ContactSensorState extends StateBody {
   contact: Boolean;
 }
 
-export interface TemperatureSensorState {}
+export interface TemperatureSensorState {
+  lastSeen: Date;
+  battery: Number;
+  voltage: Number;
+  humidity: Number,
+  pressure: Number,
+  temperature: Number
+}
+
+export interface SwitchState {
+  lastSeen: Date;
+  state: String;
+}
+
+
 
 export interface DeviceStateDto {}
 
