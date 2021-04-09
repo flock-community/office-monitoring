@@ -1,6 +1,8 @@
 package flock.community.office.monitoring.backend.domain.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
@@ -10,16 +12,19 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
 @Service
-class WeatherService(private val webClient: WebClient) {
+class WeatherService(
+    private val webClient: WebClient,
+    private val openWeatherMapConfig: OpenWeatherMapConfig
+) {
 
     private val flockOfficeCoordinates: Coord = Coord(52.09266175027509, 5.122345051397365)
 
-    private fun buildUrl(coordinates: Coord, apiKey: String): String =
-        "?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${apiKey}&units=metric"
+    private fun buildUrl(): String =
+        "?lat=${flockOfficeCoordinates.lat}&lon=${flockOfficeCoordinates.lon}&appid=${openWeatherMapConfig.apiKey}&units=metric"
 
     fun getPrediction(): Mono<WeatherPrediction> {
         return webClient.get()
-            .uri(buildUrl(flockOfficeCoordinates, ""))
+            .uri(buildUrl())
             .retrieve()
             .bodyToMono(WeatherPrediction::class.java)
     }
@@ -27,16 +32,22 @@ class WeatherService(private val webClient: WebClient) {
 }
 
 @Configuration
-class WeatherServiceConfig (){
+class WeatherServiceConfig() {
 
     @Bean
-    fun weatherWebClient(): WebClient{
+    fun weatherWebClient(): WebClient {
         return WebClient.builder()
             .baseUrl("https://api.openweathermap.org/data/2.5/weather")
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 }
+
+@ConstructorBinding
+@ConfigurationProperties("open-weather-map")
+data class OpenWeatherMapConfig(
+    val apiKey: String
+)
 
 data class WeatherPrediction(
     val base: String?,
