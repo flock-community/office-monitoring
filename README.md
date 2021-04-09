@@ -1,5 +1,11 @@
 Ideeen
 
+# Running the back-end service
+- Run the command `mvn clean install`
+- Login into Google Cloud using the command `gcloud auth application-default login`
+- Make sure the credentials JSON file is saved on your local environment, i.e.: `~/.config/gcloud/application_default_credentials.json`
+- Run the main class in: `flock.community.office.monitoring.backend.OfficeBackendApplication`
+
 # Infrastructuur
 - GCP account
 - Broker in de cloud
