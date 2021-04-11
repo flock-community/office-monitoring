@@ -19,6 +19,7 @@
     "rsocket-websocket-client": "0.0.22",
     "rxjs": "^6.6.6",
     "sirv": "^1.0.0",
+    "svelte-loading-spinners": "^0.1.4",
     "svelte-material-icons": "^1.0.3",
     "uuid": "^8.3.2",
     "ws": "^7.4.3"

@@ -1,13 +1,10 @@
 <script lang="ts">
-    import {devicesStore, deviceStateStore} from "../services/stores";
-    import type {ContactSensorState, DeviceState, SwitchState, TemperatureSensorState,} from "../services/StreamDtos";
-    import {DeviceType} from "../services/StreamDtos";
-    import type {TimelineChartRecord} from "./model";
+    import {deviceStateStore} from "../services/stores";
     import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
     import {get} from "svelte/store";
     import {delay} from "./_utils";
-    import type {Color} from "@amcharts/amcharts4/core";
-    import * as am4core from "@amcharts/amcharts4/core";
+    import {Pulse} from 'svelte-loading-spinners'
+    import {resolveChartData} from "../services/ChartDataResolver";
 
     enum ChartUpdateStatus {
         IDLE,
@@ -15,119 +12,10 @@
         QUEUED
     }
 
-    function getDateRelative(hours: number, minutes: number = 0) {
-        const x = new Date()
-        x.setHours(x.getHours() + hours);
-        x.setMinutes(x.getMinutes() + minutes);
-        return x;
-    }
-
-    const door = "/icons/door.svg";
-    const unknown = "/icons/shrug.svg";
-    const socket = "/icons/socket.svg"
-    const thermometer = "/icons/thermometer.svg";
-
     let chartData = [];
-    const colorSet = new am4core.ColorSet();
-    let _color = new Map<string, Color>();
-    const getColor: (deviceId: string) => Color = (deviceId: string) => {
-        if (!_color.has(deviceId)) {
-            const encodedDeviceId = deviceId.split('').reduce((prev, cur) => prev + cur.charCodeAt(0), 0);
-            const derivedColor = colorSet.getIndex(encodedDeviceId % 15);
-            _color.set(deviceId, derivedColor);
-        }
-
-        return _color.get(deviceId)
-    };
-
-    let _deviceNames = new Map<string, string>();
-    const getDeviceName: (deviceId: string) => string = (deviceId: string) => {
-        if (!_deviceNames.has(deviceId)) {
-            _deviceNames.set(deviceId, get(devicesStore).find(it => it.id == deviceId)?.name || "Roque device 42")
-        }
-
-        return _deviceNames.get(deviceId);
-    }
-
-    const convertToChartData = (deviceStates: DeviceState<ContactSensorState>[]) => {
-        return deviceStates
-            .map((state: DeviceState<ContactSensorState>) => {
-                if (state.state.contact === false) {
-                    let openedOnDate = state.date;
-
-                    // The states are per device so the next one must be the close state, if it's not found the sensor is still open
-                    let closedOnDate =
-                        deviceStates.find((s) => s.date > state.date && s.state.contact)
-                            ?.date || new Date();
-
-                    let record: TimelineChartRecord = {
-                        category: getDeviceName(state.deviceId),
-                        start: openedOnDate,
-                        end: closedOnDate,
-                        icon: door,
-                        text: `${getDeviceName(state.deviceId)} geopend tot [bold]${new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"})}[/]`,
-                        color: getColor(state.deviceId)
-                    };
-                    return record;
-                }
-            })
-            .filter((s) => s !== undefined);
-    };
-
-    const convertToChartDataTemp = (deviceStates: DeviceState<TemperatureSensorState>[]) => {
-        let last: DeviceState<TemperatureSensorState>;
-        return deviceStates
-            .map((state: DeviceState<TemperatureSensorState>) => {
-                if (!!last && Math.abs(last.state.temperature - state.state.temperature) < 2) return undefined
-
-                last = state;
-
-                let openedOnDate = state.date;
-                let closedOnDate = state.date;
-
-
-
-                let record: TimelineChartRecord = {
-                    category: getDeviceName(state.deviceId),
-                    start: openedOnDate,
-                    end: closedOnDate,
-                    icon: thermometer,
-                    text: `${getDeviceName(state.deviceId)} temperatuur veranderd naar [bold]${state.state.temperature}[/]`,
-                    color: getColor(state.deviceId)
-                };
-                return record;
-            })
-            .filter((s) => s !== undefined);
-    };
-
-
-    const convertToChartDataSwitch = (deviceStates: DeviceState<SwitchState>[]) => {
-        return deviceStates
-            .map((state: DeviceState<SwitchState>) => {
-                if (state.state.state === "ON") {
-                    let openedOnDate = state.date;
-
-                    // The states are per device so the next one must be the close state, if it's not found the sensor is still open
-                    let closedOnDate =
-                        deviceStates.find((s) => s.date > state.date && s.state.state === "OFF")
-                            ?.date || new Date();
-
-                    let record: TimelineChartRecord = {
-                        category: getDeviceName(state.deviceId),
-                        start: openedOnDate,
-                        end: closedOnDate,
-                        icon: socket,
-                        text: `${getDeviceName(state.deviceId)} aangezet tot [bold]${new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"})}[/]`,
-                        color: getColor(state.deviceId)
-                    };
-                    return record;
-                }
-            })
-            .filter((s) => s !== undefined);
-    };
-
 
     let _updating: ChartUpdateStatus = ChartUpdateStatus.IDLE
+
     const updateChartData = async () => {
         if (_updating !== ChartUpdateStatus.IDLE) {
             _updating = ChartUpdateStatus.QUEUED;
@@ -136,26 +24,8 @@
 
         _updating = ChartUpdateStatus.UPDATING;
 
-        chartData = []
-        for (let [_, deviceStateArray] of get(deviceStateStore).entries()) {
-            // console.debug(`Updating chart data for  contact sensor ${deviceId} (${deviceStateArray.length} entries`)
-            // TODO: deal with all sorts of states (not only ContactSensor)
-
-            if (deviceStateArray.length > 0) {
-
-                switch (deviceStateArray[0].type) {
-                    case DeviceType.CONTACT_SENSOR:
-                        chartData = [...chartData, ...convertToChartData(deviceStateArray as DeviceState<ContactSensorState>[])];
-                        break;
-                    case DeviceType.TEMPERATURE_SENSOR:
-                        chartData = [...chartData, ...convertToChartDataTemp(deviceStateArray as DeviceState<TemperatureSensorState>[])];
-                        break;
-                    case DeviceType.SWITCH:
-                        chartData = [...chartData, ...convertToChartDataSwitch(deviceStateArray as DeviceState<SwitchState>[])];
-                        break;
-                }
-            }
-        }
+        const newChartData = resolveChartData(get(deviceStateStore));
+        chartData = [...newChartData]
 
         await delay(500);
         if (_updating === ChartUpdateStatus.QUEUED) {
@@ -165,24 +35,19 @@
             _updating = ChartUpdateStatus.IDLE;
         }
     }
-
-    deviceStateStore.subscribe(state => {
+    deviceStateStore.subscribe(async state => {
             if (state.size > 0) {
-                updateChartData();
-            } else {
-                chartData = [{
-                    category: "loading . . .",
-                    start: getDateRelative(-10),
-                    end: getDateRelative(-10, 5),
-                    icon: unknown,
-                    text: "loading data ....",
-                    color: colorSet.getIndex(0),
-                    // task: String;
-                }]
+                await updateChartData();
             }
         }
     )
 </script>
 
-<DeviceHistoryChart {chartData}/>
+{#if chartData.length === 0}
+    <div class="h-full flex justify-center items-center flex-col">
+        <Pulse size="200" color="#f8e008" unit="px" duration="1.5s"/>
+    </div>
+{:else }
+    <DeviceHistoryChart {chartData}/>
+{/if}
 <!--<pre>{JSON.stringify(chartData, null, 4)}</pre>-->
