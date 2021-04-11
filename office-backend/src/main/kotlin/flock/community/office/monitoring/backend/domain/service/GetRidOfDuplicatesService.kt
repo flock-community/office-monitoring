@@ -7,18 +7,19 @@ import flock.community.office.monitoring.backend.domain.repository.DeviceStateRe
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import flock.community.office.monitoring.backend.domain.repository.mapping.DeviceStateMapper
 import flock.community.office.monitoring.utils.logging.loggerFor
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 @Service
 class GetRidOfDuplicatesService(
     private val deviceStateRepository: DeviceStateRepository,
     private val deviceStateMapper: DeviceStateMapper
-
     ) {
 
     private val logger = loggerFor<DeviceStateHistoryService>()
 
 
+    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000) // once per day (in milliseconds)"
     fun deduplicate(){
         logger.warn("Running a dedupe ...")
         devicesMappingConfigurations.entries.map {
@@ -42,11 +43,9 @@ class GetRidOfDuplicatesService(
                 }
             }
 
-            logger.info("Marked for deletion: ${markedForDeletion.size}")
+            logger.warn("Marked for deletion: ${markedForDeletion.size} entries")
             val deviceStateEntities: List<DeviceStateEntity> = markedForDeletion.map { d -> deviceStateMapper.map(d) }
             deviceStateRepository.deleteAll(deviceStateEntities)
-//            logger.info("not deleting for now")
         }
     }
-
 }
