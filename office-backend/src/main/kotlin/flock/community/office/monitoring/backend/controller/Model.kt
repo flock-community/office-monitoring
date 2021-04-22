@@ -17,7 +17,7 @@ data class FlockMonitorMessage (
 )
 
 sealed class FlockMonitorCommandBody  {
-    object GetDevicesCommand : FlockMonitorCommandBody()
+    data class GetDevicesCommand(val id: Int = -1) : FlockMonitorCommandBody()
     data class GetDeviceStateCommand(val deviceId: String, val from: Instant) : FlockMonitorCommandBody()
 }
 
