@@ -49,7 +49,7 @@ internal class StreamRoot(
 
         }
 
-        return subscriptionHandler.subscribeForCommands(monitorCommandBodies)
+        return subscriptionHandler.subscribeForCommands(monitorCommandBodies, requestId)
             .onStart { logger.info("Received request from $requestId") }
             .onCompletion { logger.info("Finished serving requests to $requestId") }
             .catch {
