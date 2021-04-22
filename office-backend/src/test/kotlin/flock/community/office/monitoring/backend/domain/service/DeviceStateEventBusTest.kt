@@ -4,6 +4,7 @@ import flock.community.office.monitoring.backend.configuration.DeviceType
 import flock.community.office.monitoring.backend.domain.model.ContactSensorStateBody
 import flock.community.office.monitoring.backend.domain.model.DeviceState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -56,6 +57,7 @@ internal class DeviceStateEventBusTest {
 
         testBus.publish(testEntities[1])
 
+        delay(10);
         assertEquals(testEntities[1], testBus.subscribe(null).first())
     }
 }

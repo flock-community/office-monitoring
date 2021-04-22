@@ -18,7 +18,7 @@
         <AllDevicesHistoryChart/>
     </div>
     <div class="h-2/6">
-        <div class="grid grid-cols-3 gap-10">
+        <div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10">
             {#each $devices as {id, name, type}, i}
                 <Device {id} {name} {type}/>
             {/each}

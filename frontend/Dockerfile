@@ -7,6 +7,7 @@ RUN npm ci
 COPY . ./
 
 ARG _HOST
+RUN echo "_HOST=${_HOST}">> .env
 RUN printenv
 RUN npm run export
 
