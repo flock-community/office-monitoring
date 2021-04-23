@@ -1,6 +1,6 @@
 package flock.community.office.monitoring.backend.domain.service
 
-import org.springframework.beans.factory.annotation.Autowired
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
 
 @Service
 class WeatherService(
@@ -22,13 +21,13 @@ class WeatherService(
     private fun buildUrl(): String =
         "?lat=${flockOfficeCoordinates.lat}&lon=${flockOfficeCoordinates.lon}&appid=${openWeatherMapConfig.apiKey}&units=metric"
 
-    fun getPrediction(): Mono<WeatherPrediction> {
+    suspend fun getPrediction(): WeatherPrediction {
         return webClient.get()
             .uri(buildUrl())
             .retrieve()
             .bodyToMono(WeatherPrediction::class.java)
+            .awaitSingle()
     }
-
 }
 
 @Configuration

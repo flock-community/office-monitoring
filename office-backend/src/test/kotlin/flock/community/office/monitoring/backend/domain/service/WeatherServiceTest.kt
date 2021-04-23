@@ -1,5 +1,6 @@
 package flock.community.office.monitoring.backend.domain.service
 
+import kotlinx.coroutines.runBlocking
 import nl.wykorijnsburger.kminrandom.minRandomCached
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.anyString
@@ -7,10 +8,8 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito
 import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import reactor.test.StepVerifier
 import kotlin.test.assertEquals
 
 internal class WeatherServiceTest (){
@@ -20,7 +19,7 @@ internal class WeatherServiceTest (){
     private val testService = WeatherService(mockedWebclient, apiKey)
 
     @Test
-    fun `test get weather object`(){
+    fun `test get weather object`():Unit = runBlocking {
         val expect = WeatherPrediction::class.minRandomCached()
 
         //Given
@@ -33,9 +32,7 @@ internal class WeatherServiceTest (){
         given(responseSpec.bodyToMono(eq(WeatherPrediction::class.java))).willReturn(Mono.just(expect))
 
         //When
-        StepVerifier.create(testService.getPrediction())
-            .expectNext(expect)
-            .verifyComplete()
+        assertEquals(expect.coord.lat, testService.getPrediction().coord.lat)
 
         Mockito.verify(xyz).uri(eq("?lat=52.09266175027509&lon=5.122345051397365&appid=fakeKey&units=metric"))
     }
