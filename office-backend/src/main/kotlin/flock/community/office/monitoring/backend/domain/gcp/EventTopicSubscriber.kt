@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service
 @ConstructorBinding
 @ConfigurationProperties("pubsub")
 data class PubSubConfig(
-    val subscriptionName: String
+    val subscriptionName: String,
+    val commandTopicName: String
 )
 
 @Service

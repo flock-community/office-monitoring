@@ -15,6 +15,7 @@ server:
 
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
+  command-topic-name: projects/${spring.cloud.gcp.project-id}/topics/flock-office-command-events
 
 open-weather-map:
   api-key: ${API_KEY}
