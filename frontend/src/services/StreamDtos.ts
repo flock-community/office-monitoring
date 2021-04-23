@@ -13,7 +13,8 @@ export interface DeviceState<T extends StateBody> {
 }
 
 export enum DeviceType {
-  CONTACT_SENSOR= "CONTACT_SENSOR",
+  CONTACT_SENSOR = "CONTACT_SENSOR",
+  TEMP_SENSOR = "TEMPERATURE_SENSOR",
 }
 
 export interface StateBody {}
@@ -25,7 +26,12 @@ export interface ContactSensorState extends StateBody {
   contact: Boolean;
 }
 
-export interface TemperatureSensorState {}
+export interface TemperatureSensorState extends StateBody {
+  lastSeen: Date;
+  humidity: number;
+  pressure: number;
+  temperature: number;
+}
 
 export interface DeviceStateDto {}
 
@@ -57,9 +63,8 @@ export enum FlockMonitorCommandType {
 export enum FlockMonitorMessageType {
   // Messages
   DEVICE_LIST_MESSAGE = "DEVICE_LIST_MESSAGE",
-  DEVICE_STATE = "DEVICE_STATE"
+  DEVICE_STATE = "DEVICE_STATE",
 }
-
 
 class BaseCommand implements FlockMonitorCommand {
   type: FlockMonitorCommandType;
@@ -81,12 +86,12 @@ export class DeviceStateSubscription extends BaseCommand {
   constructor(deviceId: string, from: Date) {
     super(FlockMonitorCommandType.GET_DEVICE_STATE_COMMAND, {
       deviceId: deviceId,
-      from: from
+      from: from,
     });
   }
 }
 
 export interface FlockMonitorMessage {
-    type: FlockMonitorMessageType,
-    body: any //FlockMonitorMessageBody
+  type: FlockMonitorMessageType;
+  body: any; //FlockMonitorMessageBody
 }
