@@ -19,7 +19,7 @@
     devicesStore.subscribe(devices => {
 
         const test = devices
-            .filter(device => device.type === DeviceType.TEMP_SENSOR)
+            .filter(device => device.type === DeviceType.TEMPERATURE_SENSOR)
             .map(tempSensor => {
                 get(deviceStateStore)
                     .get(tempSensor.id)
@@ -39,7 +39,7 @@
 
         const deviceState: DeviceState<TemperatureSensorState> = {
             id: sensor,
-            type: DeviceType.TEMP_SENSOR,
+            type: DeviceType.TEMPERATURE_SENSOR,
             date: new Date(),
             deviceId: sensor,
             state: {
@@ -47,6 +47,8 @@
                 humidity: 90,
                 pressure: 1000,
                 temperature: temp,
+                battery: 1,
+                voltage: 1
             },
         };
 

@@ -19,6 +19,7 @@
             isOpen = true;
         }
     });
+
 </script>
 
 {#if isOpen}

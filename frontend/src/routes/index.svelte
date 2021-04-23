@@ -3,10 +3,7 @@
   import { DeviceSubscription } from "../services/StreamDtos";
   import EventBus from "../services/EventBus";
   import { devicesStore } from "../services/stores";
-  import { Button } from "svelte-chota/cmp";
   import { Tabs, Tab } from "svelte-chota/cmp";
-  import { fade, fly } from "svelte/transition";
-
   import AllDevicesHistoryChart from "./_AllDevicesHistoryChart.svelte";
   import TemperatureChart from "./_TemperatureChart.svelte";
 
@@ -36,9 +33,9 @@
     {/if}
   </div>
   <div class="h-2/6">
-    <div class="grid grid-cols-3 gap-10">
+    <div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1gap-10">
       {#each $devices as { id, name, type }, i}
-        <Device {id} {name} />
+        <Device {id} {name} {type}/>
       {/each}
     </div>
   </div>

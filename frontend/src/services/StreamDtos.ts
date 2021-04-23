@@ -14,23 +14,31 @@ export interface DeviceState<T extends StateBody> {
 
 export enum DeviceType {
   CONTACT_SENSOR = "CONTACT_SENSOR",
-  TEMP_SENSOR = "TEMPERATURE_SENSOR",
+  TEMPERATURE_SENSOR = "TEMPERATURE_SENSOR",
+  SWITCH = "SWITCH",
 }
 
 export interface StateBody {}
 
 export interface ContactSensorState extends StateBody {
   lastSeen: Date;
-  battery: Number;
-  voltage: Number;
-  contact: Boolean;
+  battery: number;
+  voltage: number;
+  contact: boolean;
 }
 
-export interface TemperatureSensorState extends StateBody {
+export interface TemperatureSensorState {
   lastSeen: Date;
+  battery: number;
+  voltage: number;
   humidity: number;
   pressure: number;
   temperature: number;
+}
+
+export interface SwitchState {
+  lastSeen: Date;
+  state: string;
 }
 
 export interface DeviceStateDto {}
@@ -39,6 +47,7 @@ export interface MessageDTO {
   data: FlockMonitorMessage;
   metadata: string;
 }
+
 export interface CommandDTO {
   data: FlockMonitorCommand;
   metadata: string;
@@ -60,6 +69,7 @@ export enum FlockMonitorCommandType {
   GET_DEVICES_COMMAND = "GET_DEVICES_COMMAND",
   GET_DEVICE_STATE_COMMAND = "GET_DEVICE_STATE_COMMAND",
 }
+
 export enum FlockMonitorMessageType {
   // Messages
   DEVICE_LIST_MESSAGE = "DEVICE_LIST_MESSAGE",
