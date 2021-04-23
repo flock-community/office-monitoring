@@ -1,6 +1,7 @@
 {
 		"extends": "@tsconfig/svelte/tsconfig.json",
 		"compilerOptions": {
+			"target": "es6",
 			"lib": ["DOM", "es2019", "WebWorker"]
 		},
 		"include": ["src/**/*", "src/node_modules/**/*"],

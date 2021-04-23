@@ -8,7 +8,7 @@ export interface DeviceState<T extends StateBody> {
   id: string;
   type: DeviceType;
   deviceId: string;
-  date: Date;
+  date: string;
   state: T;
 }
 

@@ -10,7 +10,7 @@
   const devices = devicesStore;
   EventBus.request(new DeviceSubscription());
 
-  let active_tab = 1;
+  let active_tab = 0;
 </script>
 
 <svelte:head>
@@ -20,7 +20,7 @@
 <div class="p-3 h-full w-full">
   <div class="h-4/6 h-min-500">
     <Tabs bind:active={active_tab}>
-      <Tab>Deuren</Tab>
+      <Tab>Alles</Tab>
       <Tab>Temperatuur</Tab>
     </Tabs>
 
@@ -35,7 +35,7 @@
   <div class="h-2/6">
     <div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1gap-10">
       {#each $devices as { id, name, type }, i}
-        <Device {id} {name} {type}/>
+        <Device {id} {name} {type} />
       {/each}
     </div>
   </div>
