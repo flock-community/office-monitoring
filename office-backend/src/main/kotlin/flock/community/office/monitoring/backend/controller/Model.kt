@@ -39,4 +39,4 @@ enum class FlockMonitorMessageType {
     DEVICE_STATE
 }
 
-data class Device(val id: String, val name: String, val type: DeviceType)
+data class Device(val id: String, val name: String, val type: DeviceType, val sensorId: String)
