@@ -43,11 +43,13 @@ class DevicesFeedCommandExecutor(
 
         if (mqttDeviceId != null) {
             deviceStateHistoryService.getHistory(mqttDeviceId, command.from).collect {
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
+                val deviceState = it.copy(deviceId = command.deviceId)
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
             }
 
             deviceStateEventBus.subscribe(mqttDeviceId).collect {
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
+                val deviceState = it.copy(deviceId = command.deviceId)
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
             }
         }
     }
