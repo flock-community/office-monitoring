@@ -24,10 +24,4 @@ internal class SwitchController(private val commandPublisher: CommandPublisher) 
         logger.info("Switch off")
         commandPublisher.off(deviceId)
     }
-
-    @PostMapping("/state")
-    internal fun state(@PathVariable deviceId: String) {
-        logger.info("Switch current state")
-        commandPublisher.state(deviceId)
-    }
 }

@@ -2,7 +2,7 @@ package flock.community.office.monitoring.backend.domain.gcp
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.domain.service.DeviceStateSaveService
-import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
+import flock.community.office.monitoring.queue.message.EventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
@@ -47,7 +47,7 @@ class EventTopicSubscriber(
                     { logger.warn("Message nack failed ${message.pubsubMessage.messageId} - ${message.payload}") }
                 )
             }
-        }, DeviceStateEventQueueMessage::class.java)
+        }, EventQueueMessage::class.java)
     }
 }
 

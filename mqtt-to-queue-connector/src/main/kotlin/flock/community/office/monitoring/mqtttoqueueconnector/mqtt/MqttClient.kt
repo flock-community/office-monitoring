@@ -2,7 +2,7 @@ package flock.community.office.monitoring.mqtttoqueueconnector.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.mqtttoqueueconnector.queue.Publisher
-import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
+import flock.community.office.monitoring.queue.message.EventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
@@ -18,13 +18,24 @@ class MqttClient(
     mqttSettings: MQTTSettings
 ) {
 
+    private val mqttClient: MqttClient = MqttClient(mqttSettings.endpoint, "mqtt-to-queue-connector");
+
     init {
-        MqttClient(mqttSettings.endpoint, "mqtt-to-queue-connector").apply {
+        mqttClient.apply {
             connect()
             setCallback(flockMqttCallback)
             subscribe(mqttSettings.topicFilter)
         }
+        this.publish()
     }
+
+    fun publish(){
+        val topic = "zigbee2mqtt/0x680ae2fffe724965/set"
+        val payload = "{\"state\":\"OFF\"}"
+        mqttClient.publish(topic, payload.toByteArray(), 1, false)
+    }
+
+
 }
 
 @Service
@@ -35,12 +46,13 @@ class FlockMqttCallback(
 
     val logger = loggerFor<FlockMqttCallback>()
 
+
     override fun connectionLost(cause: Throwable) {
         logger.error("Lost connection to MQTT broker", cause)
         // TODO: Find out if it automatically reconnects
     }
 
-    override fun messageArrived(topic: String, message: MqttMessage) = DeviceStateEventQueueMessage(topic, message.asString())
+    override fun messageArrived(topic: String, message: MqttMessage) = EventQueueMessage(topic, message.asString())
         .also { logger.trace("Received message: $it from MQTT broker, forwarding to publishers") }
         .let { objectMapper.writeValueAsString(it) }
         .run { publishers.forEach { it.publish(this) } }

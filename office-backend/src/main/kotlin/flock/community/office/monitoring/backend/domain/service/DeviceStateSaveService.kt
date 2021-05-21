@@ -5,7 +5,7 @@ import flock.community.office.monitoring.backend.domain.exception.DeviceExceptio
 import flock.community.office.monitoring.backend.domain.repository.DeviceStateRepository
 import flock.community.office.monitoring.backend.domain.repository.entities.DeviceStateEntity
 import flock.community.office.monitoring.backend.domain.repository.mapping.DeviceStateMapper
-import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
+import flock.community.office.monitoring.queue.message.EventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
 import org.springframework.stereotype.Service
 import java.util.*
@@ -19,17 +19,17 @@ class DeviceStateSaveService(
 
     val logger = loggerFor<DeviceStateSaveService>()
 
-    fun saveSensorEventQueueMessage(deviceStateEventQueueMessage: DeviceStateEventQueueMessage) {
+    fun saveSensorEventQueueMessage(eventQueueMessage: EventQueueMessage) {
 
         val deviceConfiguration =
-            devicesMappingConfigurations[deviceStateEventQueueMessage.topic] ?: throw DeviceException.UnknownDevice(deviceStateEventQueueMessage.topic, deviceStateEventQueueMessage.message)
+            devicesMappingConfigurations[eventQueueMessage.topic] ?: throw DeviceException.UnknownDevice(eventQueueMessage.topic, eventQueueMessage.message)
 
         val deviceStateEntity = DeviceStateEntity(
             UUID.randomUUID().toString(),
             deviceConfiguration.deviceType,
-            deviceStateEventQueueMessage.topic,
-            deviceStateEventQueueMessage.received,
-            deviceStateEventQueueMessage.message
+            eventQueueMessage.topic,
+            eventQueueMessage.received,
+            eventQueueMessage.message
         )
 
         deviceStateRepository.save(deviceStateEntity).also {

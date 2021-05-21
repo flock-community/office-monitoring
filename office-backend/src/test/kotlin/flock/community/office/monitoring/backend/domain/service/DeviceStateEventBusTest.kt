@@ -46,6 +46,7 @@ internal class DeviceStateEventBusTest {
     fun `When publishing a message to eventBus subscribe retrieves it`() = runBlockingTest {
         val testEntity = createTestMessages(1)[0]
         testBus.publish(testEntity)
+        delay(10);
 
         assertEquals(testEntity, testBus.subscribe(null).first())
     }
