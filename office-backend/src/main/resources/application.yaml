@@ -16,4 +16,7 @@ server:
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
 
+open-weather-map:
+  api-key: ${API_KEY}
+
 

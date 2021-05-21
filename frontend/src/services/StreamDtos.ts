@@ -1,5 +1,6 @@
 export interface DeviceDto {
   id: string;
+  sensorId: string
   name: string;
   type: DeviceType;
 }
