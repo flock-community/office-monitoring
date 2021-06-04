@@ -5,64 +5,30 @@
   import type { LineChartDateRecord, LineChartRecord } from "../model";
   import type { Writable } from "svelte/store";
 
-  export let chartRecordStore: Writable<LineChartRecord[]>;
+  export let chartRecordStore: Writable<any[]>;
+  export let tempSensorIds: string[];
 
   onMount(async () => {
     am4core.ready(onready);
 
     chartRecordStore.subscribe((records) => {
-      //console.log("ChartData", records);
       chart.data = records;
-      //chart.addData(records.slice(-1)[0]);
     });
   });
 
   let chart: am4charts.XYChart;
 
-  // let testData: LineChartDateRecord[] = [
-  //     {
-  //         date: new Date(new Date().getTime() - 1 * 60000),
-  //         events: [
-  //             {
-  //                 name: "Koelkast",
-  //                 text: "text",
-  //                 value: 21,
-  //             },
-  //         ],
-  //     },
-  //     {
-  //         date: new Date(new Date().getTime() - 2 * 60000),
-  //         events: [
-  //             {
-  //                 name: "Koelkast",
-  //                 text: "text",
-  //                 value: 20,
-  //             },
-  //         ],
-  //     },
-  //     {
-  //         date: new Date(new Date().getTime() - 3 * 60000),
-  //         events: [
-  //             {
-  //                 name: "Koelkast",
-  //                 text: "text",
-  //                 value: 19,
-  //             },
-  //         ],
-  //     },
-  // ];
-
   function onready() {
     chart = am4core.create("linechart", am4charts.XYChart);
+    chart.logo.disabled = true;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-    dateAxis.renderer.grid.template.location = 0.5;
+    dateAxis.renderer.grid.template.location = 0;
     dateAxis.interpolationDuration = 500;
     dateAxis.rangeChangeDuration = 500;
+    dateAxis.tooltipDateFormat = "HH:mm:ss";
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-    // Add scrollbar
-    chart.scrollbarX = new am4charts.XYChartScrollbar();
 
     function addSeries(tempValueField) {
       const series = chart.series.push(new am4charts.LineSeries());
@@ -70,7 +36,7 @@
       series.dataFields.dateX = "date";
       series.strokeWidth = 2;
       series.minBulletDistance = 10;
-      series.tooltipText = "{text}";
+      series.tooltipText = "{" + tempValueField + "}";
       series.tooltip.pointerOrientation = "vertical";
       series.tooltip.background.cornerRadius = 20;
       series.tooltip.background.fillOpacity = 0.5;
@@ -91,13 +57,11 @@
       });
     }
 
-    addSeries("value");
-
-    // Add cursor
+    chart.scrollbarX = new am4charts.XYChartScrollbar();
     chart.cursor = new am4charts.XYCursor();
     chart.cursor.xAxis = dateAxis;
-    chart.cursor.dateFormatter = new am4core.DateFormatter();
-    chart.cursor.dateFormatter.dateFormat = "MM-dd";
+
+    tempSensorIds.forEach((id) => addSeries(id));
   }
 </script>
 

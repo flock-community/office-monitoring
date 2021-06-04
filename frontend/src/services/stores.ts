@@ -46,16 +46,16 @@ const deviceStateDummyData = () => {
   return device1States;
 };
 
-const devicesDummyData = () => {
-  const devices: DeviceDto[] = [
-    {
-      id: "door-1",
-      name: "Linker deur",
-      type: DeviceType.CONTACT_SENSOR,
-    },
-  ];
-  return devices;
-};
+// const devicesDummyData = () => {
+//   const devices: DeviceDto[] = [
+//     {
+//       id: "door-1",
+//       name: "Linker deur",
+//       type: DeviceType.CONTACT_SENSOR,
+//     },
+//   ];
+//   return devices;
+// };
 
 // deviceStateStore.update((stored) => [...stored, ...deviceStateDummyData()]);
 // devicesStore.update((stored) => [...stored, ...devicesDummyData()]);

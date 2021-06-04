@@ -18,7 +18,7 @@
 </svelte:head>
 
 <div class="p-3 h-full w-full">
-  <div class="h-4/6 h-min-500">
+  <div class="flex flex-col h-4/6 h-min-500">
     <Tabs bind:active={active_tab}>
       <Tab>Alles</Tab>
       <Tab>Temperatuur</Tab>
