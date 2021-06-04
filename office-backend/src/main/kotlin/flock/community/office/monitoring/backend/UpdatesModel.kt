@@ -13,14 +13,9 @@ import java.util.*
 @Component
 class UpdatesModel {
 
-    private val log = getLogger(javaClass)
     private var _state = MutableStateFlow(nullValue)
     val state: StateFlow<DeviceStateEntity> get() = _state
 
-    fun update(deviceMessage: DeviceStateEntity) {
-        log.info("Updating state with $deviceMessage")
-        _state.value = deviceMessage
-    }
 
     companion object {
         val nullValue = DeviceStateEntity(

@@ -2,6 +2,7 @@ package flock.community.office.monitoring.backend.domain.repository.mapping
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.configuration.DeviceType
+import flock.community.office.monitoring.backend.configuration.devicesMappingConfigurations
 import flock.community.office.monitoring.backend.domain.exception.DeviceException
 import flock.community.office.monitoring.backend.domain.model.DeviceState
 import flock.community.office.monitoring.backend.domain.model.StateBody
@@ -15,6 +16,10 @@ class DeviceStateMapper(
 
     fun map(entity: DeviceStateEntity): DeviceState<StateBody> {
 
+        val deviceId = devicesMappingConfigurations[entity.deviceId]
+            ?.deviceId
+            ?: throw DeviceException.UnknownDevice(entity.deviceId)
+
         val deviceStateBody: StateBody = DeviceType.values().find { it == entity.type }
             .let { deviceType ->
                 deviceType ?: throw DeviceException.UnmappedDeviceType(entity.type)
@@ -24,7 +29,8 @@ class DeviceStateMapper(
         return DeviceState(
             id = entity.id,
             type = entity.type,
-            deviceId = entity.deviceId,
+            deviceId = deviceId,
+            sensorId = entity.deviceId,
             date = entity.date,
             state = deviceStateBody
         )
@@ -34,11 +40,9 @@ class DeviceStateMapper(
         return DeviceStateEntity(
             id = deviceState.id,
             type = deviceState.type,
-            deviceId = deviceState.deviceId,
+            deviceId = deviceState.sensorId,
             date = deviceState.date,
             state = objectMapper.writeValueAsString(deviceState.state)
         )
     }
 }
-
-

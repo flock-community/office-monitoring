@@ -33,6 +33,7 @@ internal class DeviceStateEventBusTest {
             DeviceState(
                 UUID.randomUUID().toString(),
                 DeviceType.CONTACT_SENSOR,
+                "eb11fe92-139f-4abd-874f-a622fc6ea050",
                 "zigbee2mqtt/0x00158d000578385c",
                 Instant.now().minus(it, ChronoUnit.MINUTES),
                 contactSensorStateBody
