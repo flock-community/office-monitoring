@@ -48,7 +48,6 @@ internal class DeviceStateEventBusTest {
         val testEntity = createTestMessages(1)[0]
         testBus.publish(testEntity)
 
-        delay(50)
         assertEquals(testEntity, testBus.subscribe(null).first())
     }
 
@@ -59,7 +58,6 @@ internal class DeviceStateEventBusTest {
 
         testBus.publish(testEntities[1])
 
-        delay(50);
         assertEquals(testEntities[1], testBus.subscribe(null).first())
     }
 }
