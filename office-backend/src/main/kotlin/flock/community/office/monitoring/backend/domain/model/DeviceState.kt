@@ -8,6 +8,7 @@ data class DeviceState<out STATE : StateBody>(
     val id: String,
     val type: DeviceType,
     val deviceId: String,
+    val sensorId: String,
     val date: Instant,
     val state: STATE
 ) {

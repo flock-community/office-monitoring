@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import org.springframework.stereotype.Service
 
 @Service
-class DeviceStateEventBus() {
+class DeviceStateEventBus {
 
     private val _events: MutableSharedFlow<DeviceState<StateBody>> = MutableSharedFlow(replay = 1)
 
@@ -19,9 +19,9 @@ class DeviceStateEventBus() {
         GlobalScope.launch { _events.emit(deviceState) }
     }
 
-    fun subscribe(deviceId: String?): Flow<DeviceState<StateBody>> {
-        return if (deviceId != null) {
-            _events.asSharedFlow().filter { it.deviceId == deviceId }
+    fun subscribe(sensorId: String?): Flow<DeviceState<StateBody>> {
+        return if (sensorId != null) {
+            _events.asSharedFlow().filter { it.deviceId == sensorId }
         } else {
             _events.asSharedFlow()
         }

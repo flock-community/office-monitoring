@@ -33,6 +33,7 @@ internal class DeviceStateEventBusTest {
             DeviceState(
                 UUID.randomUUID().toString(),
                 DeviceType.CONTACT_SENSOR,
+                "eb11fe92-139f-4abd-874f-a622fc6ea050",
                 "zigbee2mqtt/0x00158d000578385c",
                 Instant.now().minus(it, ChronoUnit.MINUTES),
                 contactSensorStateBody
@@ -47,6 +48,7 @@ internal class DeviceStateEventBusTest {
         val testEntity = createTestMessages(1)[0]
         testBus.publish(testEntity)
 
+        delay(50)
         assertEquals(testEntity, testBus.subscribe(null).first())
     }
 
@@ -57,7 +59,7 @@ internal class DeviceStateEventBusTest {
 
         testBus.publish(testEntities[1])
 
-        delay(10);
+        delay(50);
         assertEquals(testEntities[1], testBus.subscribe(null).first())
     }
 }

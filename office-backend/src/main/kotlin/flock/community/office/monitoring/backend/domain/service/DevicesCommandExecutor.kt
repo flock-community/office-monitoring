@@ -37,17 +37,19 @@ class DevicesFeedCommandExecutor(
 
     override fun getFlow(command: GetDeviceStateCommand): Flow<FlockMonitorMessage> = flow {
 
-        val mqttDeviceId = devicesMappingConfigurations.entries
+        val sensorId = devicesMappingConfigurations.entries
             .firstOrNull { it.value.deviceId == command.deviceId }
             ?.key
 
-        if (mqttDeviceId != null) {
-            deviceStateHistoryService.getHistory(mqttDeviceId, command.from).collect {
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
+        if (sensorId != null) {
+            deviceStateHistoryService.getHistory(sensorId, command.from).collect {
+                val deviceState = it.copy(deviceId = command.deviceId)
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
             }
 
-            deviceStateEventBus.subscribe(mqttDeviceId).collect {
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
+            deviceStateEventBus.subscribe(sensorId).collect {
+                val deviceState = it.copy(deviceId = command.deviceId)
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
             }
         }
     }

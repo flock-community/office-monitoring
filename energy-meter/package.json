@@ -1,0 +1,30 @@
+{
+  "name": "office-monitoring-energy-meter",
+  "version": "0.0.1",
+  "description": "Office monitoring setup for energy-meter connection",
+  "main": "index.js",
+  "scripts": {
+    "start": "node $NODE_OPTIONS node_modules/node-red/red.js $FLOWS",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flock-community/office-monitoring.git"
+  },
+  "keywords": [
+    "home-automation",
+    "node-red",
+    "energy-meter",
+    "p1"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flock-community/office-monitoring/issues"
+  },
+  "homepage": "https://github.com/flock-community/office-monitoring#readme",
+  "dependencies": {
+    "node-red": "^1.3.3",
+    "node-red-node-serialport": "^0.13.0"
+  }
+}
