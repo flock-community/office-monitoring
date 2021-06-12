@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.util.UriComponentsBuilder
 
 @Service
 class WeatherService(
@@ -23,12 +25,23 @@ class WeatherService(
     private fun buildUrl(): String =
         "?lat=${flockOfficeCoordinates.lat}&lon=${flockOfficeCoordinates.lon}&appid=${openWeatherMapConfig.apiKey}&units=metric"
 
-    suspend fun getPrediction(): WeatherPrediction {
-        return webClient.get()
-            .uri(buildUrl())
-            .retrieve()
-            .bodyToMono(WeatherPrediction::class.java)
-            .awaitSingle()
+    // TODO: proper error handling
+    suspend fun getPrediction(): WeatherPrediction? {
+        return guard {
+            webClient.get()
+                .uri(buildUrl())
+                .retrieve()
+                .awaitBody()
+        }
+    }
+
+    private suspend fun <T> guard(block: suspend () -> T): T? {
+        return try {
+            block()
+        } catch (e: Throwable) {
+            // TODO: do something here
+            null
+        }
     }
 }
 

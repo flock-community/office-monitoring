@@ -49,13 +49,11 @@ class DevicesFeedCommandExecutor(
 
         if (sensorId != null) {
             deviceStateHistoryService.getHistory(sensorId, command.from).collect {
-                val deviceState = it.copy(deviceId = command.deviceId)
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
             }
 
-            deviceStateEventBus.subscribe(sensorId).collect {
-                val deviceState = it.copy(deviceId = command.deviceId)
-                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(deviceState)))
+            deviceStateEventBus.subscribe(command.deviceId).collect {
+                emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
             }
         }
     }

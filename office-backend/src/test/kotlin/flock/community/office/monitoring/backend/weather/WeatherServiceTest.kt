@@ -34,7 +34,7 @@ internal class WeatherServiceTest (){
         BDDMockito.given(responseSpec.bodyToMono(eq(WeatherPrediction::class.java))).willReturn(Mono.just(expect))
 
         //When
-        assertEquals(expect.coord.lat, testService.getPrediction().coord.lat)
+        assertEquals(expect.coord.lat, testService.getPrediction()?.coord?.lat)
 
         Mockito.verify(xyz).uri(eq("?lat=52.09266175027509&lon=5.122345051397365&appid=fakeKey&units=metric"))
     }

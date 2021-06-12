@@ -20,3 +20,19 @@ open-weather-map:
   api-key: ${API_KEY}
 
 
+alerting:
+  rules:
+    - id : "test"
+      type : "RAIN_CHECK_CONTACT_SENSOR"
+      name : "Alert when dakterras is open and rain is imminent"
+      time-to-reset : 30m
+      device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12"
+      alerts :
+        - time-to-deadline : 60m
+          message: "The dakterras is open, and it's gonna rain in less than an hour ({{time}}). Please close it."
+          channel: "SIGNAL"
+        - time-to-deadline: 20m
+          message: "ALARM The dakterras is open, and it's gonna rain in 30 min ({{time}}). You have close it now."
+          channel: "SIGNAL"
+      meta-data :
+        what-ever-i-put-here: "IsParsedInAMap"

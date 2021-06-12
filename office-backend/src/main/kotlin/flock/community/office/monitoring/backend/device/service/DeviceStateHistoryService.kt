@@ -26,6 +26,12 @@ class DeviceStateHistoryService(
             .map { deviceStateMapper.map(it) }
     }
 
+    fun getLatest(sensorId: String): DeviceState<StateBody>?{
+        return repository.findTop1ByDeviceIdOrderByDateDesc(sensorId)
+            .firstOrNull()?.let { deviceStateMapper.map(it) }
+
+    }
+
 
 }
 

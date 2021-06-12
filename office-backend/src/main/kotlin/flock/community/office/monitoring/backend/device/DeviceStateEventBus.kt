@@ -20,7 +20,7 @@ class DeviceStateEventBus {
 
     fun subscribe(sensorId: String?): Flow<DeviceState<StateBody>> {
         return if (sensorId != null) {
-            _events.asSharedFlow().filter { it.deviceId == sensorId }
+            _events.asSharedFlow().filter { it.sensorId == sensorId }
         } else {
             _events.asSharedFlow()
         }
