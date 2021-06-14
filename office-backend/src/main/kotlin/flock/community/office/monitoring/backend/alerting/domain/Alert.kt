@@ -5,8 +5,8 @@ import java.time.LocalTime
 
 
 data class Alert(
-    val timeToDeadline: Duration?,
-    val time: LocalTime?,
+    val timeToDeadline: Duration? = null,
+    val time: LocalTime? = null,
     val message: String,
     val channel: AlertChannel
 );

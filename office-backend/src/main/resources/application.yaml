@@ -30,9 +30,9 @@ alerting:
       alerts :
         - time-to-deadline : 60m
           message: "The dakterras is open, and it's gonna rain in less than an hour ({{time}}). Please close it."
-          channel: "SIGNAL"
+          channel: SIGNAL
         - time-to-deadline: 20m
-          message: "ALARM The dakterras is open, and it's gonna rain in 30 min ({{time}}). You have close it now."
+          message: "ALARM The dakterras is open, and it's gonna rain in 30 min ({{time}}). You have to close it now."
           channel: "SIGNAL"
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"
