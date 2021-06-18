@@ -1,4 +1,4 @@
-@import url(chota.css);
+@import "https://unpkg.com/chota@latest";
 
 body {
   margin: 0;
