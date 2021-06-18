@@ -1,66 +1,58 @@
 package flock.community.office.monitoring.backend.weather.service
 
-import flock.community.office.monitoring.backend.weather.domain.Coord
-import flock.community.office.monitoring.backend.weather.domain.WeatherPrediction
-import kotlinx.coroutines.reactive.awaitSingle
+import flock.community.office.monitoring.backend.utils.client.HttpServerException
+import flock.community.office.monitoring.backend.utils.client.httpGuard
+import flock.community.office.monitoring.backend.utils.client.verifyHttpStatus
+import flock.community.office.monitoring.backend.weather.domain.WeatherForecast
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.util.UriComponentsBuilder
+import org.springframework.web.reactive.function.client.awaitExchange
+import org.springframework.web.util.UriBuilder
 
 @Service
 class WeatherService(
     private val webClient: WebClient,
-    private val openWeatherMapConfig: OpenWeatherMapConfig
+    private val config: OpenWeatherMapConfig
 ) {
 
-    private val flockOfficeCoordinates: Coord = Coord(52.09266175027509, 5.122345051397365)
-
-    private fun buildUrl(): String =
-        "?lat=${flockOfficeCoordinates.lat}&lon=${flockOfficeCoordinates.lon}&appid=${openWeatherMapConfig.apiKey}&units=metric"
-
-    // TODO: proper error handling
-    suspend fun getPrediction(): WeatherPrediction? {
-        return guard {
-            webClient.get()
-                .uri(buildUrl())
-                .retrieve()
-                .awaitBody()
+    suspend fun getPrediction(): WeatherForecast {
+        return httpGuard({ ex ->
+            HttpServerException(
+                "Unexpected error fetching Weather prediction: ${ex.message}",
+                ex
+            )
+        }) {
+            val uri = webClient.get()
+                .uri { it.buildUrl() }
+            uri
+                .awaitExchange {
+                    it.verifyHttpStatus()
+                    it.awaitBody()
+                }
+//                .also { it.verifyHttpStatus() }
+//                .awaitBody()
         }
     }
 
-    private suspend fun <T> guard(block: suspend () -> T): T? {
-        return try {
-            block()
-        } catch (e: Throwable) {
-            // TODO: do something here
-            null
-        }
-    }
-}
+    private fun UriBuilder.buildUrl() = path("/data/2.5/onecall")
+        .queryParam("lat", config.latitude)
+        .queryParam("lon", config.longitude)
+        .queryParam("appid", config.apiKey)
+        .queryParam("exclude", "daily,alerts")
+        .queryParam("units", "metric")
 
-@Configuration
-class WeatherServiceConfig() {
-
-    @Bean
-    fun weatherWebClient(): WebClient {
-        return WebClient.builder()
-            .baseUrl("https://api.openweathermap.org/data/2.5/weather")
-            .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .build()
-    }
+        .build()
 }
 
 @ConstructorBinding
-@ConfigurationProperties("open-weather-map")
+@ConfigurationProperties("weather.open-weather-map")
 data class OpenWeatherMapConfig(
-    val apiKey: String
+    val apiKey: String,
+    val latitude: Double,
+    val longitude: Double
 )
 
 

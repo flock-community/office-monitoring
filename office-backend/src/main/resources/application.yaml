@@ -16,8 +16,12 @@ server:
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
 
-open-weather-map:
-  api-key: ${API_KEY}
+weather:
+  open-weather-map:
+    api-key: ${_OPEN_WEATER_MAP_API_KEY}
+    latitude: 52.09266175027509
+    longitude: 5.122345051397365
+
 
 
 alerting:
