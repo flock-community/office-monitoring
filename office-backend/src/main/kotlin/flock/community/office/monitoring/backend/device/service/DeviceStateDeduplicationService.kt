@@ -18,8 +18,8 @@ class DeviceStateDeduplicationService(
 
     private val logger = loggerFor<DeviceStateHistoryService>()
 
-
-    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000) // once per day (in milliseconds)"
+        // TODO: Don't forget to turn me on again, please
+//    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000) // once per day (in milliseconds)"
     fun deduplicate(){
         logger.warn("Running a dedupe ...")
         devicesMappingConfigurations.entries.map {

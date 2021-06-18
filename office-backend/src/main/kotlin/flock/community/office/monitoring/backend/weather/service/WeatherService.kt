@@ -18,7 +18,7 @@ class WeatherService(
     private val config: OpenWeatherMapConfig
 ) {
 
-    suspend fun getPrediction(): WeatherForecast {
+    suspend fun getForecast(): WeatherForecast {
         return httpGuard({ ex ->
             HttpServerException(
                 "Unexpected error fetching Weather prediction: ${ex.message}",
