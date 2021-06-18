@@ -2,6 +2,7 @@ import type { ISubscriber } from "rsocket-types";
 import {
   DeviceDto,
   DeviceState,
+  DeviceType,
   FlockMonitorCommand,
   FlockMonitorMessage,
   FlockMonitorMessageType,
@@ -22,10 +23,11 @@ const handleMessage = (value: MessageDTO) => {
   switch (data.type) {
     case FlockMonitorMessageType.DEVICE_STATE:
       let state = data.body.state as DeviceState<any>;
-
       deviceStateStore.update((map) => {
         const deviceId = state.deviceId;
-        const savedStates: DeviceState<StateBody>[] | undefined = map.get(deviceId);
+        const savedStates: DeviceState<StateBody>[] | undefined = map.get(
+          deviceId
+        );
         if (!!savedStates) {
           const safeSavedStates = savedStates as DeviceState<StateBody>[];
           safeSavedStates.push(state);
@@ -34,19 +36,18 @@ const handleMessage = (value: MessageDTO) => {
           map.set(deviceId, [state]);
         }
 
-        return map
-      })
+        return map;
+      });
       break;
     case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
       let newDevices = data.body.devices as DeviceDto[];
       devicesStore.update((devices) => {
-            // console.debug("upserting devicesStore with: ", newDevices);
-            return [...devices, ...newDevices]
-      }
-      );
+        // console.debug("upserting devicesStore with: ", newDevices);
+        return [...devices, ...newDevices];
+      });
       break;
     default:
-      console.error(`Received unsupported message type: ${value.data.type}`)
+      console.error(`Received unsupported message type: ${value.data.type}`);
   }
 };
 
@@ -57,12 +58,12 @@ const messagesFlow: ISubscriber<MessageDTO> = {
   onError: (error) => {
     console.debug("MessageFlow error", error);
   },
-  onNext: (value ) => {
+  onNext: (value) => {
     // console.debug("MessageFlow onNext:", value);
     handleMessage(value);
 
     // console.debug("Requesting another message");
-    setTimeout(subscriptionX.request(1),10);
+    setTimeout(subscriptionX.request(1), 10);
   },
   // Nothing happens until `request(n)` is called
   onSubscribe: (subscription) => {
@@ -91,8 +92,11 @@ const commandsFlow = new Flowable<FlockMonitorCommand>(
 
 const request = (event: FlockMonitorCommand, tries = 20) => {
   if (subscribers.size < 1) {
-    console.log("[EventBus] No subscribers yet, trying again to publish command in one second", event);
-    if (tries-- > 1 )setTimeout(() => request(event, tries), 3000);
+    console.log(
+      "[EventBus] No subscribers yet, trying again to publish command in one second",
+      event
+    );
+    if (tries-- > 1) setTimeout(() => request(event, tries), 3000);
   } else {
     console.log("[Event] Publishing command: ", event);
     subscribers.forEach(
