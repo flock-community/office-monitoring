@@ -1,7 +1,7 @@
 package flock.community.office.monitoring.backend.weather
 
 import flock.community.office.monitoring.backend.weather.service.OpenWeatherMapConfig
-import flock.community.office.monitoring.backend.weather.service.WeatherService
+import flock.community.office.monitoring.backend.weather.service.WeatherClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.mockito.Mockito.mock
 import org.springframework.web.reactive.function.client.WebClient
@@ -11,7 +11,7 @@ internal class WeatherServiceTest (){
 
     private val apiKey = OpenWeatherMapConfig("fakeKey", 1.2,2.3)
     private val mockedWebclient: WebClient = mock(WebClient::class.java)
-    private val testService = WeatherService(mockedWebclient, apiKey)
+    private val testService = WeatherClient(mockedWebclient, apiKey)
 
 //    @Test
 //    fun `test get weather object`() = runBlockingTest {

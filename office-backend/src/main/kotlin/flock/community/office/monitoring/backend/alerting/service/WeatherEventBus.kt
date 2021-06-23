@@ -1,7 +1,7 @@
 package flock.community.office.monitoring.backend.alerting.service
 
 import flock.community.office.monitoring.backend.weather.domain.WeatherForecast
-import flock.community.office.monitoring.backend.weather.service.WeatherService
+import flock.community.office.monitoring.backend.weather.service.WeatherClient
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import java.time.Duration
 
 @Component
 class WeatherEventBus(
-    private val weatherService: WeatherService
+    private val weatherClient: WeatherClient
 ) : DisposableBean {
 
     private val scope = CoroutineScope(CoroutineName("WeatherEventBus"))
@@ -45,7 +45,7 @@ class WeatherEventBus(
 
     private suspend fun getWeatherForecast() {
         try {
-            val deviceState = weatherService.getForecast()
+            val deviceState = weatherClient.getForecast()
             _events.emit(deviceState)
         } catch (ex: Throwable) {
             log.error(

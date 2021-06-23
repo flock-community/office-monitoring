@@ -9,7 +9,7 @@ data class Rule(
     val id: RuleId,
     val type: RuleType,
     val name: String,
-    val alerts: List<Alert> = emptyList(),
+    val alerts: Map<String, Alert> = emptyMap(),
     val timeToReset: Duration,
     val deviceIds: List<String>,
     val metaData: Map<String, String>

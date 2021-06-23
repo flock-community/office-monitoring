@@ -46,6 +46,7 @@ class TimedEventsEventBus : DisposableBean {
                 val response = CompletableDeferred<Set<TimedUpdateRequest>>()
                 scheduledEventsActor.send(PopEvents(response))
                 val timedUpdateRequests: Set<TimedUpdateRequest> = response.await()
+
                 timedUpdateRequests.forEach {
                     _events.emit(it.timedUpdate)
                 }
@@ -53,13 +54,6 @@ class TimedEventsEventBus : DisposableBean {
                 delay(interval.toMillis())
             } while (true)
         }
-
-        // TODO: Remove me after confirming stopping it works
-//        scope.launch {
-//            delay(15_000L)
-//            log.info("Cancelling coroutinescope")
-//            scope.cancel("Cancelling")
-//        }
 
     }
 

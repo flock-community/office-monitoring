@@ -15,6 +15,12 @@ val devicesMappingConfigurations = mapOf(
     "zigbee2mqtt/0x680ae2fffe724965" to DeviceMappingConfiguration("190f801d-2c55-487b-b44a-19ca61c432df", DeviceType.SWITCH, "Een switch (placeholder)"),
     "zigbee2mqtt/0x00158d00041193bb" to DeviceMappingConfiguration("505896d1-1b7a-4a58-9dbc-b28c39ddecfa", DeviceType.TEMPERATURE_SENSOR, "Koelkast")
 )
+val deviceIdToSensorIdMapping: Map<String, String> = devicesMappingConfigurations.map { it.value.deviceId to it.key }.toMap()
+
+fun String.toDeviceName(): String? {
+    val sensorId = deviceIdToSensorIdMapping[this]
+    return devicesMappingConfigurations[sensorId]?.description
+}
 
 enum class DeviceType(val stateBody: KClass<out StateBody>) {
     CONTACT_SENSOR(ContactSensorStateBody::class),

@@ -8,18 +8,19 @@ import flock.community.office.monitoring.backend.alerting.domain.RainUpdate
 import flock.community.office.monitoring.backend.alerting.domain.Rule
 import flock.community.office.monitoring.backend.alerting.domain.RuleType
 import flock.community.office.monitoring.backend.alerting.domain.TimedUpdate
+import flock.community.office.monitoring.backend.alerting.service.AlertService
 import flock.community.office.monitoring.backend.alerting.service.EventService
 import flock.community.office.monitoring.backend.alerting.service.TimedEventsEventBus
 import flock.community.office.monitoring.backend.alerting.service.TimedUpdateRequest
 import flock.community.office.monitoring.backend.alerting.service.WeatherEventBus
 import flock.community.office.monitoring.backend.device.DeviceStateEventBus
 import flock.community.office.monitoring.backend.device.configuration.devicesMappingConfigurations
+import flock.community.office.monitoring.backend.device.configuration.toDeviceName
 import flock.community.office.monitoring.backend.device.domain.ContactSensorStateBody
 import flock.community.office.monitoring.backend.device.domain.DeviceState
 import flock.community.office.monitoring.backend.device.domain.StateBody
 import flock.community.office.monitoring.backend.device.service.DeviceStateHistoryService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -39,14 +40,15 @@ class RainCheckSensorExecutor(
     val historyService: DeviceStateHistoryService,
     val weatherEventBus: WeatherEventBus,
     val eventService: EventService,
-    val timedEventsEventBus: TimedEventsEventBus
+    val timedEventsEventBus: TimedEventsEventBus,
+    val alertService: AlertService
 ) : RuleImplExecutor<Event> {
 
     override fun type() = RuleType.RAIN_CHECK_CONTACT_SENSOR
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun start(rule: Rule): Flow<Event>  {
+    override fun start(rule: Rule): Flow<Event> {
         // subscribe to updates / state changes
         val deviceStateUpdates = subscribeToDeviceStateUpdates(rule)
         val weatherUpdates = subscribeToWeatherUpdates()
@@ -71,10 +73,30 @@ class RainCheckSensorExecutor(
                                 )
                             )
 
+                            // FIXME: Quick hack to report on changes in open/closed contactsensors
+                            if (e.openedContactSensors != currentEvent.openedContactSensors) {
+                                // send message
+                                val alert = rule.alerts["every-contact-change"]
+
+                                alert?.let {
+                                    val properties = mapOf(
+                                        "openContactSensors" to
+                                                e.openedContactSensors.mapNotNull(String::toDeviceName).toString(),
+                                        "allContactSensors" to
+                                                rule.deviceIds.subtract(e.openedContactSensors)
+                                                    .mapNotNull(String::toDeviceName).toString()
+                                    )
+                                    alertService.send(
+                                        it,
+                                        properties
+                                    )
+                                }
+                            }
                         }
                     }
             }
     }
+
 
     private fun subscribeToTimedUpdates(): Flow<EventUpdate> = timedEventsEventBus.subscribe()
         .map { EventUpdate(timedUpdate = it) }

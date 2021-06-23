@@ -4,17 +4,16 @@ import flock.community.office.monitoring.backend.utils.client.HttpServerExceptio
 import flock.community.office.monitoring.backend.utils.client.httpGuard
 import flock.community.office.monitoring.backend.utils.client.verifyHttpStatus
 import flock.community.office.monitoring.backend.weather.domain.WeatherForecast
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
-import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchange
 import org.springframework.web.util.UriBuilder
 
-@Service
-class WeatherService(
-    private val webClient: WebClient,
+@Component
+class WeatherClient(
+    @Qualifier("OpenWeatherApiWebClient") private val  webClient: WebClient,
     private val config: OpenWeatherMapConfig
 ) {
 
@@ -32,8 +31,6 @@ class WeatherService(
                     it.verifyHttpStatus()
                     it.awaitBody()
                 }
-//                .also { it.verifyHttpStatus() }
-//                .awaitBody()
         }
     }
 
@@ -46,14 +43,6 @@ class WeatherService(
 
         .build()
 }
-
-@ConstructorBinding
-@ConfigurationProperties("weather.open-weather-map")
-data class OpenWeatherMapConfig(
-    val apiKey: String,
-    val latitude: Double,
-    val longitude: Double
-)
 
 
 

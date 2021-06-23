@@ -15,21 +15,19 @@ class EventService {
 
     private var currentEvents: MutableMap<RuleId, Event> = mutableMapOf()
 
-
     // TODO: Deal with 'events' that have been idle for more than x minutes (alerts should be discarded)
     fun getCurrentEvent(ruleId: RuleId): Event {
         var event = currentEvents[ruleId]
         if (event == null) {
             event = createNewEvent(ruleId)
             currentEvents[ruleId] = event
-
         }
 
         return event;
 
     }
 
-    fun createNewEvent(ruleId: RuleId): Event {
+    private fun createNewEvent(ruleId: RuleId): Event {
         val aRainPrediction = WeatherForecast(
             1.2, 1.2,
             "", 0, emptyList(), emptyList()
@@ -39,7 +37,7 @@ class EventService {
             id = EventId(UUID.randomUUID().toString()),
             ruleId = ruleId,
             state = EventState.IDLE,
-            openedContactSensors = emptySet(),
+            openedContactSensors = setOf("99f9fb1b-fe98-414c-8562-68156ed3cc12"), // FIXME: start with an empty state
             rainForecast = aRainPrediction,
             lastStateChange = Instant.now(),
             sentAlerts = emptyList()

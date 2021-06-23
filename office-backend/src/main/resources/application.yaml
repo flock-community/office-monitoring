@@ -25,6 +25,10 @@ weather:
 
 
 alerting:
+  signal-alert-api:
+    host: ${_SIGNAL_ALERT_API_HOST}
+    token: ${_SIGNAL_ALERT_API_TOKEN}
+    phone-number: ${_SIGNAL_ALERT_API_PHONE_NUMBER}
   rules:
     - id : "test"
       type : "RAIN_CHECK_CONTACT_SENSOR"
@@ -32,10 +36,15 @@ alerting:
       time-to-reset : 30m
       device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12"
       alerts :
-        - time-to-deadline : 60m
+        every-contact-change:
+          message: "😱🚨 Deze deuren staan nu open: {{openContactSensors}} (Gesloten: {{allContactSensors}})."
+          channel: SIGNAL
+        some-id:
+          time-to-deadline : 60m
           message: "The dakterras is open, and it's gonna rain in less than an hour ({{time}}). Please close it."
           channel: SIGNAL
-        - time-to-deadline: 20m
+        some-other-id:
+          time-to-deadline: 20m
           message: "ALARM The dakterras is open, and it's gonna rain in 30 min ({{time}}). You have to close it now."
           channel: "SIGNAL"
       meta-data :
