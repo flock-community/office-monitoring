@@ -28,7 +28,7 @@ alerting:
   signal-alert-api:
     host: ${_SIGNAL_ALERT_API_HOST}
     token: ${_SIGNAL_ALERT_API_TOKEN}
-    phone-number: ${_SIGNAL_ALERT_API_PHONE_NUMBER}
+    phone-numbers: ${_SIGNAL_ALERT_API_PHONE_NUMBERS}
   rules:
     - id : "test"
       type : "RAIN_CHECK_CONTACT_SENSOR"

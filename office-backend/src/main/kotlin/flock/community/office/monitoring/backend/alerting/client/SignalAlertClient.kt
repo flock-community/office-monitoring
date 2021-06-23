@@ -1,7 +1,7 @@
 package flock.community.office.monitoring.backend.alerting.client
 
-import flock.community.office.monitoring.backend.alerting.AlertingConfigurationProperties
 import flock.community.office.monitoring.backend.utils.client.HttpServerException
+import flock.community.office.monitoring.backend.utils.client.garbled
 import flock.community.office.monitoring.backend.utils.client.httpGuard
 import flock.community.office.monitoring.backend.utils.client.verifyHttpStatus
 import org.springframework.beans.factory.annotation.Qualifier
@@ -17,31 +17,31 @@ data class SignalApiMessageDto(
 
 @Component
 class SignalAlertClient(
-    @Qualifier("SignalAlertWebClient") private val webClient: WebClient,
-    private val config: AlertingConfigurationProperties
+    @Qualifier("SignalAlertWebClient") private val webClient: WebClient
 ) {
-    suspend fun sendMessage(message: String) {
+    suspend fun sendMessage(phoneNumber: String, message: String): Boolean {
         println("""
             .
             .
             .
             .
         """.trimIndent())
-        println(message)
+        println("☎️ -- ${phoneNumber.garbled()}")
+        println("✉️ -- $message")
         println("""
             .
             .
             .
             .
         """.trimIndent())
-
+//        return true
         return httpGuard({ ex ->
             HttpServerException(
                 "Unexpected error sending message to Signal Message processor: ${ex.message}",
                 ex
             )
         }) {
-            val m = SignalApiMessageDto(config.signalAlertApi.phoneNumber, message);
+            val m = SignalApiMessageDto(phoneNumber, message);
 
             webClient.post()
                 .uri { it.path("/send").build() }
@@ -50,6 +50,8 @@ class SignalAlertClient(
                 .awaitExchange {
                     it.verifyHttpStatus()
                 }
+
+            return true;
         }
     }
 

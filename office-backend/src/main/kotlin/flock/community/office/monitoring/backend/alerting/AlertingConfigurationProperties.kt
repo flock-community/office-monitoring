@@ -13,5 +13,5 @@ data class AlertingConfigurationProperties(
 
 data class SignalAlertApiConfig (
     val token: String,
-    val phoneNumber: String
+    val phoneNumbers: List<String>
 )
