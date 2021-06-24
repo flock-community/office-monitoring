@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ class AlertingService(
 
     init {
         scope.launch {
+            delay(5000) // Wait until application is booted
             alertingConfiguration.rules
                 .forEach { monitorRule(it) }
         }

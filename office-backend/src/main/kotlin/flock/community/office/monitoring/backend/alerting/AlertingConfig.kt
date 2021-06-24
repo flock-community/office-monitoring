@@ -12,7 +12,7 @@ class AlertingConfig {
     @Bean("SignalAlertWebClient")
     fun signalAlertWebClient(alertingConfigurationProperties: AlertingConfigurationProperties): WebClient {
         return WebClient.builder()
-            .baseUrl("https://signal-appi-s47ukfzmyq-ez.a.run.app")
+            .baseUrl(alertingConfigurationProperties.signalAlertApi.host)
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HttpHeaders.AUTHORIZATION, alertingConfigurationProperties.signalAlertApi.token)
             .build()

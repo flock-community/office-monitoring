@@ -12,6 +12,8 @@ data class AlertingConfigurationProperties(
 )
 
 data class SignalAlertApiConfig (
+    val enabled: Boolean,
+    val host: String,
     val token: String,
     val phoneNumbers: List<String>
 )

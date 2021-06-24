@@ -1,4 +1,4 @@
-
+alerting.signal-alert-api.enabled: false
 logging:
   level:
     flock.community.office.monitoring: DEBUG

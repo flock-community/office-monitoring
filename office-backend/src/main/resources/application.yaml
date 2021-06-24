@@ -26,6 +26,7 @@ weather:
 
 alerting:
   signal-alert-api:
+    enabled: true
     host: ${_SIGNAL_ALERT_API_HOST}
     token: ${_SIGNAL_ALERT_API_TOKEN}
     phone-numbers: ${_SIGNAL_ALERT_API_PHONE_NUMBERS}

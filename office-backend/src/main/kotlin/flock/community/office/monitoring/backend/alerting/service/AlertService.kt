@@ -18,18 +18,20 @@ class AlertService(
 
     private val log = loggerFor<AlertService>()
 
-    suspend fun send(alert: Alert, properties: Map<String, String>): Boolean  = coroutineScope {
-//        println("Sending alert: ${alert.message} (channel ${alert.channel})")
-
+    suspend fun send(alert: Alert, properties: Map<String, String>): Boolean = coroutineScope {
         val interpretedMessage = interpolate(alert.message, properties)
 
-
-        val x = async{
+        val x = async {
             config.signalAlertApi.phoneNumbers.map {
-                try {
-                    signalAlertClient.sendMessage(it, interpretedMessage)
-                } catch (t: Throwable) {
-                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
+                logMessage(it, interpretedMessage)
+                if (config.signalAlertApi.enabled) {
+                    try {
+                        signalAlertClient.sendMessage(it, interpretedMessage)
+                    } catch (t: Throwable) {
+                        log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
+                    }
+                } else {
+                    log.info("Not sending alert over API (api is disabled)")
                 }
             }
         }
@@ -38,8 +40,21 @@ class AlertService(
         true
     }
 
+    private fun logMessage(phoneNumber: String, message: String) {
+        log.info(
+            """
+                .
+                .
+                ☎️ -- ${phoneNumber.garbled()}
+                ✉️ --  $message  
+                .
+                .
+                """.trimIndent()
+        )
+    }
+
     /*private*/ fun interpolate(message: String, properties: Map<String, String>): String {
-        return message.replace(Regex("\\{\\{(.*?)\\}\\}")) { it ->
+        return message.replace(Regex("\\{\\{(.*?)\\}\\}")) {
             properties.getOrDefault(it.groups[1]?.value, it.value)
         }
     }
