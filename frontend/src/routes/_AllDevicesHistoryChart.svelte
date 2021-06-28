@@ -42,10 +42,4 @@
   });
 </script>
 
-{#if chartData.length === 0}
-  <div class="h-full flex justify-center items-center flex-col">
-    <Pulse size="200" color="#f8e008" unit="px" duration="1.5s" />
-  </div>
-{:else}
-  <DeviceHistoryChart {chartData} />
-{/if}
+<DeviceHistoryChart {chartData} />
