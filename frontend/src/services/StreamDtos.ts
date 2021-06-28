@@ -1,6 +1,6 @@
 export interface DeviceDto {
   id: string;
-  sensorId?: string
+  sensorId?: string;
   name: string;
   type: DeviceType;
 }
@@ -44,6 +44,7 @@ export interface SwitchState {
 
 export interface DeviceStateDto {}
 
+// TODO Betere naam
 export interface MessageDTO {
   data: FlockMonitorMessage;
   metadata: string;
