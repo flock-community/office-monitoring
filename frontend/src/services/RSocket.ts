@@ -12,19 +12,20 @@ import {
 } from "./StreamDtos";
 import { Flowable } from "rsocket-flowable";
 import type { ISubscriber, ISubscription } from "rsocket-types";
-import { Subscriber } from "rxjs";
 import * as uuid from "uuid";
 
 let backendUrl = process.env._HOST;
 
 type OnConnected = () => void;
+type MessageSink = (message: MessageDTO) => void;
+type CommandSink = (command: FlockMonitorCommand) => void;
 
 export const connectClient = (
   route: string,
-  messageHandler: MessageHandler,
+  messageSink: MessageSink,
   onConnected: OnConnected
 ) => {
-  const commandFlow = createCommandsFlow(onConnected);
+  const subscribers = setupRSocketSubcribers(onConnected);
 
   const client = createClient(backendUrl + route);
   client.connect().subscribe({
@@ -36,12 +37,12 @@ export const connectClient = (
     },
     onComplete: (socket) => {
       socket
-        .requestChannel(setupChannel(route, commandFlow.subscriberFlow))
-        .subscribe(createMessageFlow(messageHandler));
+        .requestChannel(setupChannel(route, subscribers.commandsFlow))
+        .subscribe(createMessageFlow(messageSink));
     },
   });
 
-  return commandFlow.sink;
+  return subscribers.commandsSink;
 };
 
 const setupChannel = (
@@ -75,7 +76,7 @@ const createClient = (url: string) => {
   });
 };
 
-const createMessageFlow = (handler: MessageHandler) => {
+const createMessageFlow = (handler: MessageSink) => {
   let localSubscription: ISubscription;
 
   const subscriber: ISubscriber<MessageDTO> = {
@@ -86,7 +87,7 @@ const createMessageFlow = (handler: MessageHandler) => {
       console.debug("MessageFlow error", error);
     },
     onNext: (value) => {
-      console.info("MessageFlow message", value);
+      console.debug("Incoming message", value);
       handler(value);
 
       setTimeout(() => {
@@ -101,10 +102,10 @@ const createMessageFlow = (handler: MessageHandler) => {
   return subscriber;
 };
 
-const createCommandsFlow = (onConnected: OnConnected) => {
+const setupRSocketSubcribers = (onConnected: OnConnected) => {
   const subscribers: Map<string, ISubscriber<FlockMonitorCommand>> = new Map();
 
-  const subscriberFlow = new Flowable<FlockMonitorCommand>(
+  const commandsFlow = new Flowable<FlockMonitorCommand>(
     (subscriber: ISubscriber<FlockMonitorCommand>) => {
       const subscriberId = uuid.v4();
       subscribers.set(subscriberId, subscriber);
@@ -114,7 +115,7 @@ const createCommandsFlow = (onConnected: OnConnected) => {
           subscribers.delete(subscriberId);
         },
         request(n: number): void {
-          console.log(`[EventBus] New deviceCommands are requested (#${n}) `);
+          console.debug(`[EventBus] New deviceCommands are requested (#${n}) `);
         },
       });
 
@@ -131,15 +132,7 @@ const createCommandsFlow = (onConnected: OnConnected) => {
   };
 
   return {
-    subscriberFlow: subscriberFlow,
-    sink: commandSink,
+    commandsFlow: commandsFlow,
+    commandsSink: commandSink,
   };
-};
-
-type MessageHandler = {
-  (message: MessageDTO);
-};
-
-type CommandSink = {
-  (command: FlockMonitorCommand);
 };
