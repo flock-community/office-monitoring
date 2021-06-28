@@ -2,7 +2,6 @@ import { deviceStateStore, devicesStore } from "./stores";
 import {
   DeviceDto,
   DeviceState,
-  FlockMonitorMessage,
   FlockMonitorMessageType,
   MessageDTO,
   StateBody,
@@ -13,14 +12,10 @@ export class MessageHandler {
     let data = message.data;
     switch (data.type) {
       case FlockMonitorMessageType.DEVICE_STATE:
-        //let state = data.body.state as DeviceState<StateBody>;
         this.handleDeviceStateMessage(data.body.state);
         break;
       case FlockMonitorMessageType.DEVICE_LIST_MESSAGE:
-        let newDevices = data.body.devices as DeviceDto[];
-        devicesStore.update((devices) => {
-          return [...devices, ...newDevices];
-        });
+        this.handleDeviceListMessage(data.body.devices);
         break;
       default:
         console.error(
@@ -29,7 +24,7 @@ export class MessageHandler {
     }
   }
 
-  handleDeviceStateMessage(message: DeviceState<StateBody>) {
+  private handleDeviceStateMessage(message: DeviceState<StateBody>) {
     deviceStateStore.update((map) => {
       const deviceId = message.deviceId;
       const deviceStates: DeviceState<StateBody>[] | undefined =
@@ -43,6 +38,12 @@ export class MessageHandler {
       }
 
       return map;
+    });
+  }
+
+  private handleDeviceListMessage(newDevices: DeviceDto[]) {
+    devicesStore.update((savedDevices) => {
+      return [...savedDevices, ...newDevices];
     });
   }
 }
