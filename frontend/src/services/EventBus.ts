@@ -29,6 +29,11 @@ class EventBus {
   }
 
   private createCommandSink() {
+    if (!process["browser"]) {
+      console.warn("Not opening websocket, not in browser");
+      return;
+    }
+
     return connectClient(
       "devices",
       (message) => this.handleMessage(message),
@@ -37,5 +42,4 @@ class EventBus {
   }
 }
 
-const eventBus = new EventBus();
-export default eventBus;
+export const eventBus = new EventBus();

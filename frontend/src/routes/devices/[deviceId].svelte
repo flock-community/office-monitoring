@@ -7,53 +7,54 @@
 </script>
 
 <script lang="ts">
-  import EventBus from "../../services/EventBus";
-  import {DeviceDto, DeviceStateSubscription, DeviceSubscription} from "../../services/StreamDtos";
-  import {derived} from "svelte/store";
-  import {devicesStore, deviceStateStore} from "../../services/stores";
+  import { eventBus } from "../../services/EventBus";
+  import type { DeviceDto } from "../../services/StreamDtos";
+  import {
+    DeviceStateSubscription,
+    DeviceSubscription,
+  } from "../../services/StreamDtos";
+  import { derived } from "svelte/store";
+  import { devicesStore, deviceStateStore } from "../../services/stores";
 
   export let deviceId;
 
-  const date = new Date()
-  date.setHours(date.getHours() - 10)
+  const date = new Date();
+  date.setHours(date.getHours() - 10);
   setTimeout(() => {
-      console.log("Requesting deviceState for device:", deviceId)
-      EventBus.request(new DeviceStateSubscription(deviceId, date));
+    console.log("Requesting deviceState for device:", deviceId);
+    eventBus.request(new DeviceStateSubscription(deviceId, date));
   }, 5000);
 
   setTimeout(() => {
-      EventBus.request(new DeviceSubscription())
-  }, 500)
+    eventBus.request(new DeviceSubscription());
+  }, 500);
 
-  const  unknownDevice : DeviceDto= {
-      id: "unknown",
-      name: "Onbekend",
-      type: undefined
-
-  }
+  const unknownDevice: DeviceDto = {
+    id: "unknown",
+    name: "Onbekend",
+    type: undefined,
+  };
 
   const device = derived(
-      devicesStore,
-      $devices => $devices.find(s => s.id === deviceId) || unknownDevice
-  )
+    devicesStore,
+    ($devices) => $devices.find((s) => s.id === deviceId) || unknownDevice
+  );
 
   const state = derived(
-      deviceStateStore,
-      $deviceStates => $deviceStates.get(deviceId) || []
-  )
+    deviceStateStore,
+    ($deviceStates) => $deviceStates.get(deviceId) || []
+  );
 </script>
 
 <div>
-<h1>Device: {deviceId}</h1>
+  <h1>Device: {deviceId}</h1>
 
-    <div>
-
-<h2>Metadata</h2>
-<pre>{JSON.stringify($device, null, 4)}</pre>
-    </div>
-    <div>
-        <h2>State</h2>
-<pre>{JSON.stringify($state, null, 4)}</pre>
-    </div>
+  <div>
+    <h2>Metadata</h2>
+    <pre>{JSON.stringify($device, null, 4)}</pre>
+  </div>
+  <div>
+    <h2>State</h2>
+    <pre>{JSON.stringify($state, null, 4)}</pre>
+  </div>
 </div>
-

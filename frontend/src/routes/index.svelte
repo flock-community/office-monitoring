@@ -1,7 +1,7 @@
 <script lang="ts">
   import Device from "./devices/device.svelte";
   import { DeviceSubscription } from "../services/StreamDtos";
-  import EventBus from "../services/EventBus";
+  import { eventBus } from "../services/EventBus";
   import { devicesStore, hasData } from "../services/stores";
   import { Tabs, Tab } from "svelte-chota/cmp";
   import AllDevicesHistoryChart from "./_AllDevicesHistoryChart.svelte";
@@ -12,7 +12,7 @@
   const devices = devicesStore;
 
   onMount(() => {
-    EventBus.request(new DeviceSubscription());
+    eventBus.request(new DeviceSubscription());
   });
 
   let active_tab = 0;

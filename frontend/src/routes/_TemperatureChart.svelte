@@ -2,11 +2,11 @@
   import LineChart from "./_components/LineChart.svelte";
   import type { LineChartRecord } from "./model";
   import { get, writable } from "svelte/store";
-  import {
+  import type {
     DeviceState,
-    DeviceType,
     TemperatureSensorState,
   } from "../services/StreamDtos";
+  import { DeviceType } from "../services/StreamDtos";
   import { devicesStore, deviceStateStore } from "../services/stores";
 
   const chartRecordStore = writable<LineChartRecord[]>([]);
