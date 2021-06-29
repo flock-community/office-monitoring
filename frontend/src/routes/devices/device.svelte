@@ -1,6 +1,6 @@
 <script lang="ts">
   import DoorSensor from "./device-types/DoorSensor.svelte";
-  import EventBus from "../../services/EventBus";
+  import { eventBus } from "../../services/EventBus";
   import {
     DeviceStateSubscription,
     DeviceType,
@@ -16,7 +16,7 @@
   date.setHours(date.getHours() - 10);
   // setTimeout(() => {
   //     console.log("Requesting deviceState for device:", id)
-  //     EventBus.request(new DeviceStateSubscription(id, date));
+  //     eventBus.request(new DeviceStateSubscription(id, date));
   // });
 
   let safeId = id.replace("/", "%2f");

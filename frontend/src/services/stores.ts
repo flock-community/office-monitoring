@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import EventBus from "./EventBus";
+import { eventBus } from "./EventBus";
 import {
   DeviceDto,
   DeviceState,
@@ -18,7 +18,7 @@ devicesStore.subscribe((devices) => {
   devices.forEach((device) =>
     // TODO kan dit weg?
     setTimeout(() => {
-      EventBus.request(new DeviceStateSubscription(device.id, date));
+      eventBus.request(new DeviceStateSubscription(device.id, date));
     })
   );
 });
