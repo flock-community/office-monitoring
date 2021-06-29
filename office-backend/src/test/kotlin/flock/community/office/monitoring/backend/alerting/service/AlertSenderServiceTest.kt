@@ -1,17 +1,16 @@
 package flock.community.office.monitoring.backend.alerting.service
 
 import flock.community.office.monitoring.backend.alerting.AlertingConfigurationProperties
-import flock.community.office.monitoring.backend.alerting.SignalAlertApiConfig
 import flock.community.office.monitoring.backend.alerting.client.SignalAlertClient
 import nl.wykorijnsburger.kminrandom.minRandomCached
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 
-internal class AlertServiceTest{
+internal class AlertSenderServiceTest{
 
     private val alertClient = mock(SignalAlertClient::class.java)
-    private val alertService = AlertService(alertClient, AlertingConfigurationProperties::class.minRandomCached())
+    private val alertService = AlertSenderService(alertClient, AlertingConfigurationProperties::class.minRandomCached())
 
     @Test
     fun `testing it`(){

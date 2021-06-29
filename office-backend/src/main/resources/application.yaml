@@ -22,8 +22,6 @@ weather:
     latitude: 52.09266175027509
     longitude: 5.122345051397365
 
-
-
 alerting:
   signal-alert-api:
     enabled: true
@@ -34,7 +32,7 @@ alerting:
     - id : "test"
       type : "RAIN_CHECK_CONTACT_SENSOR"
       name : "Alert when dakterras is open and rain is imminent"
-      time-to-reset : 30m
+      alerting-window : 2h
       device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12"
       alerts :
         every-contact-change:
@@ -42,11 +40,11 @@ alerting:
           channel: SIGNAL
         some-id:
           time-to-deadline : 60m
-          message: "The dakterras is open, and it's gonna rain in less than an hour ({{time}}). Please close it."
+          message: "The dakterras is open, and it's gonna rain in less than an hour ({{timeToRain}}). Please close it."
           channel: SIGNAL
         some-other-id:
           time-to-deadline: 20m
-          message: "ALARM The dakterras is open, and it's gonna rain in 30 min ({{time}}). You have to close it now."
+          message: "ALARM The dakterras is open, and it's gonna rain in less than half an hour ({{timeToRain}}). You have to close it now."
           channel: "SIGNAL"
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"

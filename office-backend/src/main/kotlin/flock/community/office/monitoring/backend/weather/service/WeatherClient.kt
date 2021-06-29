@@ -1,9 +1,9 @@
 package flock.community.office.monitoring.backend.weather.service
 
 import flock.community.office.monitoring.backend.utils.client.HttpServerException
-import flock.community.office.monitoring.backend.utils.client.httpGuard
+import flock.community.office.monitoring.backend.utils.client.guard
 import flock.community.office.monitoring.backend.utils.client.verifyHttpStatus
-import flock.community.office.monitoring.backend.weather.domain.WeatherForecast
+import flock.community.office.monitoring.backend.weather.domain.WeatherForecastDto
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -13,20 +13,16 @@ import org.springframework.web.util.UriBuilder
 
 @Component
 class WeatherClient(
-    @Qualifier("OpenWeatherApiWebClient") private val  webClient: WebClient,
+    @Qualifier("OpenWeatherApiWebClient") private val webClient: WebClient,
     private val config: OpenWeatherMapConfig
 ) {
 
-    suspend fun getForecast(): WeatherForecast {
-        return httpGuard({ ex ->
-            HttpServerException(
-                "Unexpected error fetching Weather prediction: ${ex.message}",
-                ex
-            )
+    suspend fun getForecast(): WeatherForecastDto {
+        return guard({ ex ->
+            HttpServerException("Unexpected error fetching Weather prediction: ${ex.message}", ex)
         }) {
-            val uri = webClient.get()
+            webClient.get()
                 .uri { it.buildUrl() }
-            uri
                 .awaitExchange {
                     it.verifyHttpStatus()
                     it.awaitBody()
@@ -40,7 +36,6 @@ class WeatherClient(
         .queryParam("appid", config.apiKey)
         .queryParam("exclude", "daily,alerts")
         .queryParam("units", "metric")
-
         .build()
 }
 

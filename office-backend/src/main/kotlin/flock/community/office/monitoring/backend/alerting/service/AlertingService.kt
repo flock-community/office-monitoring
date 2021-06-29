@@ -28,7 +28,7 @@ class AlertingService(
 
     init {
         scope.launch {
-            delay(5000) // Wait until application is booted
+            delay(5000) // TODO Wait until application is booted
             alertingConfiguration.rules
                 .forEach { monitorRule(it) }
         }

@@ -1,6 +1,6 @@
-package flock.community.office.monitoring.backend.alerting.service
+package flock.community.office.monitoring.backend.weather
 
-import flock.community.office.monitoring.backend.weather.domain.WeatherForecast
+import flock.community.office.monitoring.backend.weather.domain.WeatherForecastDto
 import flock.community.office.monitoring.backend.weather.service.WeatherClient
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.CoroutineName
@@ -22,7 +22,7 @@ class WeatherEventBus(
 ) : DisposableBean {
 
     private val scope = CoroutineScope(CoroutineName("WeatherEventBus"))
-    private val _events: MutableSharedFlow<WeatherForecast> = MutableSharedFlow(replay = 1)
+    private val _events: MutableSharedFlow<WeatherForecastDto> = MutableSharedFlow(replay = 1)
     private val interval = Duration.ofMinutes(15)
     private val log = loggerFor<WeatherEventBus>()
 
@@ -30,7 +30,7 @@ class WeatherEventBus(
         pollWeatherUpdates()
     }
 
-    fun subscribe(): Flow<WeatherForecast> {
+    fun subscribe(): Flow<WeatherForecastDto> {
         return _events.asSharedFlow()
     }
 
@@ -45,8 +45,8 @@ class WeatherEventBus(
 
     private suspend fun getWeatherForecast() {
         try {
-            val deviceState = weatherClient.getForecast()
-            _events.emit(deviceState)
+            val forecast = weatherClient.getForecast()
+            _events.emit(forecast)
         } catch (ex: Throwable) {
             log.error(
                 "Could not fetch new weather forecast. Will ignore result, but current forecast will get outdated soon. ${ex.message}",

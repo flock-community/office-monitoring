@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.awaitBody
 
-inline fun <T> httpGuard(noinline errorBlock: (ex: Throwable) -> Throwable, block: () -> T): T {
+inline fun <T> guard(noinline errorBlock: (ex: Throwable) -> Throwable, block: () -> T): T {
     return try {
         block()
     } catch (t: Throwable) {
@@ -12,8 +12,8 @@ inline fun <T> httpGuard(noinline errorBlock: (ex: Throwable) -> Throwable, bloc
     }
 }
 
-suspend inline fun <T> httpGuard(block: () -> T): T =
-    httpGuard({ e -> HttpServerException("Http guard caught unexpected expection: ${e.message}", e) }, block)
+inline fun <T> httpServerExceptionGuard(block: () -> T): T =
+    guard({ e -> HttpServerException("Http guard caught unexpected expection: ${e.message}", e) }, block)
 
 suspend fun ClientResponse.verifyHttpStatus() {
     when {

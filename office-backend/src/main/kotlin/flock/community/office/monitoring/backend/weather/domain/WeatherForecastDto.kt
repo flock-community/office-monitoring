@@ -2,32 +2,39 @@ package flock.community.office.monitoring.backend.weather.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class WeatherForecast(
+data class WeatherForecastDto(
     val lat: Double,
     val lon: Double,
     val timezone: String,
     @JsonProperty("timezone_offset")
     val timezoneOffSet: Long,
 
+    val current: CurrentWeather,
     val minutely: List<MinutelyForecastDto> = emptyList(),
     val hourly: List<HourlyForecastDto> = emptyList(),
+)
+
+data class CurrentWeather(
+    val dt: Long,
+    val rain: HourlyRainDto?,
+    val weather: List<WeatherDto> = emptyList()
 )
 
 data class HourlyForecastDto(
     val dt: Long,
     @JsonProperty("pop")
-    val probabilityOfPrecipitation: Int,
+    val probabilityOfPrecipitation: Double,
     val rain: HourlyRainDto?,
     val temp: Double,
     val pressure: Int, // in hPa
     val humidity: Int, // 1 - 100 %
-    val weather: List<Weather> = emptyList()
+    val weather: List<WeatherDto> = emptyList()
 
 )
 
 data class HourlyRainDto(
     @JsonProperty("1h")
-    val lastHour: Int
+    val lastHour: Double
 )
 
 data class MinutelyForecastDto(
@@ -35,29 +42,7 @@ data class MinutelyForecastDto(
     val precipitation: Double
 )
 
-data class Coord(
-    val lat: Double,
-    val lon: Double
-)
-
-data class Main(
-    val feels_like: Double,
-    val humidity: Int,
-    val pressure: Int,
-    val temp: Double,
-    val temp_max: Double,
-    val temp_min: Double
-)
-
-data class Sys(
-    val country: String,
-    val id: Int,
-    val sunrise: Int,
-    val sunset: Int,
-    val type: Int
-)
-
-data class Weather(
+data class WeatherDto(
     val id: Int,
     val main: String,
     val description: String,

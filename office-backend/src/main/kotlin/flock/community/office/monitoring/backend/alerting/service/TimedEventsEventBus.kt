@@ -1,6 +1,5 @@
 package flock.community.office.monitoring.backend.alerting.service
 
-import flock.community.office.monitoring.backend.alerting.domain.TimedUpdate
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
@@ -17,11 +16,10 @@ import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.Instant
-import kotlin.math.absoluteValue
 
 data class TimedUpdateRequest(
     val instant: Instant,
-    val timedUpdate: TimedUpdate
+    val triggerReason: String
 )
 
 sealed class ScheduledEvents
@@ -30,39 +28,64 @@ class PopEvents(val response: CompletableDeferred<Set<TimedUpdateRequest>>) : Sc
 
 @Component
 class TimedEventsEventBus : DisposableBean {
-    private val _events: MutableSharedFlow<TimedUpdate> = MutableSharedFlow(replay = 1)
+    private val _events: MutableSharedFlow<TimedUpdateRequest> = MutableSharedFlow(replay = 1)
     private val scope = CoroutineScope(CoroutineName("TimedEventsEventBus"))
     private val scheduledEventsActor = scope.scheduledActor()
 
-    private val interval = Duration.ofSeconds(10)
-    private val leeway = Duration.ofSeconds(5)
+    private val evaluateInterval = Duration.ofSeconds(10) // TODO: move to configuration
+    private val periodicTimeUpdateRequestInterval = Duration.ofMinutes(5) // TODO: move to configuration
 
     private val log = loggerFor<TimedEventsEventBus>()
 
     init {
+        setupPeriodicTimedUpdateRequests(periodicTimeUpdateRequestInterval)
+        setupRegularEvaluation(evaluateInterval)
+    }
+
+    private fun setupRegularEvaluation(evaluateInterval: Duration) {
         scope.launch {
             do {
-                log.debug("Processing TimedUpdateRequests ....")
+//                log.debug("Processing TimedUpdateRequests ....")
                 val response = CompletableDeferred<Set<TimedUpdateRequest>>()
                 scheduledEventsActor.send(PopEvents(response))
                 val timedUpdateRequests: Set<TimedUpdateRequest> = response.await()
 
-                timedUpdateRequests.forEach {
-                    _events.emit(it.timedUpdate)
+                if (timedUpdateRequests.isNotEmpty()) {
+                    val reasons = mutableListOf<String>()
+
+                    timedUpdateRequests.forEach {
+                        reasons.add(it.triggerReason)
+                    }
+
+                    _events.emit(TimedUpdateRequest(Instant.now(), reasons.toString()))
                 }
-                log.debug("Done Processing TimedUpdateRequests")
+
+//                log.debug("Done Processing TimedUpdateRequests")
+                delay(evaluateInterval.toMillis())
+            } while (true)
+        }
+    }
+
+    private fun setupPeriodicTimedUpdateRequests(interval: Duration) {
+        scope.launch(CoroutineName("RegularTimedUpdate")) {
+            do {
+                publish(TimedUpdateRequest(Instant.now(), "Trigger to regularly check for alerting"))
                 delay(interval.toMillis())
             } while (true)
         }
-
     }
 
     suspend fun publish(timedUpdateRequest: TimedUpdateRequest): Boolean {
+        if(timedUpdateRequest.instant > Instant.now().plus(Duration.ofHours(6))) {
+            log.info("Ignoring TimeUpdateRequest more than 6 hours in the future ($timedUpdateRequest}")
+            return false
+        }
+
         scheduledEventsActor.send(PublishEvent(timedUpdateRequest))
         return true;
     }
 
-    fun subscribe(): Flow<TimedUpdate> {
+    fun subscribe(): Flow<TimedUpdateRequest> {
         return _events.asSharedFlow()
     }
 
@@ -76,8 +99,8 @@ class TimedEventsEventBus : DisposableBean {
                 is PopEvents -> {
                     val eventsToPopEvents: MutableSet<TimedUpdateRequest> = scheduledEvents.toMutableSet()
                     eventsToPopEvents.retainAll {
-                        val secondsUntilEvent = (it.instant.epochSecond - Instant.now().epochSecond).absoluteValue
-                        secondsUntilEvent < leeway.toSeconds()
+                        val durationUntilEvent = Duration.between(it.instant, Instant.now()).abs()
+                        durationUntilEvent < evaluateInterval.dividedBy(2)
                     }
                     msg.response.complete(eventsToPopEvents.toSet())
                     scheduledEvents.removeAll(eventsToPopEvents)
