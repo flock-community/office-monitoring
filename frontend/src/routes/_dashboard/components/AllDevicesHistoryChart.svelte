@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { deviceStateStore } from "../services/stores";
-  import DeviceHistoryChart from "./_DeviceHistoryChart.svelte";
+  import { deviceStateStore } from "../../../services/stores";
+  import DeviceHistoryChart from "./DeviceHistoryChart.svelte";
   import { get } from "svelte/store";
-  import { delay } from "./_utils";
-  import { Pulse } from "svelte-loading-spinners";
-  import { resolveChartData } from "../services/ChartDataResolver";
+  import { delay } from "../../_utils";
+
+  import { resolveChartData } from "../../../services/ChartDataResolver";
 
   enum ChartUpdateStatus {
     IDLE,

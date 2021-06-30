@@ -1,4 +1,4 @@
-import type { TimelineChartRecord } from "../routes/model";
+import type { TimelineChartRecord } from "../routes/_components/modelboard/components/model";
 import { getColor, getDeviceName } from "./DeviceUtil";
 import type {
   ContactSensorState,
@@ -14,22 +14,30 @@ const unknown = "/icons/shrug.svg";
 const socket = "/icons/socket.svg";
 const thermometer = "/icons/thermometer.svg";
 
-export const resolveChartData: (deviceStates: Map<string, DeviceState<StateBody>[]>) => TimelineChartRecord[] = (
+export const resolveChartData: (
+  deviceStates: Map<string, DeviceState<StateBody>[]>
+) => TimelineChartRecord[] = (
   deviceStates: Map<string, DeviceState<StateBody>[]>
 ) => {
-  let allChartData : TimelineChartRecord[] = [];
+  let allChartData: TimelineChartRecord[] = [];
   for (let [_, deviceStateArray] of deviceStates.entries()) {
     if (deviceStateArray.length > 0) {
       let chartData = [];
       switch (deviceStateArray[0].type) {
         case DeviceType.CONTACT_SENSOR:
-          chartData = convertToChartDataContact(deviceStateArray as DeviceState<ContactSensorState>[]);
+          chartData = convertToChartDataContact(
+            deviceStateArray as DeviceState<ContactSensorState>[]
+          );
           break;
         case DeviceType.TEMPERATURE_SENSOR:
-          chartData = convertToChartDataTemp(deviceStateArray as DeviceState<TemperatureSensorState>[]);
+          chartData = convertToChartDataTemp(
+            deviceStateArray as DeviceState<TemperatureSensorState>[]
+          );
           break;
         case DeviceType.SWITCH:
-          chartData = convertToChartDataSwitch(deviceStateArray as DeviceState<SwitchState>[]);
+          chartData = convertToChartDataSwitch(
+            deviceStateArray as DeviceState<SwitchState>[]
+          );
           break;
       }
 
@@ -60,7 +68,11 @@ const convertToChartDataTemp = (
         start: state.date,
         end: state.date,
         icon: thermometer,
-        text: `${getDeviceName(state.deviceId)} temperatuur veranderd naar [bold]${state.state.temperature.toFixed(1)}°C[/]`,
+        text: `${getDeviceName(
+          state.deviceId
+        )} temperatuur veranderd naar [bold]${state.state.temperature.toFixed(
+          1
+        )}°C[/]`,
         color: getColor(state.deviceId),
       };
       return record;
@@ -76,17 +88,22 @@ const convertToChartDataSwitch = (deviceStates: DeviceState<SwitchState>[]) => {
 
         // The states are per device so the next one must be the close state, if it's not found the sensor is still open
         let closedOnDate =
-          deviceStates.slice(index).find(
-            (s) => s.date > state.date && s.state.state === "OFF"
-          )?.date || new Date();
+          deviceStates
+            .slice(index)
+            .find((s) => s.date > state.date && s.state.state === "OFF")
+            ?.date || new Date();
 
-        const localizedDate = new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"});
+        const localizedDate = new Date(closedOnDate).toLocaleString("nl-NL", {
+          timeZone: "Europe/Amsterdam",
+        });
         const record: TimelineChartRecord = {
           category: getDeviceName(state.deviceId),
           start: openedOnDate,
           end: closedOnDate,
           icon: socket,
-          text: `${getDeviceName(state.deviceId)} aangezet tot [bold]${localizedDate}[/]`,
+          text: `${getDeviceName(
+            state.deviceId
+          )} aangezet tot [bold]${localizedDate}[/]`,
           color: getColor(state.deviceId),
         };
         return record;
@@ -99,22 +116,28 @@ const convertToChartDataContact = (
   deviceStates: DeviceState<ContactSensorState>[]
 ) => {
   return deviceStates
-    .map((state: DeviceState<ContactSensorState>,index) => {
+    .map((state: DeviceState<ContactSensorState>, index) => {
       if (state.state.contact === false) {
         let openedOnDate = state.date;
 
         // The states are per device so the next one must be the close state, if it's not found the sensor is still open
         let closedOnDate =
-          deviceStates.slice(index).find((s) => s.date > state.date && s.state.contact)
-            ?.date || new Date();
+          deviceStates
+            .slice(index)
+            .find((s) => s.date > state.date && s.state.contact)?.date ||
+          new Date();
 
-        const localizedDate = new Date(closedOnDate).toLocaleString("nl-NL", {timeZone: "Europe/Amsterdam"});
+        const localizedDate = new Date(closedOnDate).toLocaleString("nl-NL", {
+          timeZone: "Europe/Amsterdam",
+        });
         let record: TimelineChartRecord = {
           category: getDeviceName(state.deviceId),
           start: openedOnDate,
           end: closedOnDate,
           icon: door,
-          text: `${getDeviceName(state.deviceId)} geopend tot [bold]${localizedDate}[/]`,
+          text: `${getDeviceName(
+            state.deviceId
+          )} geopend tot [bold]${localizedDate}[/]`,
           color: getColor(state.deviceId),
         };
         return record;
