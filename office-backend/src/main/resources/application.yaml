@@ -16,6 +16,9 @@ server:
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
 
+device:
+  device-state-updates.save-to-database: true
+
 weather:
   open-weather-map:
     api-key: ${_OPEN_WEATER_MAP_API_KEY}
@@ -33,7 +36,7 @@ alerting:
       type : "RAIN_CHECK_CONTACT_SENSOR"
       name : "Alert when dakterras is open and rain is imminent"
       alerting-window : 4h
-      device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12"
+      device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12, d6464c70-3981-4db9-b2c5-5d08828ae686"
       alerts :
         three-hours-to-deadline:
           time-to-deadline : 3h
@@ -55,9 +58,5 @@ alerting:
           time-to-deadline: 0m
           message: "🚨 ALARM: The rooftop terrace door is open, and it's said to be raining. Please close the door now!"
           channel: "SIGNAL"
-        every-contact-change: # special case to always trigger on contact sensor changes
-          time-to-deadline: 9000m
-          message: "😱🚨 Deze deuren staan nu open: {{openContactSensors}}\nGesloten deuren:\t{{closedContactSensors}}).\nTime to rain:\t{{timeToRain}}\nPrecipitation volume:\t{{precipitationVolume}}\nPrecipitation probability:\t{{precipitationProb}}"
-          channel: SIGNAL
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"

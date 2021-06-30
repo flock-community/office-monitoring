@@ -4,7 +4,7 @@ import flock.community.office.monitoring.backend.alerting.domain.HourlyRainForec
 import flock.community.office.monitoring.backend.alerting.domain.RainForecast
 import flock.community.office.monitoring.backend.alerting.domain.Rule
 import flock.community.office.monitoring.backend.alerting.domain.containsRainForecast
-import flock.community.office.monitoring.backend.alerting.executor.toRainUpdate
+import flock.community.office.monitoring.backend.alerting.service.toRainUpdate
 import flock.community.office.monitoring.backend.weather.WeatherEventBus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

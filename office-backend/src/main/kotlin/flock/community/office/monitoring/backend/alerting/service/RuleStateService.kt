@@ -1,5 +1,6 @@
 package flock.community.office.monitoring.backend.alerting.service
 
+import flock.community.office.monitoring.backend.alerting.domain.HourlyRainForecast
 import flock.community.office.monitoring.backend.alerting.domain.RuleId
 import flock.community.office.monitoring.backend.alerting.domain.RuleState
 import flock.community.office.monitoring.backend.alerting.domain.RuleStateId
@@ -35,7 +36,7 @@ class RuleStateService(
             throw RuleStateException("Could not get active RuleState for ${ruleId.value}", t)
         }
 
-    private fun createRuleStateEntity(ruleId: RuleId): RuleStateEntity = RuleStateEntity(
+    fun createRuleStateEntity(ruleId: RuleId): RuleStateEntity = RuleStateEntity(
         id = UUID.randomUUID().toString(),
         ruleId = ruleId.value,
         active = true,
@@ -43,6 +44,10 @@ class RuleStateService(
         rainForecast = null,
         lastStateChange = Instant.now(),
         sentAlerts = emptyList()
+    )
+
+    fun createNewRuleState(ruleId: RuleId, rainForecast: HourlyRainForecast?):RuleState = ruleStateMapper.internalize(createRuleStateEntity(ruleId)).copy(
+        rainForecast = rainForecast
     )
 
     // Probably want this to be atomic or something to deal with race conditions?

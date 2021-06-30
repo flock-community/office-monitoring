@@ -8,6 +8,7 @@ import flock.community.office.monitoring.backend.device.repository.DeviceStateEn
 import flock.community.office.monitoring.backend.device.repository.DeviceStateMapper
 import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -15,7 +16,8 @@ import java.util.*
 class DeviceStateSaveService(
     val deviceStateRepository: DeviceStateRepository,
     val deviceStateEventBus: DeviceStateEventBus,
-    val deviceStateMapper: DeviceStateMapper
+    val deviceStateMapper: DeviceStateMapper,
+    @Value("\${device.device-state-updates.save-to-database}") private val saveToDatabase: Boolean,
 ) {
 
     val logger = loggerFor<DeviceStateSaveService>()
@@ -33,8 +35,11 @@ class DeviceStateSaveService(
             deviceStateEventQueueMessage.message
         )
 
-        deviceStateRepository.save(deviceStateEntity).also {
-            logger.debug("Saved device state to database: $it")
+
+        if (saveToDatabase) {
+            deviceStateRepository.save(deviceStateEntity).also {
+                logger.debug("Saved device state to database: $it")
+            }
         }
 
         deviceStateEventBus.publish(deviceStateMapper.map(deviceStateEntity))

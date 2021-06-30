@@ -45,68 +45,54 @@ class AlertCheckEvaluator(
     ): AlertCheckEvaluatorData {
         log.info("Resolving timedUpdate because: ${update.triggerReason}")
 
+        if (canAlertStateBeReset(previousStateValue)) {
+            log.debug("RuleState can be reset (apparently): $previousStateValue")
+
+            ruleStateService.clearByRuleId(update.ruleId)
+            val activeRuleState = ruleStateService.createNewRuleState(update.ruleId, previousStateValue.ruleState.rainForecast )
+            return AlertCheckEvaluatorData(
+                ruleState = activeRuleState,
+                rule = previousStateValue.rule
+            )
+        }
+
+
         val sentAlerts: List<SentAlert> = listOfNotNull(
-            // FIXME: Quick hack to report on changes in open/closed contact sensors
-            trySendContactSensorChangeAlert(previousStateValue.ruleState, previousStateValue.rule),
             trySendWeatherUpdateAlert(previousStateValue.ruleState, previousStateValue.rule)
         )
 
         if (sentAlerts.isNotEmpty()) {
             return AlertCheckEvaluatorData(
-                previousStateValue.ruleState.copy(
+                ruleState = previousStateValue.ruleState.copy(
                     sentAlerts = previousStateValue.ruleState.sentAlerts + sentAlerts,
                     lastStateChange = Instant.now()
-                ), previousStateValue.rule
+                ),
+                rule = previousStateValue.rule
             )
         }
 
         return previousStateValue
     }
 
+    private fun canAlertStateBeReset(previousStateValue: AlertCheckEvaluatorData): Boolean {
+        // Check if reset is needed:
+        // Check if alerts are needed
+        val allContactSensorsClosed = previousStateValue.ruleState.openedContactSensors.isEmpty()
 
-    private suspend fun trySendContactSensorChangeAlert(
-        ruleState: RuleState,
-        rule: Rule
-    ): SentAlert? {
-        if (ruleState.openedContactSensors != ruleState.sentAlerts.maxByOrNull { it.dateTime }?.openedContactSensors) {
-            // send message
-            val alert: Alert? = alerts.entries.find {
-                it.value.alertId.value.contains("every-contact-change") && it.value.alertId.value.contains(rule.id.value)
-            }?.value
+        val rainForecast = previousStateValue.ruleState.rainForecast
+        val rainExpectedWithinAlertingWindow = rainForecast != null && Duration.between(
+            Instant.now(),
+            rainForecast.dateTime
+        ) > previousStateValue.rule.alertingWindow
 
-            alert?.let {
-                val properties = getAlertProperties(ruleState, rule)
-                alertSenderService.send(it, properties)
+        val haveSentAlertsBefore = previousStateValue.ruleState.sentAlerts.isNotEmpty()
 
-
-                return SentAlert(
-                    openedContactSensors = ruleState.openedContactSensors,
-                    alertId = it.alertId,
-                    dateTime = Instant.now()
-                )
-
-            }
-        }
-        return null
+        return (allContactSensorsClosed || rainExpectedWithinAlertingWindow) && haveSentAlertsBefore
     }
 
     private suspend fun trySendWeatherUpdateAlert(ruleState: RuleState, rule: Rule): SentAlert? {
         // Check if alerts are needed
-        if (ruleState.openedContactSensors.isEmpty()
-            || ruleState.rainForecast == null
-            || Duration.between(Instant.now(), ruleState.rainForecast.dateTime) > rule.alertingWindow
-        ) {
-            //  no alerts needed
-
-            // check if 'cancel' message is needed
-            if (ruleState.sentAlerts.isNotEmpty()) {
-                // TODO: Are cancel messages needed for POC?
-                // send cancel message
-
-                // clear event
-                ruleStateService.clearByRuleId(rule.id)
-            }
-        } else {
+        if (ruleState.openedContactSensors.isNotEmpty() && ruleState.rainForecast != null) {
             // check which alert has been sent (check latest alert (of this type)
             val latestSentAlert: SentAlert? = ruleState.sentAlerts.maxByOrNull { it.dateTime }
             val alertsToSend = rule.alerts.getAlertsToSend(latestSentAlert, ruleState)

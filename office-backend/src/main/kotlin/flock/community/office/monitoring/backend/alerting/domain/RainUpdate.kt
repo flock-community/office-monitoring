@@ -8,13 +8,7 @@ data class RainForecast(
     val lon: Double,
     val dateTime: Instant,
     val currentForecast: HourlyRainForecast,
-//    val minutelyForecast: List<MinutelyForecast> = emptyList(),
     val hourlyForecast: List<HourlyRainForecast> = emptyList(),
-)
-
-data class MinutelyForecast(
-    val dateTime: Instant,
-    val precipitationVolume: Double // percentage, 0 - 100
 )
 
 data class HourlyRainForecast(

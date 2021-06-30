@@ -43,14 +43,17 @@ class RainCheckSensorExecutor(
 
         return merge(deviceStateUpdates, weatherUpdates, timedUpdates)
             .mapNotNull { ruleStateUpdate ->
+                log.info("Processing update: $ruleStateUpdate")
                 guardAll {
                     val currentRuleState = ruleStateService.getActiveRuleState(rule.id)
+                    log.info("CurrentRuleState: $currentRuleState")
                     currentRuleState
                         .let { ruleStateUpdate.contactSensorUpdate.handleContactSensorUpdate(it) }
                         .let { ruleStateUpdate.rainForecastUpdate.handleWeatherUpdate(it) }
                         .let { ruleStateUpdate.timedUpdate.handleTimedUpdate(it, rule) }
                         .also {
                             if (it != currentRuleState) {
+                                log.debug("State has changed. Saving state, and scheduling an alertCheck asap. New state: $it")
                                 ruleStateService.update(it)
 
                                 alertCheckEvaluator.scheduleUpdate(

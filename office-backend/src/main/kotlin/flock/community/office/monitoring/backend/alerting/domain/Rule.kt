@@ -2,9 +2,7 @@ package flock.community.office.monitoring.backend.alerting.domain
 
 import java.time.Duration
 
-
-//@JvmInline
-/*value*/ class RuleId(val value: String)
+class RuleId(val value: String)
 
 data class Rule(
     val id: RuleId,

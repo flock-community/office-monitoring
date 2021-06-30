@@ -2,8 +2,7 @@ package flock.community.office.monitoring.backend.alerting.domain
 
 import java.time.Instant
 
-/*@JvmInline*/
-/*value*/ class RuleStateId(val value: String)
+class RuleStateId(val value: String)
 
 data class RuleState(
     val id: RuleStateId,
@@ -16,7 +15,7 @@ data class RuleState(
 )
 
 data class SentAlert(
-    val openedContactSensors: Set<String>, // Fixme: temp value to record last open/close state used for sending events
+    val openedContactSensors: Set<String>,
     val alertId: AlertId,
     val dateTime: Instant
 )

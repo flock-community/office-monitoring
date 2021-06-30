@@ -22,7 +22,7 @@ import java.time.Duration
 import java.time.Instant
 
 data class TimedUpdateRequest(
-    val instant: Instant,
+    val dateTime: Instant,
     val ruleId: RuleId,
     val triggerReason: String
 )
@@ -83,7 +83,7 @@ class TimedUpdatesEventBus(
     }
 
     suspend fun publish(timedUpdateRequest: TimedUpdateRequest): Boolean {
-        if (timedUpdateRequest.instant > Instant.now().plus(Duration.ofHours(6))) {
+        if (timedUpdateRequest.dateTime > Instant.now().plus(Duration.ofHours(6))) {
             log.info("Ignoring TimeUpdateRequest more than 6 hours in the future ($timedUpdateRequest}")
             return false
         }
@@ -106,7 +106,7 @@ class TimedUpdatesEventBus(
                 is PopEvents -> {
                     val eventsToPopEvents: MutableSet<TimedUpdateRequest> = scheduledEvents.toMutableSet()
                     eventsToPopEvents.retainAll {
-                        val durationUntilEvent = Duration.between(it.instant, Instant.now()).abs()
+                        val durationUntilEvent = Duration.between(Instant.now(), it.dateTime)
                         durationUntilEvent < evaluateInterval.dividedBy(2)
                     }
                     msg.response.complete(eventsToPopEvents.toSet())
