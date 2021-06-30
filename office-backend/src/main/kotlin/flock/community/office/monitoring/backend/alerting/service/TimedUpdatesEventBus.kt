@@ -1,5 +1,8 @@
 package flock.community.office.monitoring.backend.alerting.service
 
+import flock.community.office.monitoring.backend.alerting.AlertingConfigurationProperties
+import flock.community.office.monitoring.backend.alerting.domain.Rule
+import flock.community.office.monitoring.backend.alerting.domain.RuleId
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
@@ -11,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Component
@@ -19,6 +23,7 @@ import java.time.Instant
 
 data class TimedUpdateRequest(
     val instant: Instant,
+    val ruleId: RuleId,
     val triggerReason: String
 )
 
@@ -27,7 +32,9 @@ class PublishEvent(val timedUpdateRequest: TimedUpdateRequest) : ScheduledEvents
 class PopEvents(val response: CompletableDeferred<Set<TimedUpdateRequest>>) : ScheduledEvents()
 
 @Component
-class TimedEventsEventBus : DisposableBean {
+class TimedUpdatesEventBus(
+    private val alertingConfigurationProperties: AlertingConfigurationProperties
+) : DisposableBean {
     private val _events: MutableSharedFlow<TimedUpdateRequest> = MutableSharedFlow(replay = 1)
     private val scope = CoroutineScope(CoroutineName("TimedEventsEventBus"))
     private val scheduledEventsActor = scope.scheduledActor()
@@ -35,7 +42,7 @@ class TimedEventsEventBus : DisposableBean {
     private val evaluateInterval = Duration.ofSeconds(10) // TODO: move to configuration
     private val periodicTimeUpdateRequestInterval = Duration.ofMinutes(5) // TODO: move to configuration
 
-    private val log = loggerFor<TimedEventsEventBus>()
+    private val log = loggerFor<TimedUpdatesEventBus>()
 
     init {
         setupPeriodicTimedUpdateRequests(periodicTimeUpdateRequestInterval)
@@ -51,15 +58,13 @@ class TimedEventsEventBus : DisposableBean {
                 val timedUpdateRequests: Set<TimedUpdateRequest> = response.await()
 
                 if (timedUpdateRequests.isNotEmpty()) {
-                    val reasons = mutableListOf<String>()
+                    val groupBy: Map<RuleId, List<TimedUpdateRequest>> = timedUpdateRequests.groupBy { it.ruleId }
+                    groupBy.entries.forEach {
+                        val reasons = it.value.map { a -> a.triggerReason }
 
-                    timedUpdateRequests.forEach {
-                        reasons.add(it.triggerReason)
+                        _events.emit(TimedUpdateRequest(Instant.now(), it.key, reasons.toString()))
                     }
-
-                    _events.emit(TimedUpdateRequest(Instant.now(), reasons.toString()))
                 }
-
 //                log.debug("Done Processing TimedUpdateRequests")
                 delay(evaluateInterval.toMillis())
             } while (true)
@@ -69,14 +74,16 @@ class TimedEventsEventBus : DisposableBean {
     private fun setupPeriodicTimedUpdateRequests(interval: Duration) {
         scope.launch(CoroutineName("RegularTimedUpdate")) {
             do {
-                publish(TimedUpdateRequest(Instant.now(), "Trigger to regularly check for alerting"))
+                alertingConfigurationProperties.rules.forEach {
+                    publish(TimedUpdateRequest(Instant.now(), it.id, "Trigger to regularly check for alerting"))
+                }
                 delay(interval.toMillis())
             } while (true)
         }
     }
 
     suspend fun publish(timedUpdateRequest: TimedUpdateRequest): Boolean {
-        if(timedUpdateRequest.instant > Instant.now().plus(Duration.ofHours(6))) {
+        if (timedUpdateRequest.instant > Instant.now().plus(Duration.ofHours(6))) {
             log.info("Ignoring TimeUpdateRequest more than 6 hours in the future ($timedUpdateRequest}")
             return false
         }
@@ -85,8 +92,8 @@ class TimedEventsEventBus : DisposableBean {
         return true;
     }
 
-    fun subscribe(): Flow<TimedUpdateRequest> {
-        return _events.asSharedFlow()
+    fun subscribe(rule: Rule): Flow<TimedUpdateRequest> {
+        return _events.asSharedFlow().filter { it.ruleId == rule.id }
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)

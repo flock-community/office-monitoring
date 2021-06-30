@@ -4,6 +4,6 @@ import flock.community.office.monitoring.backend.alerting.service.TimedUpdateReq
 
 data class RuleStateUpdate(
     val contactSensorUpdate: ContactSensorUpdate? = null,
-    val rainUpdate: RainForecast? = null,
+    val rainForecastUpdate: RainForecast? = null,
     val timedUpdate: TimedUpdateRequest? = null
 )
