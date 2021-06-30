@@ -2,23 +2,22 @@
   import { onMount } from "svelte";
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
-  import type { LineChartDateRecord, LineChartRecord } from "./model";
-  import type { Writable } from "svelte/store";
+  import type { Readable } from "svelte/store";
+  import type { LineChartRecord } from "./model";
 
-  export let chartRecordStore: Writable<any[]>;
+  export let chartRecords: Readable<Partial<LineChartRecord>[]>;
   export let tempSensorIds: string[];
 
   onMount(async () => {
-    am4core.ready(onready);
-
-    chartRecordStore.subscribe((records) => {
+    am4core.ready(initChart);
+    chartRecords.subscribe((records) => {
       chart.data = records;
     });
   });
 
   let chart: am4charts.XYChart;
 
-  function onready() {
+  function initChart() {
     chart = am4core.create("linechart", am4charts.XYChart);
     chart.logo.disabled = true;
 

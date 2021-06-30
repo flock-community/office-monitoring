@@ -1,7 +1,7 @@
 <script lang="typescript">
   import LineChart from "./LineChart.svelte";
   import type { LineChartRecord } from "./model";
-  import { get, writable } from "svelte/store";
+  import { derived, get, writable } from "svelte/store";
   import type {
     DeviceState,
     TemperatureSensorState,
@@ -9,7 +9,6 @@
   import { DeviceType } from "../../../services/StreamDtos";
   import { devices, deviceStates } from "../../../services/stores";
 
-  const chartRecordStore = writable<LineChartRecord[]>([]);
   let tempSensorIds: string[] = [];
 
   const getTempsensors = () => {
@@ -18,42 +17,28 @@
     );
   };
 
-  deviceStates.subscribe((deviceStates) => {
-    let recordsPerDate = new Map<Date, any>();
+  const chartRecords = derived(deviceStates, (states) => {
+    return getTempsensors().flatMap((sensor) => {
+      tempSensorIds.push(sensor.id);
 
-    const chartRecords = getTempsensors().flatMap((tempSensor) => {
-      tempSensorIds.push(tempSensor.id);
-
-      const tempSensorData = deviceStates.get(
-        tempSensor.id
+      const eventsForSensor = states.get(
+        sensor.id
       ) as DeviceState<TemperatureSensorState>[];
 
-      console.log("Devices", deviceStates);
-
-      return tempSensorData.map((event) => {
-        const recordForDate = recordsPerDate.get(event.date) || {
+      return eventsForSensor.map((event) => {
+        const recordForDate = {
           date: new Date(event.date),
         };
-        recordForDate[tempSensor.id] = event.state.temperature;
-
-        recordsPerDate.set(event.date, recordForDate);
-
-        const record = {
-          name: tempSensor.name,
-          date: event.date,
-          text: `humidity: ${event.state.humidity}%`,
-          value: event.state.temperature,
-        } as LineChartRecord;
-        return record;
+        recordForDate[sensor.id] = event.state.temperature;
+        return recordForDate;
       });
     });
-
-    chartRecordStore.update((existingRecords) =>
-      Array.from(recordsPerDate.values())
-    );
   });
+
+  // FIXME: de linechart subscribed zich op chartRecords maar blijkbaar is dat niet genoeg om de derived store te initialiseren, get(chartRecords) doet dat wel
+  get(chartRecords);
 </script>
 
 <div class="p-3 flex-grow w-full">
-  <LineChart {chartRecordStore} {tempSensorIds} />
+  <LineChart {chartRecords} {tempSensorIds} />
 </div>
