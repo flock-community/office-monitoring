@@ -30,22 +30,19 @@ class AlertSenderService(
     suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean = coroutineScope {
         val interpretedMessage = interpolate(alert.message, properties)
 
-        val x = async {
-            config.signalAlertApi.phoneNumbers.map {
-                logMessage(it, interpretedMessage)
-                if (config.signalAlertApi.enabled) {
-                    try {
-                        signalAlertClient.sendMessage(it, interpretedMessage)
-                    } catch (t: Throwable) {
-                        log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
-                    }
-                } else {
-                    log.info("Not sending alert over API (api is disabled)")
+        config.signalAlertApi.phoneNumbers.map {
+            logMessage(it, interpretedMessage)
+            if (config.signalAlertApi.enabled) {
+                try {
+                    signalAlertClient.sendMessage(it, interpretedMessage)
+                } catch (t: Throwable) {
+                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
                 }
+            } else {
+                log.info("Not sending alert over API (api is disabled)")
             }
         }
 
-        awaitAll(x)
         true
     }
 
