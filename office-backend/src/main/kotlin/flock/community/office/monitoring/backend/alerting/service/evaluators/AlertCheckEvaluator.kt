@@ -94,7 +94,7 @@ class AlertCheckEvaluator(
         // Check if alerts are needed
         if (ruleState.openedContactSensors.isEmpty()
             || ruleState.rainForecast == null
-            || Duration.between(Instant.now(), ruleState.rainForecast.dateTime) < rule.alertingWindow
+            || Duration.between(Instant.now(), ruleState.rainForecast.dateTime) > rule.alertingWindow
         ) {
             //  no alerts needed
 
@@ -160,7 +160,7 @@ class AlertCheckEvaluator(
         hourlyForecast: HourlyRainForecast? = null
     ) = mapOf(
         "openContactSensors" to ruleState.openedContactSensors.mapNotNull(String::toDeviceName).toString(),
-        "allContactSensors" to
+        "closedContactSensors" to
                 rule.deviceIds.subtract(ruleState.openedContactSensors).mapNotNull(String::toDeviceName).toString(),
         "timeToRain" to if (hourlyForecast != null)
             "${Duration.between(Instant.now(), hourlyForecast.dateTime).toMinutes()}m" else ">9000m",

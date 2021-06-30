@@ -55,7 +55,9 @@ class AlertSenderService(
             """
                 .
                 ☎️ -- ${phoneNumber.garbled()}
-                ✉️ --  $message  
+                ✉️ --  
+                $message  
+                --
                 .
                 """.trimIndent()
         )

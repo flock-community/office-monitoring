@@ -32,20 +32,32 @@ alerting:
     - id : "test"
       type : "RAIN_CHECK_CONTACT_SENSOR"
       name : "Alert when dakterras is open and rain is imminent"
-      alerting-window : 2h
+      alerting-window : 4h
       device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12"
       alerts :
-        some-id:
-          time-to-deadline : 60m
-          message: "The dakterras is open, and it's gonna rain in less than an hour ({{timeToRain}}). Please close it."
+        three-hours-to-deadline:
+          time-to-deadline : 3h
+          message: "ℹ️ The rooftop terrace door is open, and it's gonna rain in less than 3 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
           channel: SIGNAL
-        some-other-id:
-          time-to-deadline: 20m
-          message: "ALARM The dakterras is open, and it's gonna rain in less than half an hour ({{timeToRain}}). You have to close it now."
+        only-two-hours-left:
+          time-to-deadline: 2h
+          message: "️ℹ️ The rooftop terrace door is open, and it's gonna rain in less than 2 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
+          channel: SIGNAL
+        one-hour-deadline:
+          time-to-deadline : 60m
+          message: "⚠️ WARNING: The rooftop terrace door is open, and it's gonna rain in less than an hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}, volume: {{precipitationVolume}})."
+          channel: SIGNAL
+        alert-when-only-30-min-left:
+          time-to-deadline: 30m
+          message: "🚨 ALARM: The rooftop terrace door is open, and it's gonna rain in less than half an hour (time to rain: ±{{timeToRain}}). You have to close it now."
+          channel: "SIGNAL"
+        open-while-raining:
+          time-to-deadline: 0m
+          message: "🚨 ALARM: The rooftop terrace door is open, and it's said to be raining. Please close the door now!"
           channel: "SIGNAL"
         every-contact-change: # special case to always trigger on contact sensor changes
-          time-to-deadline: 0m
-          message: "😱🚨 Deze deuren staan nu open: {{openContactSensors}} (Gesloten: {{allContactSensors}})."
+          time-to-deadline: 9000m
+          message: "😱🚨 Deze deuren staan nu open: {{openContactSensors}}\nGesloten deuren:\t{{closedContactSensors}}).\nTime to rain:\t{{timeToRain}}\nPrecipitation volume:\t{{precipitationVolume}}\nPrecipitation probability:\t{{precipitationProb}}"
           channel: SIGNAL
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"
