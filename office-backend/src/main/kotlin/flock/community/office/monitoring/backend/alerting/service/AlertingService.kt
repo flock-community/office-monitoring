@@ -19,16 +19,16 @@ import org.springframework.stereotype.Service
 @ExperimentalCoroutinesApi
 @Service
 class AlertingService(
-    alertingConfiguration: AlertingConfigurationProperties,
-    val ruleExecutorManager: RuleExecutorManager
+    private val alertingConfiguration: AlertingConfigurationProperties,
+    private val ruleExecutorManager: RuleExecutorManager
 ) : DisposableBean {
 
     private val scope = CoroutineScope(CoroutineName("AlertingService"))
     private val log = loggerFor<AlertingService>()
 
-    init {
+    fun start() {
         scope.launch {
-            delay(5000) // TODO Wait until application is booted
+            log.info("Starting AlertingService")
             alertingConfiguration.rules
                 .forEach { monitorRule(it) }
         }

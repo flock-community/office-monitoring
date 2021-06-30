@@ -32,7 +32,7 @@ class RuleStateService(
                     }
             ruleStateMapper.internalize(ruleStateEntity)
         } catch (t: Throwable) {
-            throw RuleStateException("Could not get active RuleState for $ruleId", t)
+            throw RuleStateException("Could not get active RuleState for ${ruleId.value}", t)
         }
 
     private fun createRuleStateEntity(ruleId: RuleId): RuleStateEntity = RuleStateEntity(
@@ -51,7 +51,7 @@ class RuleStateService(
         val savedEntity = ruleStateRepository.save(ruleStateEntity)
         ruleStateMapper.internalize(savedEntity)
     } catch (t: Throwable) {
-        throw RuleStateException("Could not update RuleState for ${ruleState.ruleId}", t)
+        throw RuleStateException("Could not update RuleState for ${ruleState.ruleId.value}", t)
     }
 
     fun clearByRuleId(id: RuleId): List<RuleStateId> =
