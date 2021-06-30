@@ -103,6 +103,10 @@ const createMessageFlow = (handler: MessageSink) => {
 };
 
 const setupRSocketSubcribers = (onConnected: OnConnected) => {
+  // TODO: Dit netjes maken
+  let subscriberCredits = 0;
+  let commandBuffer = [];
+
   const subscribers: Map<string, ISubscriber<FlockMonitorCommand>> = new Map();
 
   const commandsFlow = new Flowable<FlockMonitorCommand>(
@@ -115,7 +119,9 @@ const setupRSocketSubcribers = (onConnected: OnConnected) => {
           subscribers.delete(subscriberId);
         },
         request(n: number): void {
-          console.debug(`[EventBus] New deviceCommands are requested (#${n}) `);
+          console.log(`[EventBus] New deviceCommands are requested (#${n}) `);
+          subscriberCredits = subscriberCredits + n;
+          clearCommandBuffer(subscriberId);
         },
       });
 
@@ -123,10 +129,31 @@ const setupRSocketSubcribers = (onConnected: OnConnected) => {
     }
   );
 
-  const commandSink: CommandSink = (event: FlockMonitorCommand) => {
+  const clearCommandBuffer = (subscriberId) => {
+    console.log(commandBuffer);
+    commandBuffer = commandBuffer.filter((command) => {
+      if (subscriberCredits > 0) {
+        const subscriber = subscribers.get(subscriberId);
+        subscriber.onNext(command);
+        subscriberCredits--;
+        return false;
+      } else {
+        return true;
+      }
+    });
+
+    console.log("After: " + commandBuffer);
+  };
+
+  const commandSink: CommandSink = (command: FlockMonitorCommand) => {
     subscribers.forEach(
       (subscriber: ISubscriber<FlockMonitorCommand>, key: string) => {
-        subscriber.onNext(event);
+        if (subscriberCredits > 0) {
+          subscriber.onNext(command);
+          subscriberCredits--;
+        } else {
+          commandBuffer.push(command);
+        }
       }
     );
   };

@@ -11,18 +11,9 @@
   export let id: String;
   export let name: String;
   export let type: DeviceType;
-
-  const date = new Date();
-  date.setHours(date.getHours() - 10);
-  // setTimeout(() => {
-  //     console.log("Requesting deviceState for device:", id)
-  //     eventBus.request(new DeviceStateSubscription(id, date));
-  // });
-
-  let safeId = id.replace("/", "%2f");
 </script>
 
-<a href="/devices/{safeId}" class="bg-gray-100 p-12 border rounded shadow ">
+<a href="/devices/{id}" class="bg-gray-100 p-12 border rounded shadow ">
   <div class="h-24 self-center">
     {#if type === DeviceType.CONTACT_SENSOR}
       <DoorSensor {id} />
