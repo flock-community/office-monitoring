@@ -20,14 +20,11 @@
 
   const date = new Date();
   date.setHours(date.getHours() - 10);
-  setTimeout(() => {
-    console.log("Requesting deviceState for device:", deviceId);
-    eventBus.request(new DeviceStateSubscription(deviceId, date));
-  }, 5000);
 
-  setTimeout(() => {
-    eventBus.request(new DeviceSubscription());
-  }, 500);
+  console.log("Requesting deviceState for device:", deviceId);
+  eventBus.request(new DeviceStateSubscription(deviceId, date));
+
+  eventBus.request(new DeviceSubscription());
 
   const unknownDevice: DeviceDto = {
     id: "unknown",

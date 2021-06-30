@@ -27,12 +27,14 @@ export class MessageHandler {
   private handleDeviceStateMessage(message: DeviceState<StateBody>) {
     deviceStates.update((map) => {
       const deviceId = message.deviceId;
-      const deviceStates: DeviceState<StateBody>[] | undefined =
+      const currentDeviceStates: DeviceState<StateBody>[] | undefined =
         map.get(deviceId);
-      if (!!deviceStates) {
-        const deviceStatesMap = deviceStates as DeviceState<StateBody>[];
-        deviceStatesMap.push(message);
-        map.set(deviceId, deviceStatesMap);
+      if (!!currentDeviceStates) {
+        currentDeviceStates.push(message);
+        currentDeviceStates.sort((a, b) => {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+        map.set(deviceId, currentDeviceStates);
       } else {
         map.set(deviceId, [message]);
       }

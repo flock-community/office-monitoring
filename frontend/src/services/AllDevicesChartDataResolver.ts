@@ -59,7 +59,7 @@ const createTemperatureDeviceRecords = (
       lastTempState.state.temperature - curr.state.temperature
     );
 
-    if (tempDifference > 1) {
+    if (tempDifference > 2) {
       return [...acc, curr];
     } else {
       return acc;
