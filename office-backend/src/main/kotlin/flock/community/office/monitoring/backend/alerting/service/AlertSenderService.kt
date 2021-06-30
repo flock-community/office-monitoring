@@ -16,19 +16,16 @@ class AlertSenderService(
     private val signalAlertClient: SignalAlertClient,
     private val config: AlertingConfigurationProperties
 ) {
-
     private val log = loggerFor<AlertSenderService>()
 
     suspend fun send(alert: Alert, properties: Map<String, String>): Boolean = this.send(
         alert = AlertConfig(
-            time = alert.time,
             timeToDeadline = alert.timeToDeadline,
             message = alert.message,
             channel = alert.channel
         ),
         properties = properties
     )
-
 
     suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean = coroutineScope {
         val interpretedMessage = interpolate(alert.message, properties)
@@ -57,10 +54,8 @@ class AlertSenderService(
         log.info(
             """
                 .
-                .
                 ☎️ -- ${phoneNumber.garbled()}
                 ✉️ --  $message  
-                .
                 .
                 """.trimIndent()
         )

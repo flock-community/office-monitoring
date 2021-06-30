@@ -37,7 +37,6 @@ class AlertingConfig {
         return Alert(
             alertId = alertId,
             timeToDeadline = timeToDeadline,
-            time = time,
             message = message,
             channel = channel
         )
