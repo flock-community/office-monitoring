@@ -42,8 +42,8 @@ export class MessageHandler {
   }
 
   private handleDeviceListMessage(newDevices: DeviceDto[]) {
-    devices.update((savedDevices) => {
-      return [...savedDevices, ...newDevices];
+    devices.update((_) => {
+      return [...newDevices];
     });
   }
 }

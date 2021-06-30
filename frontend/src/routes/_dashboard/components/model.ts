@@ -7,23 +7,8 @@ export interface TimelineChartRecord {
   icon: string;
   text: string;
   color: Color;
-  // task: String;
 }
 
 export interface LineChartRecord {
-  name: string;
   date: Date;
-  value: number;
-  text: string;
-}
-
-export interface LineChartDateRecord {
-  date: Date;
-  events: DateEvent[];
-}
-
-export interface DateEvent {
-  name: string;
-  value: number;
-  text: string;
 }
