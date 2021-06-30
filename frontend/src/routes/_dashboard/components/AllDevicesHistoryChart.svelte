@@ -4,7 +4,7 @@
   import { get } from "svelte/store";
   import { delay } from "../../_utils";
 
-  import { resolveChartData } from "../../../services/ChartDataResolver";
+  import { createChartRecords } from "../../../services/ChartDataResolver";
 
   enum ChartUpdateStatus {
     IDLE,
@@ -24,7 +24,7 @@
 
     _updating = ChartUpdateStatus.UPDATING;
 
-    const newChartData = resolveChartData(get(deviceStates));
+    const newChartData = createChartRecords(get(deviceStates));
     chartData = [...newChartData];
 
     await delay(500);
