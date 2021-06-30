@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {beforeUpdate, onMount} from "svelte";
+  import { beforeUpdate, onMount } from "svelte";
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
   import * as am4plugins_timeline from "@amcharts/amcharts4/plugins/timeline";
@@ -10,17 +10,16 @@
 
   export let chartData: TimelineChartRecord[];
 
-  let chart
+  let chart;
   onMount(async () => {
     am4core.ready(onready);
-  })
+  });
 
   beforeUpdate(async () => {
     if (!!chart) {
-      chart.data = chartData
+      chart.data = chartData;
     }
   });
-
 
   function onready() {
     am4core.useTheme(am4themes_animated);
@@ -59,15 +58,11 @@
     dateAxis.renderer.line.strokeOpacity = 0.6;
     dateAxis.tooltip.background.fillOpacity = 0.2;
     dateAxis.tooltip.background.cornerRadius = 5;
-    dateAxis.tooltip.label.fill = "color"
+    dateAxis.tooltip.label.fill = "color";
     dateAxis.tooltip.label.fill = new am4core.InterfaceColorSet().getFor(
       "alternativeBackground"
     );
     dateAxis.tooltip.label.paddingTop = 7;
-    // const min = new Date()
-    // min.setHours(min.getHours() - 4)
-    //
-    // dateAxis.min = min.getTime();
     dateAxis.max = new Date().getTime();
 
     let labelTemplate = dateAxis.renderer.labels.template;
@@ -83,22 +78,16 @@
     series.columns.template.height = am4core.percent(10);
     series.columns.template.tooltipText = "{openDateX}\n{text}";
     series.tooltip.getFillFromObject = false;
-    // series.tooltip.label.propertyFields.fill = "color";
-    // series.tooltip.background.propertyFields.stroke = "color";
     series.tooltip.background.propertyFields.fill = "color";
 
     series.dataFields.openDateX = "start";
     series.dataFields.dateX = "end";
     series.dataFields.categoryY = "category";
-    // series.columns.template.strokeOpacity = 0;
 
     series.columns.template.propertyFields.fill = "color"; // get color from data
     series.columns.template.propertyFields.stroke = "color";
     series.columns.template.strokeOpacity = 0;
     series.columns.template.fillOpacity = 0.6;
-
-    // series.columns.tooltip.template.propertyFields.fill = "color"
-    // series.tooltip.template.propertyFields.stroke = "color"
 
     chart.scrollbarX = new am4core.Scrollbar();
     chart.scrollbarX.align = "center";
@@ -128,21 +117,22 @@
     imageBullet1.background.strokeOpacity = 0;
     imageBullet1.dy = -2;
     imageBullet1.background.pointerBaseWidth = 10;
-    imageBullet1.background.pointerLength = 10
+    imageBullet1.background.pointerLength = 10;
     imageBullet1.tooltipText = "{openDateX}\n{text}";
 
     imageBullet1.background.adapter.add("pointerAngle", (value, target) => {
       if (target.dataItem) {
-        let position = dateAxis.valueToPosition(target.dataItem.openDateX.getTime());
+        let position = dateAxis.valueToPosition(
+          target.dataItem.openDateX.getTime()
+        );
         return dateAxis.renderer.positionToAngle(position);
       }
       return value;
     });
 
-    let hs = imageBullet1.states.create("hover")
+    let hs = imageBullet1.states.create("hover");
     hs.properties.scale = 1.3;
     hs.properties.opacity = 1;
-
   }
 </script>
 
