@@ -7,12 +7,12 @@ import {
   StateBody,
 } from "./StreamDtos";
 
-export const devicesStore = writable(new Array<DeviceDto>());
-export const deviceStateStore = writable(
+export const devices = writable(new Array<DeviceDto>());
+export const deviceStates = writable(
   new Map<string, DeviceState<StateBody>[]>()
 );
 
-devicesStore.subscribe((devices) => {
+devices.subscribe((devices) => {
   const date = new Date();
   date.setHours(date.getHours() - 10);
   devices.forEach((device) =>
@@ -24,6 +24,6 @@ devicesStore.subscribe((devices) => {
 });
 
 export const hasData = derived(
-  deviceStateStore,
-  ($deviceStateStore) => $deviceStateStore.size > 0
+  deviceStates,
+  ($deviceStates) => $deviceStates.size > 0
 );

@@ -7,18 +7,18 @@
     TemperatureSensorState,
   } from "../../../services/StreamDtos";
   import { DeviceType } from "../../../services/StreamDtos";
-  import { devicesStore, deviceStateStore } from "../../../services/stores";
+  import { devices, deviceStates } from "../../../services/stores";
 
   const chartRecordStore = writable<LineChartRecord[]>([]);
   let tempSensorIds: string[] = [];
 
   const getTempsensors = () => {
-    return get(devicesStore).filter(
+    return get(devices).filter(
       (device) => device.type === DeviceType.TEMPERATURE_SENSOR
     );
   };
 
-  deviceStateStore.subscribe((deviceStates) => {
+  deviceStates.subscribe((deviceStates) => {
     let recordsPerDate = new Map<Date, any>();
 
     const chartRecords = getTempsensors().flatMap((tempSensor) => {
