@@ -1,4 +1,4 @@
-import type { TimelineChartRecord } from "../routes/_components/modelboard/components/model";
+import type { TimelineChartRecord } from "../routes/_dashboard/components/model";
 import { getColor, getDeviceName } from "./DeviceUtil";
 import type {
   ContactSensorState,

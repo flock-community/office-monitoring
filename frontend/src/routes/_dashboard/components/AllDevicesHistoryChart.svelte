@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { deviceStateStore } from "../../../services/stores";
+  import { deviceStates } from "../../../services/stores";
   import DeviceHistoryChart from "./DeviceHistoryChart.svelte";
   import { get } from "svelte/store";
   import { delay } from "../../_utils";
@@ -24,7 +24,7 @@
 
     _updating = ChartUpdateStatus.UPDATING;
 
-    const newChartData = resolveChartData(get(deviceStateStore));
+    const newChartData = resolveChartData(get(deviceStates));
     chartData = [...newChartData];
 
     await delay(500);
@@ -35,7 +35,7 @@
       _updating = ChartUpdateStatus.IDLE;
     }
   };
-  deviceStateStore.subscribe(async (state) => {
+  deviceStates.subscribe(async (state) => {
     if (state.size > 0) {
       await updateChartData();
     }

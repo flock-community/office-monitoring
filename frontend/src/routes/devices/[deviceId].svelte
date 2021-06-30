@@ -14,7 +14,7 @@
     DeviceSubscription,
   } from "../../services/StreamDtos";
   import { derived } from "svelte/store";
-  import { devicesStore, deviceStateStore } from "../../services/stores";
+  import { devices, deviceStates } from "../../services/stores";
 
   export let deviceId;
 
@@ -36,12 +36,12 @@
   };
 
   const device = derived(
-    devicesStore,
+    devices,
     ($devices) => $devices.find((s) => s.id === deviceId) || unknownDevice
   );
 
   const state = derived(
-    deviceStateStore,
+    deviceStates,
     ($deviceStates) => $deviceStates.get(deviceId) || []
   );
 </script>

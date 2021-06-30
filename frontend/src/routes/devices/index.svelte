@@ -8,10 +8,10 @@
 </script>
 
 <script lang="ts">
-  import { devicesStore } from "../../services/stores";
+  import { devices } from "../../services/stores";
   import { derived } from "svelte/store";
 
-  export const devices = derived(devicesStore, ($devices) =>
+  export const devicesList = derived(devices, ($devices) =>
     $devices.map((device) => {
       return { ...device, safeId: device.id.replace("/", "%2f") };
     })
@@ -26,7 +26,7 @@
   <h1 class="flex-cols-1">Available devices</h1>
 
   <div class="grid grid-cols-1 gap-10 ">
-    {#each $devices as device}
+    {#each $devicesList as device}
       <!-- we're using the non-standard `rel=prefetch` attribute to
                     tell Sapper to load the data for the page as soon as
                     the user hovers over the link or taps it, instead of

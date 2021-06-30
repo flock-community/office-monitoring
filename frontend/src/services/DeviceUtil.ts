@@ -1,7 +1,7 @@
 import type { Color } from "@amcharts/amcharts4/core";
 import * as am4core from "@amcharts/amcharts4/core";
 import { get } from "svelte/store";
-import { devicesStore } from "./stores";
+import { devices } from "./stores";
 
 const colorSet = new am4core.ColorSet();
 
@@ -29,8 +29,7 @@ export const getDeviceName: (deviceId: string) => string = (
   if (!_deviceNames.has(deviceId)) {
     _deviceNames.set(
       deviceId,
-      get(devicesStore).find((it) => it.id == deviceId)?.name ||
-        "Roque device 42"
+      get(devices).find((it) => it.id == deviceId)?.name || "Roque device 42"
     );
   }
 

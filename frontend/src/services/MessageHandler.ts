@@ -1,4 +1,4 @@
-import { deviceStateStore, devicesStore } from "./stores";
+import { deviceStates, devices } from "./stores";
 import {
   DeviceDto,
   DeviceState,
@@ -25,7 +25,7 @@ export class MessageHandler {
   }
 
   private handleDeviceStateMessage(message: DeviceState<StateBody>) {
-    deviceStateStore.update((map) => {
+    deviceStates.update((map) => {
       const deviceId = message.deviceId;
       const deviceStates: DeviceState<StateBody>[] | undefined =
         map.get(deviceId);
@@ -42,7 +42,7 @@ export class MessageHandler {
   }
 
   private handleDeviceListMessage(newDevices: DeviceDto[]) {
-    devicesStore.update((savedDevices) => {
+    devices.update((savedDevices) => {
       return [...savedDevices, ...newDevices];
     });
   }
