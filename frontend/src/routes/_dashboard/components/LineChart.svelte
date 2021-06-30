@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
-  import type { LineChartDateRecord, LineChartRecord } from "../model";
+  import type { LineChartDateRecord, LineChartRecord } from "./model";
   import type { Writable } from "svelte/store";
 
   export let chartRecordStore: Writable<any[]>;
