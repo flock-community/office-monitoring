@@ -1,44 +1,12 @@
 <script lang="ts">
   import { deviceStates } from "../../../services/stores";
   import DeviceHistoryChart from "./DeviceHistoryChart.svelte";
-  import { get } from "svelte/store";
-  import { delay } from "../../_utils";
+  import { derived, get, writable } from "svelte/store";
 
-  import { createChartRecords } from "../../../services/ChartDataResolver";
+  import { createChartRecords } from "../../../services/AllDevicesChartDataResolver";
 
-  enum ChartUpdateStatus {
-    IDLE,
-    UPDATING,
-    QUEUED,
-  }
-
-  let chartData = [];
-
-  let _updating: ChartUpdateStatus = ChartUpdateStatus.IDLE;
-
-  const updateChartData = async () => {
-    if (_updating !== ChartUpdateStatus.IDLE) {
-      _updating = ChartUpdateStatus.QUEUED;
-      return;
-    }
-
-    _updating = ChartUpdateStatus.UPDATING;
-
-    const newChartData = createChartRecords(get(deviceStates));
-    chartData = [...newChartData];
-
-    await delay(500);
-    if (_updating === ChartUpdateStatus.QUEUED) {
-      _updating = ChartUpdateStatus.IDLE;
-      await updateChartData();
-    } else {
-      _updating = ChartUpdateStatus.IDLE;
-    }
-  };
-  deviceStates.subscribe(async (state) => {
-    if (state.size > 0) {
-      await updateChartData();
-    }
+  let chartData = derived(deviceStates, (states) => {
+    return createChartRecords(states);
   });
 </script>
 
