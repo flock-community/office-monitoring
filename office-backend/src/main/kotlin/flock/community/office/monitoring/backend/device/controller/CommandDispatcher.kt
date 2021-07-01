@@ -8,14 +8,15 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 
 @Service
-class CommandDispatcher(val devicesCommandExecutor: DevicesCommandExecutor,
-                        val devicesFeedCommandExecutor: DevicesFeedCommandExecutor
+class CommandDispatcher(
+    val devicesListCommandExecutor: DevicesListCommandExecutor,
+    val devicesFeedCommandExecutor: DevicesFeedCommandExecutor
 ) {
 
     fun dispatchCommand(command: FlockMonitorCommandBody): Flow<FlockMonitorMessage> {
         return when (command) {
             is GetDeviceStateCommand -> devicesFeedCommandExecutor.getFlow(command)
-            is GetDevicesCommand -> devicesCommandExecutor.getFlow(command)
+            is GetDevicesCommand -> devicesListCommandExecutor.getFlow(command)
         }
     }
 

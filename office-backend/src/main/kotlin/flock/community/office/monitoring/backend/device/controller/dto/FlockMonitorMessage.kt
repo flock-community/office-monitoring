@@ -14,7 +14,6 @@ sealed class FlockMonitorMessageBody {
 }
 
 enum class FlockMonitorMessageType {
-    // Messages
     DEVICE_LIST_MESSAGE,
     DEVICE_STATE
 }

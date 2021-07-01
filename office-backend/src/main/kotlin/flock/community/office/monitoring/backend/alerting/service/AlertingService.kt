@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
+import javax.annotation.PostConstruct
 
 @ExperimentalCoroutinesApi
 @Service
@@ -25,6 +26,7 @@ class AlertingService(
     private val scope = CoroutineScope(CoroutineName("AlertingService"))
     private val log = loggerFor<AlertingService>()
 
+    @PostConstruct
     fun start() {
         scope.launch {
             log.info("Starting AlertingService")

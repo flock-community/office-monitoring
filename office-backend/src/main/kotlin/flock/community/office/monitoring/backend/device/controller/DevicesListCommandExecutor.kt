@@ -12,6 +12,7 @@ import flock.community.office.monitoring.backend.device.controller.dto.FlockMoni
 import flock.community.office.monitoring.backend.device.controller.dto.FlockMonitorMessageType.DEVICE_LIST_MESSAGE
 import flock.community.office.monitoring.backend.device.controller.dto.FlockMonitorMessageType.DEVICE_STATE
 import flock.community.office.monitoring.backend.device.service.DeviceStateHistoryService
+import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -23,7 +24,7 @@ interface Executor<T : FlockMonitorCommandBody> {
 }
 
 @Service
-class DevicesCommandExecutor : Executor<GetDevicesCommand> {
+class DevicesListCommandExecutor : Executor<GetDevicesCommand> {
 
     override fun getFlow(command: GetDevicesCommand): Flow<FlockMonitorMessage> = flow {
 
@@ -41,6 +42,8 @@ class DevicesFeedCommandExecutor(
     val deviceStateEventBus: DeviceStateEventBus
 ) : Executor<GetDeviceStateCommand> {
 
+    private val logger = loggerFor<DevicesFeedCommandExecutor>()
+
     override fun getFlow(command: GetDeviceStateCommand): Flow<FlockMonitorMessage> = flow {
 
         val sensorId = devicesMappingConfigurations.entries
@@ -55,6 +58,8 @@ class DevicesFeedCommandExecutor(
             deviceStateEventBus.subscribe(command.deviceId).collect {
                 emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
             }
+        } else {
+            logger.warn("Device for ${command.deviceId} not found")
         }
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.backend.device.service.DeviceStateSaveService
 import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate
@@ -31,20 +32,22 @@ class EventTopicSubscriber(
     init {
         logger.info("Subscribing to ${pubSubConfig.subscriptionName}")
         pubSubTemplate.subscribeAndConvert(pubSubConfig.subscriptionName, { message ->
-            try {
-                logger.debug("Received SensorEventQueueMessage: ${message.pubsubMessage.messageId} - ${message.payload}")
-                deviceStateSaveService.saveSensorEventQueueMessage(message.payload)
+            runBlocking {
+                try {
+                    logger.debug("Received SensorEventQueueMessage: ${message.pubsubMessage.messageId} - ${message.payload}")
+                    deviceStateSaveService.saveSensorEventQueueMessage(message.payload)
 
-                message.ack().addCallback(
-                    { logger.debug("SensorEventQueueMessage acked : ${message.pubsubMessage.messageId} - ${message.payload}") },
-                    { logger.warn("Message ack failed ${message.pubsubMessage.messageId} - ${message.payload}") }
-                )
-            } catch (e: Exception) {
-                logger.warn("Something went wrong processing message ${message.pubsubMessage.messageId} ${message.payload}")
-                message.nack().addCallback(
-                    { logger.debug("SensorEventQueueMessage nacked ${message.pubsubMessage.messageId} - ${message.payload}") },
-                    { logger.warn("Message nack failed ${message.pubsubMessage.messageId} - ${message.payload}") }
-                )
+                    message.ack().addCallback(
+                        { logger.debug("SensorEventQueueMessage acked : ${message.pubsubMessage.messageId} - ${message.payload}") },
+                        { logger.warn("Message ack failed ${message.pubsubMessage.messageId} - ${message.payload}") }
+                    )
+                } catch (e: Exception) {
+                    logger.warn("Something went wrong processing message ${message.pubsubMessage.messageId} ${message.payload}")
+                    message.nack().addCallback(
+                        { logger.debug("SensorEventQueueMessage nacked ${message.pubsubMessage.messageId} - ${message.payload}") },
+                        { logger.warn("Message nack failed ${message.pubsubMessage.messageId} - ${message.payload}") }
+                    )
+                }
             }
         }, DeviceStateEventQueueMessage::class.java)
     }

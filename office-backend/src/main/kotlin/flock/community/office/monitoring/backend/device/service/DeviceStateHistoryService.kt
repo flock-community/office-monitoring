@@ -18,9 +18,9 @@ class DeviceStateHistoryService(
     private val logger = loggerFor<DeviceStateHistoryService>()
 
     fun getHistory(sensorId: String, from: Instant): Flow<DeviceState<StateBody>> {
-        logger.info("Start fetching DeviceState history for $sensorId, since $from")
+        logger.debug("Start fetching DeviceState history for $sensorId, since $from")
         val findAll = repository.findAllByDeviceIdAndDateGreaterThanOrderByDateAsc(sensorId, from)
-        logger.info("Done fetching DeviceState history for $sensorId, since $from")
+        logger.debug("Done fetching DeviceState history for $sensorId, since $from")
         return findAll.asFlow()
             .catch { logger.error("Error fetching DeviceState history", it) }
             .map { deviceStateMapper.map(it) }

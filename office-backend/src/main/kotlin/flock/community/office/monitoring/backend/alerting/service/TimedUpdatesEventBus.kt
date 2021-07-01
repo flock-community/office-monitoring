@@ -52,7 +52,6 @@ class TimedUpdatesEventBus(
     private fun setupRegularEvaluation(evaluateInterval: Duration) {
         scope.launch {
             do {
-//                log.debug("Processing TimedUpdateRequests ....")
                 val response = CompletableDeferred<Set<TimedUpdateRequest>>()
                 scheduledEventsActor.send(PopEvents(response))
                 val timedUpdateRequests: Set<TimedUpdateRequest> = response.await()
@@ -65,7 +64,6 @@ class TimedUpdatesEventBus(
                         _events.emit(TimedUpdateRequest(Instant.now(), it.key, reasons.toString()))
                     }
                 }
-//                log.debug("Done Processing TimedUpdateRequests")
                 delay(evaluateInterval.toMillis())
             } while (true)
         }

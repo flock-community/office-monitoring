@@ -10,7 +10,7 @@ import flock.community.office.monitoring.backend.alerting.repository.RuleStateRe
 import flock.community.office.monitoring.utils.logging.loggerFor
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class RuleStateException(message: String, cause: Throwable) : RuntimeException(message, cause)
 
@@ -46,7 +46,7 @@ class RuleStateService(
         sentAlerts = emptyList()
     )
 
-    fun createNewRuleState(ruleId: RuleId, rainForecast: HourlyRainForecast?):RuleState = ruleStateMapper.internalize(createRuleStateEntity(ruleId)).copy(
+    fun createNewRuleState(ruleId: RuleId, rainForecast: HourlyRainForecast?): RuleState = ruleStateMapper.internalize(createRuleStateEntity(ruleId)).copy(
         rainForecast = rainForecast
     )
 
