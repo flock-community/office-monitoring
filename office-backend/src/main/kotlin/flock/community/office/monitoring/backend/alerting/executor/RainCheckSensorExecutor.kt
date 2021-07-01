@@ -1,120 +1,139 @@
 package flock.community.office.monitoring.backend.alerting.executor
 
 import flock.community.office.monitoring.backend.alerting.domain.ContactSensorUpdate
+import flock.community.office.monitoring.backend.alerting.domain.HourlyRainForecast
 import flock.community.office.monitoring.backend.alerting.domain.RainForecast
 import flock.community.office.monitoring.backend.alerting.domain.Rule
-import flock.community.office.monitoring.backend.alerting.domain.RuleState
-import flock.community.office.monitoring.backend.alerting.domain.RuleStateUpdate
+import flock.community.office.monitoring.backend.alerting.domain.RuleId
+import flock.community.office.monitoring.backend.alerting.domain.AlertState
+import flock.community.office.monitoring.backend.alerting.domain.RainCheckSensorUpdate
 import flock.community.office.monitoring.backend.alerting.domain.RuleType
+import flock.community.office.monitoring.backend.alerting.service.RainCheckSensorDataService
 import flock.community.office.monitoring.backend.alerting.service.evaluators.AlertCheckEvaluator
-import flock.community.office.monitoring.backend.alerting.service.evaluators.AlertCheckEvaluatorData
 import flock.community.office.monitoring.backend.alerting.service.evaluators.DeviceStateEvaluator
 import flock.community.office.monitoring.backend.alerting.service.evaluators.RainForecastEvaluator
-import flock.community.office.monitoring.backend.alerting.service.RuleStateService
+import flock.community.office.monitoring.backend.alerting.service.AlertStateService
 import flock.community.office.monitoring.backend.alerting.service.TimedUpdateRequest
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
 import org.springframework.stereotype.Service
 import java.time.Instant
 
+@JvmInline
+value class RainCheckSensorDataId(val value: String)
+data class RainCheckSensorData(
+    val id: RainCheckSensorDataId,
+    val ruleId: RuleId,
+    val openedContactSensors: Set<String>,
+    val rainForecast: HourlyRainForecast?,
+    val lastStateChange: Instant,
+)
 
 @Service
 class RainCheckSensorExecutor(
-    private val ruleStateService: RuleStateService,
+    private val alertStateService: AlertStateService,
+    private val rainCheckSensorDataService: RainCheckSensorDataService,
     private val deviceStateEvaluator: DeviceStateEvaluator,
     private val rainForecastEvaluator: RainForecastEvaluator,
     private val alertCheckEvaluator: AlertCheckEvaluator
-) : RuleImplExecutor<RuleState> {
+) : RuleImplExecutor<AlertState> {
 
     override fun type() = RuleType.RAIN_CHECK_CONTACT_SENSOR
 
-    private val log = loggerFor<RuleImplExecutor<RuleState>>()
+    private val log = loggerFor<RuleImplExecutor<AlertState>>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun start(rule: Rule): Flow<RuleState> {
+    override fun start(rule: Rule): Flow<AlertState> {
         // subscribe to updates / state changes
         val deviceStateUpdates = subscribeToContactSensorUpdates(rule)
         val weatherUpdates = subscribeToRainForecastUpdates(rule)
         val timedUpdates = subscribeToTimedUpdates(rule)
 
-        return merge(deviceStateUpdates, weatherUpdates, timedUpdates)
-            .mapNotNull { ruleStateUpdate ->
-                log.info("Processing update: $ruleStateUpdate")
-                guardAll {
-                    val currentRuleState = ruleStateService.getActiveRuleState(rule.id)
-                    log.info("CurrentRuleState: $currentRuleState")
-                    currentRuleState
-                        .let { ruleStateUpdate.contactSensorUpdate.handleContactSensorUpdate(it) }
-                        .let { ruleStateUpdate.rainForecastUpdate.handleWeatherUpdate(it) }
-                        .let { ruleStateUpdate.timedUpdate.handleTimedUpdate(it, rule) }
-                        .also {
-                            if (it != currentRuleState) {
-                                log.debug("State has changed. Saving state, and scheduling an alertCheck asap. New state: $it")
-                                ruleStateService.update(it)
+        val startingRainCheckSensorData = rainCheckSensorDataService.getDataForRule(rule.id)
 
-                                alertCheckEvaluator.scheduleUpdate(
-                                    TimedUpdateRequest(
-                                        Instant.now(),
-                                        rule.id,
-                                        "RuleState has changed."
-                                    )
-                                )
+        val rainCheckSensorDataState = merge(deviceStateUpdates, weatherUpdates)
+            .scan(startingRainCheckSensorData)
+            { currentRainCheckSensorData, ruleStateUpdate ->
+                currentRainCheckSensorData
+                    .let { ruleStateUpdate.contactSensorUpdate.handleContactSensorUpdate(it) }
+                    .let { ruleStateUpdate.rainForecastUpdate.handleWeatherUpdate(it) }
+                    .also {
+                        if (it != currentRainCheckSensorData) {
+                            log.debug("rainCheckSensorData state has changed. Saving state. New state: $it")
+                            guardAll {
+                                rainCheckSensorDataService.update(it)
                             }
                         }
-                }
+                    }
             }
+
+        return rainCheckSensorDataState.combine(timedUpdates) { rainCheckSensorData, stateUpdate ->
+            log.info("LatestRainCheckSensorData: $rainCheckSensorData, Latest TimedUpdateRequest: $stateUpdate")
+
+            guardAll {
+                val previousAlertState = alertStateService.getActiveRuleState(rule.id)
+
+                alertCheckEvaluator.handleUpdate(stateUpdate, rule, rainCheckSensorData, previousAlertState)
+                    .also {
+                        if (it != previousAlertState) {
+                            alertStateService.update(it)
+                        }
+                    }
+            }
+        }.filterNotNull()
     }
 
-    private fun subscribeToContactSensorUpdates(rule: Rule): Flow<RuleStateUpdate> =
+    private fun subscribeToContactSensorUpdates(rule: Rule): Flow<RainCheckSensorUpdate> =
         deviceStateEvaluator.subscribeToUpdates(rule)
-            .map { RuleStateUpdate(contactSensorUpdate = it) }
+            .map { RainCheckSensorUpdate(contactSensorUpdate = it) }
 
-    private fun subscribeToRainForecastUpdates(rule: Rule): Flow<RuleStateUpdate> =
+    private fun subscribeToRainForecastUpdates(rule: Rule): Flow<RainCheckSensorUpdate> =
         rainForecastEvaluator.subscribeToUpdates(rule)
-            .map { RuleStateUpdate(rainForecastUpdate = it) }
+            .map { RainCheckSensorUpdate(rainForecastUpdate = it) }
 
-    private fun subscribeToTimedUpdates(rule: Rule): Flow<RuleStateUpdate> =
+    private fun subscribeToTimedUpdates(rule: Rule): Flow<TimedUpdateRequest> =
         alertCheckEvaluator.subscribeToUpdates(rule)
-            .map { RuleStateUpdate(timedUpdate = it) }
+            .onEach { log.info("Resolving timedUpdate because: ${it.triggerReason}") }
 
-    suspend fun ContactSensorUpdate?.handleContactSensorUpdate(ruleState: RuleState): RuleState {
-        if (this == null) return ruleState
+    suspend fun ContactSensorUpdate?.handleContactSensorUpdate(rainCheckSensorData: RainCheckSensorData): RainCheckSensorData {
+        if (this == null) return rainCheckSensorData
 
-        val previouslyOpenedContactSensors: Set<String> = ruleState.openedContactSensors
+        val previouslyOpenedContactSensors: Set<String> = rainCheckSensorData.openedContactSensors
         val updatedContactSensors: Set<String> = deviceStateEvaluator.handleUpdate(this, previouslyOpenedContactSensors)
 
         return if (previouslyOpenedContactSensors != updatedContactSensors) {
-            ruleState.copy(openedContactSensors = updatedContactSensors, lastStateChange = Instant.now())
+            rainCheckSensorData.copy(openedContactSensors = updatedContactSensors, lastStateChange = Instant.now())
         } else {
-            ruleState
+            rainCheckSensorData
         }
     }
 
-    private suspend fun RainForecast?.handleWeatherUpdate(ruleState: RuleState): RuleState {
-        if (this == null) return ruleState
+    private suspend fun RainForecast?.handleWeatherUpdate(rainCheckSensorData: RainCheckSensorData): RainCheckSensorData {
+        if (this == null) return rainCheckSensorData
 
-        val previousRainForecast = ruleState.rainForecast
+        val previousRainForecast = rainCheckSensorData.rainForecast
         val newRainForecast = rainForecastEvaluator.handleUpdate(this, previousRainForecast)
+
         return if (newRainForecast != previousRainForecast) {
-            ruleState.copy(rainForecast = newRainForecast, lastStateChange = Instant.now())
+            rainCheckSensorData.copy(rainForecast = newRainForecast, lastStateChange = Instant.now())
         } else {
-            ruleState
+            rainCheckSensorData
         }
     }
 
-    private suspend fun TimedUpdateRequest?.handleTimedUpdate(ruleState: RuleState, rule: Rule): RuleState =
-        if (this == null) ruleState
-        else alertCheckEvaluator.handleUpdate(this, AlertCheckEvaluatorData(ruleState, rule)).ruleState
 
     private inline fun <T> guardAll(block: () -> T): T? = try {
         block()
     } catch (t: Throwable) {
         log.error(
-            "Error occurred clearing state change handling(s) for. This means alerting might run out of sync(!!)",
+            "Unexpected error occurred. This means alerting might run out of sync(!!)",
             t
         )
         // TODO: Trigger a 'reset' after x time (maybe exponential backoff), to do a full restart?

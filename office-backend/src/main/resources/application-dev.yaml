@@ -1,6 +1,7 @@
 logging:
   level:
     flock.community.office.monitoring: DEBUG
+    flock.community.office.monitoring.backend.device.gcp: INFO
 
 
 alerting.signal-alert-api.enabled: false

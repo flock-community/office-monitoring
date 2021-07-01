@@ -31,16 +31,12 @@ class AlertingConfig {
             }
         }.toMap()
 
-    private fun AlertConfig.internalize(
-        alertId: AlertId
-    ): Alert {
-        return Alert(
-            alertId = alertId,
-            timeToDeadline = timeToDeadline,
-            message = message,
-            channel = channel
-        )
-    }
+    private fun AlertConfig.internalize(alertId: AlertId) = Alert(
+        alertId = alertId,
+        timeToDeadline = timeToDeadline,
+        message = message,
+        channel = channel
+    )
 
 
 }

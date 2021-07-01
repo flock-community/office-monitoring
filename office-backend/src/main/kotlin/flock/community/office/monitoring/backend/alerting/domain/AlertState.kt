@@ -2,20 +2,17 @@ package flock.community.office.monitoring.backend.alerting.domain
 
 import java.time.Instant
 
-class RuleStateId(val value: String)
+class AlertStateId(val value: String)
 
-data class RuleState(
-    val id: RuleStateId,
+data class AlertState(
+    val id: AlertStateId,
     val ruleId: RuleId,
     val active: Boolean,
-    val openedContactSensors: Set<String>, //deviceIds
-    val rainForecast: HourlyRainForecast?,
     val lastStateChange: Instant,
     val sentAlerts : List<SentAlert>,
 )
 
 data class SentAlert(
-    val openedContactSensors: Set<String>,
     val alertId: AlertId,
     val dateTime: Instant
 )

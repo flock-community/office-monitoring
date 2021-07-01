@@ -27,7 +27,7 @@ class AlertSenderService(
         properties = properties
     )
 
-    suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean = coroutineScope {
+     suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean  {
         val interpretedMessage = interpolate(alert.message, properties)
 
         config.signalAlertApi.phoneNumbers.map {
@@ -43,7 +43,7 @@ class AlertSenderService(
             }
         }
 
-        true
+       return true
     }
 
 

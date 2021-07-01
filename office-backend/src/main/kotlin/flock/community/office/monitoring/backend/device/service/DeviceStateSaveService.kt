@@ -11,7 +11,7 @@ import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMess
 import flock.community.office.monitoring.utils.logging.loggerFor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 
 @Service
 class DeviceStateSaveService(
@@ -26,7 +26,8 @@ class DeviceStateSaveService(
     suspend fun saveSensorEventQueueMessage(deviceStateEventQueueMessage: DeviceStateEventQueueMessage) {
 
         val deviceConfiguration =
-            devicesMappingConfigurations[deviceStateEventQueueMessage.topic] ?: throw UnknownDevice(deviceStateEventQueueMessage.topic, deviceStateEventQueueMessage.message)
+            devicesMappingConfigurations[deviceStateEventQueueMessage.topic]
+                ?: throw UnknownDevice(deviceStateEventQueueMessage.topic, deviceStateEventQueueMessage.message)
 
         deviceStateEventQueueMessage.toEntity(deviceConfiguration).also { entity ->
             entity.save()

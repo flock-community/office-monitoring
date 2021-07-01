@@ -87,7 +87,7 @@ class TimedUpdatesEventBus(
         }
 
         scheduledEventsActor.send(PublishEvent(timedUpdateRequest))
-        return true;
+        return true
     }
 
     fun subscribe(rule: Rule): Flow<TimedUpdateRequest> {
