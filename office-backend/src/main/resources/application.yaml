@@ -14,7 +14,9 @@ server:
   port: 8000 # server is not really used (cause of rsocket server), but this prevent a probably clash during deployments
 
 pubsub:
+  topic-name: projects/${spring.cloud.gcp.project-id}/topics/flock-office-sensor-events
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend
+  subscription-prefix: "office-monitoring-backend"
 
 device:
   device-state-updates.save-to-database: true
