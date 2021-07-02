@@ -49,21 +49,55 @@ class RainCheckSensorExecutor(
 
     private val log = loggerFor<RuleImplExecutor<AlertState>>()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun start(rule: Rule): Flow<AlertState> {
         // subscribe to updates / state changes
-        val deviceStateUpdates: Flow<RainCheckSensorUpdate> = subscribeToContactSensorUpdates(rule)
-        val weatherUpdates: Flow<RainCheckSensorUpdate> = subscribeToRainForecastUpdates(rule)
+        val deviceStateUpdates: Flow<ContactSensorUpdate> = subscribeToContactSensorUpdates(rule)
+        val weatherUpdates: Flow<RainForecast> = subscribeToRainForecastUpdates(rule)
 
-        val startingRainCheckSensorData = rainCheckSensorDataService.getDataForRule(rule.id)
-        val rainCheckSensorDataState = merge(deviceStateUpdates, weatherUpdates)
-            .scan(startingRainCheckSensorData)
-            { currentRainCheckSensorData, ruleStateUpdate ->
-                currentRainCheckSensorData
-                    .let { ruleStateUpdate.contactSensorUpdate.handleContactSensorUpdate(it) }
-                    .let { ruleStateUpdate.rainForecastUpdate.handleWeatherUpdate(it) }
+        val rainCheckSensorDataState = evaluateRule(deviceStateUpdates, weatherUpdates, rule.id)
+
+        val timedUpdates: Flow<TimedUpdateRequest> = subscribeToTimedUpdates(rule)
+        return evaluateAlerts(rainCheckSensorDataState, timedUpdates, rule)
+    }
+
+    private fun evaluateAlerts(
+        rainCheckSensorDataState: Flow<RainCheckSensorData>,
+        timedUpdates: Flow<TimedUpdateRequest>,
+        rule: Rule
+    ): Flow<AlertState> = rainCheckSensorDataState
+        .combine(timedUpdates)
+        { rainCheckSensorData, stateUpdate ->
+            log.info("LatestRainCheckSensorData: $rainCheckSensorData, Latest TimedUpdateRequest: $stateUpdate")
+
+            guardAll {
+                val previousAlertState = alertStateService.getActiveRuleState(rule.id)
+
+                alertCheckEvaluator.handleUpdate(rule, rainCheckSensorData, previousAlertState)
                     .also {
-                        if (it != currentRainCheckSensorData) {
+                        if (it != previousAlertState) {
+                            alertStateService.update(it)
+                        }
+                    }
+            }
+        }.filterNotNull()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun evaluateRule(
+        deviceStateUpdates: Flow<ContactSensorUpdate>,
+        weatherUpdates: Flow<RainForecast>,
+        ruleId: RuleId
+    ): Flow<RainCheckSensorData> =
+        merge(
+            deviceStateUpdates.map { RainCheckSensorUpdate(contactSensorUpdate = it) },
+            weatherUpdates.map { RainCheckSensorUpdate(rainForecastUpdate = it) }
+        )
+            .scan(rainCheckSensorDataService.getDataForRule(ruleId))
+            { currentState, update ->
+                currentState
+                    .let { update.contactSensorUpdate.handleContactSensorUpdate(it) }
+                    .let { update.rainForecastUpdate.handleWeatherUpdate(it) }
+                    .also {
+                        if (it != currentState) {
                             log.debug("rainCheckSensorData state has changed. Saving state. New state: $it")
                             guardAll {
                                 rainCheckSensorDataService.update(it)
@@ -72,30 +106,12 @@ class RainCheckSensorExecutor(
                     }
             }
 
-        val timedUpdates: Flow<TimedUpdateRequest> = subscribeToTimedUpdates(rule)
-        return rainCheckSensorDataState.combine(timedUpdates) { rainCheckSensorData, stateUpdate ->
-            log.info("LatestRainCheckSensorData: $rainCheckSensorData, Latest TimedUpdateRequest: $stateUpdate")
-
-            guardAll {
-                val previousAlertState = alertStateService.getActiveRuleState(rule.id)
-
-                alertCheckEvaluator.handleUpdate(stateUpdate, rule, rainCheckSensorData, previousAlertState)
-                    .also {
-                        if (it != previousAlertState) {
-                            alertStateService.update(it)
-                        }
-                    }
-            }
-        }.filterNotNull()
-    }
-
-    private fun subscribeToContactSensorUpdates(rule: Rule): Flow<RainCheckSensorUpdate> =
+    private fun subscribeToContactSensorUpdates(rule: Rule): Flow<ContactSensorUpdate> =
         deviceStateEvaluator.subscribeToUpdates(rule)
-            .map { RainCheckSensorUpdate(contactSensorUpdate = it) }
 
-    private fun subscribeToRainForecastUpdates(rule: Rule): Flow<RainCheckSensorUpdate> =
+
+    private fun subscribeToRainForecastUpdates(rule: Rule): Flow<RainForecast> =
         rainForecastEvaluator.subscribeToUpdates(rule)
-            .map { RainCheckSensorUpdate(rainForecastUpdate = it) }
 
     private fun subscribeToTimedUpdates(rule: Rule): Flow<TimedUpdateRequest> =
         alertCheckEvaluator.subscribeToUpdates(rule)

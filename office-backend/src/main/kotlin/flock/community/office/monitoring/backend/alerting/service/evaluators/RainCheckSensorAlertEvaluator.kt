@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.Instant
 
+typealias ConfiguredAlert = Map.Entry<String, AlertConfig>
+
 data class RainCheckSensorAlertCheckData(
     val rule: Rule,
     val alertState: AlertState,
@@ -41,32 +43,17 @@ class AlertCheckEvaluator(
     }
 
     suspend fun handleUpdate(
-        update: TimedUpdateRequest,
         rule: Rule,
         rainCheckSensorData: RainCheckSensorData,
         previousAlertState: AlertState,
     ): AlertState {
         if (canAlertStateBeReset(rule, rainCheckSensorData, previousAlertState)) {
-            log.debug(
-                "RuleState can be reset (apparently): " +
-                        "previousAlertState: $previousAlertState, " +
-                        "rainCheckSensorData: $rainCheckSensorData, " +
-                        "rule: $rule"
-            )
-            alertStateService.clearByRuleId(rule.id)
-            val createNewAlertState = alertStateService.createNewAlertState(rule.id)
-
-            log.info("Sending cancel message for rule ${rule.id.value}")
-            val alertToSend = rule.cancelMessage
-            val properties = getAlertProperties(rainCheckSensorData, rule)
-            alertSenderService.send(alertToSend, properties)
-
-            return createNewAlertState
+            return resetAlertState(rule, rainCheckSensorData)
         }
 
-        val sentAlert: SentAlert? = trySendWeatherUpdateAlert(previousAlertState, rule, rainCheckSensorData)
-
-        return if (sentAlert != null) {
+        val alertToSend: Alert? = determineAlertToSend(previousAlertState, rule, rainCheckSensorData)
+        return if (alertToSend != null) {
+            val sentAlert = sendAlert(alertToSend, rainCheckSensorData, rule)
             previousAlertState.copy(
                 sentAlerts = previousAlertState.sentAlerts + sentAlert,
                 lastStateChange = Instant.now()
@@ -74,6 +61,35 @@ class AlertCheckEvaluator(
         } else {
             previousAlertState
         }
+    }
+
+    private suspend fun sendAlert(
+        alertToSend: Alert,
+        rainCheckSensorData: RainCheckSensorData,
+        rule: Rule
+    ): SentAlert {
+        log.info("Reached timeLimit for alert ${alertToSend.alertId.value} at ${alertToSend.timeToDeadline} before rain")
+        val properties = getAlertProperties(rainCheckSensorData, rule)
+        alertSenderService.send(alertToSend, properties)
+
+        return SentAlert(
+            alertId = alertToSend.alertId,
+            dateTime = Instant.now()
+        )
+    }
+
+    private suspend fun resetAlertState(
+        rule: Rule,
+        rainCheckSensorData: RainCheckSensorData
+    ): AlertState {
+        alertStateService.clearByRuleId(rule.id)
+        val createNewAlertState = alertStateService.createNewAlertState(rule.id)
+
+        log.info("Sending cancel message for rule ${rule.id.value}")
+        val alertToSend = rule.cancelMessage
+        val properties = getAlertProperties(rainCheckSensorData, rule)
+        alertSenderService.send(alertToSend, properties)
+        return createNewAlertState
     }
 
     private fun canAlertStateBeReset(
@@ -89,44 +105,53 @@ class AlertCheckEvaluator(
                 && Duration.between(Instant.now(), rainForecast.dateTime) > rule.alertingWindow
 
         return haveSentAlertsBefore && (allContactSensorsClosed || rainExpectedOutsideAlertingWindow)
+            .also {
+                if (it) {
+                    log.debug(
+                        "RuleState can be reset (apparently): " +
+                                "previousAlertState: $previousAlertState, " +
+                                "rainCheckSensorData: $rainCheckSensorData, " +
+                                "rule: $rule"
+                    )
+                }
+            }
     }
 
-    private suspend fun trySendWeatherUpdateAlert(
+    private fun determineAlertToSend(
         alertState: AlertState,
         rule: Rule,
         rainCheckSensorData: RainCheckSensorData
-    ): SentAlert? {
+    ): Alert? {
         // Check if alerts are needed
         if (rainCheckSensorData.openedContactSensors.isEmpty() || rainCheckSensorData.rainForecast == null) return null
 
         // check which alert has been sent (check latest alert (of this type)
         val latestSentAlert: SentAlert? = alertState.sentAlerts.maxByOrNull { it.dateTime }
-        val alertsToSend = rule.alerts.getAlertsToSend(latestSentAlert, alertState)
-        val alertToSend = alertsToSend.firstOrNull { e ->
+        val alertsToSend: List<ConfiguredAlert> = rule.alerts.getAlertsToSend(latestSentAlert, alertState)
+        val alertToSend: ConfiguredAlert? = alertsToSend.firstOrNull { e ->
             Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime) < e.value.timeToDeadline
         }
 
-        if (alertToSend != null) {
-            log.info("Reached timeLimit for alert ${alertToSend.key} at ${alertToSend.value.timeToDeadline} before rain")
-            val properties = getAlertProperties(rainCheckSensorData, rule)
-            alertSenderService.send(alertToSend.value, properties)
-
-            return SentAlert(
-                alertId = alertToSend.toAlertId(rule),
-                dateTime = Instant.now()
-            )
-        } else {
-            log.debug(
-                "Not sending an alert for Rule ${rule.id.value}. " +
-                        "OpenContactSensors: ${rainCheckSensorData.openedContactSensors}, " +
-                        "RainForecast: ${rainCheckSensorData.rainForecast}. " +
-                        "AlertsToSend: $alertsToSend"
-            )
-
-            return null
+        return  alertToSend?.let {
+            val alertId = alertToSend.toAlertId(rule.id)
+            alerts[alertId]
         }
+
     }
 
+//        return if (alertToSend != null) {
+//            val alertId = alertToSend.toAlertId(rule.id)
+//            alerts[alertId]
+//        } else {
+//
+//            log.debug(
+//                "Not sending an alert for Rule ${rule.id.value}. " +
+//                        "OpenContactSensors: ${rainCheckSensorData.openedContactSensors}, " +
+//                        "RainForecast: ${rainCheckSensorData.rainForecast}. " +
+//                        "AlertsToSend: $alertsToSend"
+//            )
+//            null
+//        }
     /**
      * Alerts with deadline left to send are:
      *  - alerts that have not been sent yet.
