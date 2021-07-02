@@ -54,7 +54,14 @@ class AlertCheckEvaluator(
                         "rule: $rule"
             )
             alertStateService.clearByRuleId(rule.id)
-            return alertStateService.createNewAlertState(rule.id)
+            val createNewAlertState = alertStateService.createNewAlertState(rule.id)
+
+            log.info("Sending cancel message for rule ${rule.id.value}")
+            val alertToSend = rule.cancelMessage
+            val properties = getAlertProperties(rainCheckSensorData, rule)
+            alertSenderService.send(alertToSend, properties)
+
+            return createNewAlertState
         }
 
         val sentAlert: SentAlert? = trySendWeatherUpdateAlert(previousAlertState, rule, rainCheckSensorData)

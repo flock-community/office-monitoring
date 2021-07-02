@@ -3,13 +3,16 @@ package flock.community.office.monitoring.backend.alerting.service
 import flock.community.office.monitoring.backend.alerting.AlertingConfigurationProperties
 import flock.community.office.monitoring.backend.alerting.client.SignalAlertClient
 import flock.community.office.monitoring.backend.alerting.domain.Alert
+import flock.community.office.monitoring.backend.alerting.domain.AlertChannel
 import flock.community.office.monitoring.backend.alerting.domain.AlertConfig
+import flock.community.office.monitoring.backend.alerting.domain.CancelAlert
 import flock.community.office.monitoring.backend.utils.client.garbled
 import flock.community.office.monitoring.utils.logging.loggerFor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
+import java.time.Duration
 
 @Service
 class AlertSenderService(
@@ -18,17 +21,32 @@ class AlertSenderService(
 ) {
     private val log = loggerFor<AlertSenderService>()
 
-    suspend fun send(alert: Alert, properties: Map<String, String>): Boolean = this.send(
-        alert = AlertConfig(
-            timeToDeadline = alert.timeToDeadline,
-            message = alert.message,
-            channel = alert.channel
-        ),
+    suspend fun send(alert: CancelAlert, properties: Map<String, String>): Boolean = this.send(
+        message = alert.message,
+        channel = alert.channel,
         properties = properties
     )
 
-     suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean  {
-        val interpretedMessage = interpolate(alert.message, properties)
+    suspend fun send(alert: Alert, properties: Map<String, String>): Boolean = this.send(
+        message = alert.message,
+        channel = alert.channel,
+        properties = properties
+    )
+
+    suspend fun send(alert: AlertConfig, properties: Map<String, String>): Boolean {
+        return send(alert.message, alert.channel, properties)
+    }
+
+    suspend fun send(message: String, channel: AlertChannel, properties: Map<String, String>): Boolean =
+        when (channel) {
+            AlertChannel.SIGNAL -> sendSignalMessage(message, properties)
+        }
+
+    private suspend fun sendSignalMessage(
+        message: String,
+        properties: Map<String, String>
+    ): Boolean {
+        val interpretedMessage = interpolate(message, properties)
 
         config.signalAlertApi.phoneNumbers.map {
             logMessage(it, interpretedMessage)
@@ -42,8 +60,7 @@ class AlertSenderService(
                 log.info("Not sending alert over API (api is disabled)")
             }
         }
-
-       return true
+        return true
     }
 
 
