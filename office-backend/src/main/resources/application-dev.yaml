@@ -1,4 +1,12 @@
-
 logging:
   level:
     flock.community.office.monitoring: DEBUG
+    flock.community.office.monitoring.backend.device.gcp: INFO
+
+
+alerting.signal-alert-api.enabled: false
+device.device-state-updates.save-to-database: false
+
+
+pubsub:
+  subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend-local-test
