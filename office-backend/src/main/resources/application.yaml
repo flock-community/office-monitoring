@@ -32,34 +32,34 @@ alerting:
     token: ${_SIGNAL_ALERT_API_TOKEN}
     phone-numbers: ${_SIGNAL_ALERT_API_PHONE_NUMBERS}
   rules:
-    - id : "test"
+    - id : "test" # change me to something else for easy testing
       type : "RAIN_CHECK_CONTACT_SENSOR"
       name : "Alert when dakterras is open and rain is imminent"
       alerting-window : 4h
       device-ids : "99f9fb1b-fe98-414c-8562-68156ed3cc12, d6464c70-3981-4db9-b2c5-5d08828ae686"
       cancel-message:
-        message: "ℹ️ Rooftop terrace door is closed (or Chuck Norris blew the rain clouds away). You don't have to worry about a wet trap anymore 👌."
+        message: "ℹ️ Rooftop hatch is closed (or Chuck Norris blew the rain clouds away). You don't have to worry about a wet trap anymore 👌."
         channel: SIGNAL
       alerts :
         three-hours-to-deadline:
           time-to-deadline : 3h
-          message: "ℹ️ The rooftop terrace door is open, and it's gonna rain in less than 3 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
+          message: "ℹ️ The rooftop hatch is open, and it's gonna rain in less than 3 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
           channel: SIGNAL
         only-two-hours-left:
           time-to-deadline: 2h
-          message: "️ℹ️ The rooftop terrace door is open, and it's gonna rain in less than 2 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
+          message: "️ℹ️ The rooftop hatch is open, and it's gonna rain in less than 2 hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}). Don't forget to close it."
           channel: SIGNAL
         one-hour-deadline:
           time-to-deadline : 60m
-          message: "⚠️ WARNING: The rooftop terrace door is open, and it's gonna rain in less than an hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}, volume: {{precipitationVolume}})."
+          message: "⚠️ WARNING: The rooftop hatch is open, and it's gonna rain in less than an hour (time to rain: ±{{timeToRain}}, chance: {{precipitationProb}}, volume: {{precipitationVolume}})."
           channel: SIGNAL
         alert-when-only-30-min-left:
           time-to-deadline: 30m
-          message: "🚨 ALARM: The rooftop terrace door is open, and it's gonna rain in less than half an hour (time to rain: ±{{timeToRain}}). You have to close it now."
+          message: "🚨 ALARM: The rooftop hatch is open, and it's gonna rain in less than half an hour (time to rain: ±{{timeToRain}}). You have to close it now."
           channel: "SIGNAL"
         open-while-raining:
           time-to-deadline: 0m
-          message: "🚨 ALARM: The rooftop terrace door is open, and it's said to be raining. Please close the door now!"
+          message: "🚨 ALARM: The rooftop hatch is open, and it's said to be raining. Please close the door now!"
           channel: "SIGNAL"
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"

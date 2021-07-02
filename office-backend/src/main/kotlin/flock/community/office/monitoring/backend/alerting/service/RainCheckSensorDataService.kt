@@ -37,7 +37,7 @@ class RainCheckSensorDataService(
     fun createRainCheckSensorEntity(ruleId: RuleId): RainCheckSensorEntity = RainCheckSensorEntity(
         id = UUID.randomUUID().toString(),
         ruleId = ruleId.value,
-        openedContactSensors = emptySet(),
+        openedContactSensors = emptySet(),// Change me for testing:  setOf("always-open"),
         rainForecast = null,
         lastStateChange = Instant.EPOCH
     )

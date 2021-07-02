@@ -8,11 +8,7 @@ import flock.community.office.monitoring.backend.alerting.domain.AlertConfig
 import flock.community.office.monitoring.backend.alerting.domain.CancelAlert
 import flock.community.office.monitoring.backend.utils.client.garbled
 import flock.community.office.monitoring.utils.logging.loggerFor
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 @Service
 class AlertSenderService(

@@ -27,11 +27,15 @@ class WeatherEventBus(
     private val log = loggerFor<WeatherEventBus>()
 
     init {
-        pollWeatherUpdates()
+        pollWeatherUpdates() // disable me for local testing
     }
 
     fun subscribe(): Flow<WeatherForecastDto> {
         return _events.asSharedFlow()
+    }
+
+    suspend fun publish(forecast: WeatherForecastDto){
+        _events.emit(forecast)
     }
 
     private fun pollWeatherUpdates() {
@@ -46,7 +50,7 @@ class WeatherEventBus(
     private suspend fun getWeatherForecast() {
         try {
             val forecast = weatherClient.getForecast()
-            _events.emit(forecast)
+            publish(forecast)
         } catch (ex: Throwable) {
             log.error(
                 "Could not fetch new weather forecast. Will ignore result, but current forecast will get outdated soon. ${ex.message}",
