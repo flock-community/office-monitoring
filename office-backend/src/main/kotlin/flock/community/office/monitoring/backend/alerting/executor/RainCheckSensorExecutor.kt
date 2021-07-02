@@ -52,12 +52,10 @@ class RainCheckSensorExecutor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun start(rule: Rule): Flow<AlertState> {
         // subscribe to updates / state changes
-        val deviceStateUpdates = subscribeToContactSensorUpdates(rule)
-        val weatherUpdates = subscribeToRainForecastUpdates(rule)
-        val timedUpdates = subscribeToTimedUpdates(rule)
+        val deviceStateUpdates: Flow<RainCheckSensorUpdate> = subscribeToContactSensorUpdates(rule)
+        val weatherUpdates: Flow<RainCheckSensorUpdate> = subscribeToRainForecastUpdates(rule)
 
         val startingRainCheckSensorData = rainCheckSensorDataService.getDataForRule(rule.id)
-
         val rainCheckSensorDataState = merge(deviceStateUpdates, weatherUpdates)
             .scan(startingRainCheckSensorData)
             { currentRainCheckSensorData, ruleStateUpdate ->
@@ -74,6 +72,7 @@ class RainCheckSensorExecutor(
                     }
             }
 
+        val timedUpdates: Flow<TimedUpdateRequest> = subscribeToTimedUpdates(rule)
         return rainCheckSensorDataState.combine(timedUpdates) { rainCheckSensorData, stateUpdate ->
             log.info("LatestRainCheckSensorData: $rainCheckSensorData, Latest TimedUpdateRequest: $stateUpdate")
 
