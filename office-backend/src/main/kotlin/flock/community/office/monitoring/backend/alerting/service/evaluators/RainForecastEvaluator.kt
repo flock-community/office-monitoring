@@ -20,7 +20,7 @@ class RainForecastEvaluator(
         .map { it.toRainUpdate() }
 
 
-    override suspend fun handleUpdate(update: RainForecast, previousStateValue: HourlyRainForecast?): HourlyRainForecast? {
+    override fun handleUpdate(update: RainForecast, previousStateValue: HourlyRainForecast?): HourlyRainForecast? {
         val hourlyForecastUpperBoundVolume = 0.2
         val hourlyForecastUpperBoundProbability = 0.7
         val firstHourlyForecastWithRain = update.getFirstHourlyForecastWithRain(hourlyForecastUpperBoundVolume, hourlyForecastUpperBoundProbability)

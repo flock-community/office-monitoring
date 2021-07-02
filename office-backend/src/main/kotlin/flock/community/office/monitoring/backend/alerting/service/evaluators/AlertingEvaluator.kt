@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface AlertingEvaluator<T, U> {
     fun subscribeToUpdates(rule: Rule): Flow<T>
-    suspend fun handleUpdate(update: T, previousStateValue: U): U
+    fun handleUpdate(update: T, previousStateValue: U): U
 }

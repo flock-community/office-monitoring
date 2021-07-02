@@ -7,5 +7,4 @@ import kotlinx.coroutines.flow.Flow
 interface RuleImplExecutor<T> {
     fun type(): RuleType
     fun start(rule: Rule) : Flow<T>
-
 }

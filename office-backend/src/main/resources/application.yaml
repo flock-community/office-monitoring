@@ -32,7 +32,7 @@ alerting:
     token: ${_SIGNAL_ALERT_API_TOKEN}
     phone-numbers: ${_SIGNAL_ALERT_API_PHONE_NUMBERS}
   rules:
-    - id : "test" # change me to something else for easy testing
+    - id : "alerting-for-rooftop-hatch"
       type : "RAIN_CHECK_CONTACT_SENSOR"
       name : "Alert when dakterras is open and rain is imminent"
       alerting-window : 4h

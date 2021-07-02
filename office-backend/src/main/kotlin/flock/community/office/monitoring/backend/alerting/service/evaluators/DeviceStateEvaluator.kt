@@ -64,7 +64,7 @@ class DeviceStateEvaluator(
      * Updates the event based on contact state of a sensor
      *      -  Keeps track of open contact sensors
      */
-    override suspend fun handleUpdate(update: ContactSensorUpdate, previousStateValue: Set<String>): Set<String> {
+    override fun handleUpdate(update: ContactSensorUpdate, previousStateValue: Set<String>): Set<String> {
 
         val previousContactState =
             !previousStateValue.contains(update.deviceId) // no contact means present in list

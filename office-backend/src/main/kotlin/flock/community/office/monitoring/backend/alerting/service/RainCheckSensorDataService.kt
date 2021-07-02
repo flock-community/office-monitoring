@@ -31,7 +31,7 @@ class RainCheckSensorDataService(
                     }
             mapper.internalize(rainCheckSensorEntity)
         } catch (t: Throwable) {
-            throw RuleStateException("Could not get active RuleState for ${ruleId.value}", t)
+            throw RainCheckSensorDataException("Could not get active RainCheckSensorData for ${ruleId.value}", t)
         }
 
     fun createRainCheckSensorEntity(ruleId: RuleId): RainCheckSensorEntity = RainCheckSensorEntity(

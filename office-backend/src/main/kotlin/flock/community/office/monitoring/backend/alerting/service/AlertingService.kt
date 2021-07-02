@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono.delay
+import java.time.Duration
 import javax.annotation.PostConstruct
 
 @ExperimentalCoroutinesApi
@@ -29,6 +31,7 @@ class AlertingService(
     @PostConstruct
     fun start() {
         scope.launch {
+            delay(Duration.ofSeconds(10))
             log.info("Starting AlertingService")
             alertingConfiguration.rules
                 .forEach { monitorRule(it) }
