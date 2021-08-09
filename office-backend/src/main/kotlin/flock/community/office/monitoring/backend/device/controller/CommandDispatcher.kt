@@ -9,15 +9,14 @@ import org.springframework.stereotype.Service
 
 @Service
 class CommandDispatcher(
-    val devicesListCommandExecutor: DevicesListCommandExecutor,
-    val devicesFeedCommandExecutor: DevicesFeedCommandExecutor
+    val devicesCommandExecutor: DevicesCommandExecutor,
+    val deviceStatesCommandExecutor: DeviceStatesCommandExecutor
 ) {
 
     fun dispatchCommand(command: FlockMonitorCommandBody): Flow<FlockMonitorMessage> {
         return when (command) {
-            is GetDeviceStateCommand -> devicesFeedCommandExecutor.getFlow(command)
-            is GetDevicesCommand -> devicesListCommandExecutor.getFlow(command)
+            is GetDeviceStateCommand -> deviceStatesCommandExecutor.getFlow(command)
+            is GetDevicesCommand -> devicesCommandExecutor.getFlow(command)
         }
     }
-
 }

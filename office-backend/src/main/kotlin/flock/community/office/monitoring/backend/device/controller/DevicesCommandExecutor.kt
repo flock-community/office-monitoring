@@ -24,7 +24,7 @@ interface Executor<T : FlockMonitorCommandBody> {
 }
 
 @Service
-class DevicesListCommandExecutor : Executor<GetDevicesCommand> {
+class DevicesCommandExecutor : Executor<GetDevicesCommand> {
 
     override fun getFlow(command: GetDevicesCommand): Flow<FlockMonitorMessage> = flow {
 
@@ -37,12 +37,12 @@ class DevicesListCommandExecutor : Executor<GetDevicesCommand> {
 }
 
 @Service
-class DevicesFeedCommandExecutor(
+class DeviceStatesCommandExecutor(
     val deviceStateHistoryService: DeviceStateHistoryService,
     val deviceStateEventBus: DeviceStateEventBus
 ) : Executor<GetDeviceStateCommand> {
 
-    private val logger = loggerFor<DevicesFeedCommandExecutor>()
+    private val logger = loggerFor<DeviceStatesCommandExecutor>()
 
     override fun getFlow(command: GetDeviceStateCommand): Flow<FlockMonitorMessage> = flow {
 

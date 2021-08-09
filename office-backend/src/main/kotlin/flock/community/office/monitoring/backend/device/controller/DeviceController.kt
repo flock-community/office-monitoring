@@ -24,7 +24,7 @@ internal class DeviceController(
     private val logger = loggerFor<DeviceController>()
 
     @MessageMapping("devices")
-    suspend fun main(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> {
+    suspend fun monitorMessages(commands: Flow<FlockMonitorCommand>): Flow<FlockMonitorMessage> {
         val requestId = UUID.randomUUID()
         return commands
             .onEach { logger.info("Processing command ${it.type} for $requestId (${it.body})") }
