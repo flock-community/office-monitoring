@@ -55,7 +55,7 @@ class DeviceStatesCommandExecutor(
                 emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
             }
 
-            deviceStateEventBus.subscribe(command.deviceId).collect {
+            deviceStateEventBus.subscribe(sensorId).collect {
                 emit(FlockMonitorMessage(DEVICE_STATE, DeviceStateMessage(it)))
             }
         } else {

@@ -51,7 +51,7 @@ class AlertCheckEvaluator(
             return resetAlertState(rule, rainCheckSensorData)
         }
 
-        val alertToSend: Alert? = determineAlertToSend(previousAlertState, rule, rainCheckSensorData)
+        val alertToSend: Alert? = evaluateAlerts(previousAlertState, rainCheckSensorData, rule)
         return if (alertToSend != null) {
             val sentAlert = sendAlert(alertToSend, rainCheckSensorData, rule)
             previousAlertState.copy(
@@ -117,10 +117,10 @@ class AlertCheckEvaluator(
             }
     }
 
-    private fun determineAlertToSend(
+    private fun evaluateAlerts(
         alertState: AlertState,
-        rule: Rule,
-        rainCheckSensorData: RainCheckSensorData
+        rainCheckSensorData: RainCheckSensorData,
+        rule: Rule
     ): Alert? {
         // Check if alerts are needed
         if (rainCheckSensorData.openedContactSensors.isEmpty() || rainCheckSensorData.rainForecast == null) return null
@@ -132,11 +132,10 @@ class AlertCheckEvaluator(
             Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime) < e.value.timeToDeadline
         }
 
-        return  alertToSend?.let {
+        return alertToSend?.let {
             val alertId = alertToSend.toAlertId(rule.id)
             alerts[alertId]
         }
-
     }
 
 //        return if (alertToSend != null) {

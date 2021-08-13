@@ -81,30 +81,30 @@ class RainCheckSensorExecutor(
             }
         }.filterNotNull()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun evaluateRule(
-        deviceStateUpdates: Flow<ContactSensorUpdate>,
-        weatherUpdates: Flow<RainForecast>,
-        ruleId: RuleId
-    ): Flow<RainCheckSensorData> =
-        merge(
-            deviceStateUpdates.map { RainCheckSensorUpdate(contactSensorUpdate = it) },
-            weatherUpdates.map { RainCheckSensorUpdate(rainForecastUpdate = it) }
-        )
-            .scan(rainCheckSensorDataService.getDataForRule(ruleId))
-            { currentState, update ->
-                currentState
-                    .let { update.contactSensorUpdate.handleContactSensorUpdate(it) }
-                    .let { update.rainForecastUpdate.handleWeatherUpdate(it) }
-                    .also {
-                        if (it != currentState) {
-                            log.debug("rainCheckSensorData state has changed. Saving state. New state: $it")
-                            guardAll {
-                                rainCheckSensorDataService.update(it)
-                            }
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun evaluateRule(
+    deviceStateUpdates: Flow<ContactSensorUpdate>,
+    weatherUpdates: Flow<RainForecast>,
+    ruleId: RuleId
+): Flow<RainCheckSensorData> =
+    merge(
+        deviceStateUpdates.map { RainCheckSensorUpdate(contactSensorUpdate = it) },
+        weatherUpdates.map { RainCheckSensorUpdate(rainForecastUpdate = it) }
+    )
+        .scan(rainCheckSensorDataService.getDataForRule(ruleId))
+        { currentState, update ->
+            currentState
+                .let { update.contactSensorUpdate.handleContactSensorUpdate(it) }
+                .let { update.rainForecastUpdate.handleWeatherUpdate(it) }
+                .also {
+                    if (it != currentState) {
+                        log.debug("rainCheckSensorData state has changed. Saving state. New state: $it")
+                        guardAll {
+                            rainCheckSensorDataService.update(it)
                         }
                     }
-            }
+                }
+        }
 
     private fun subscribeToContactSensorUpdates(rule: Rule): Flow<ContactSensorUpdate> =
         deviceStateEvaluator.subscribeToUpdates(rule)
