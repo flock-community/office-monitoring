@@ -1,45 +1,38 @@
-Ideeen
 
-# Running the back-end service
-- Run the command `mvn clean install`
-- Login into Google Cloud using the command `gcloud auth application-default login`
-- Make sure the credentials JSON file is saved on your local environment, i.e.: `~/.config/gcloud/application_default_credentials.json`
-- Run the main class in: `flock.community.office.monitoring.backend.OfficeBackendApplication`
+<h1 align="center">
+  <br>
+  <a href="https://flock.community"><img src="https://flock.community/static/logo_only-b7938bf2a33cf82cb04ed6c10347474b.svg" alt="Flock" width="200"></a>
+  <br>
+  Flock Office Monitoring
+  <br>
+</h1>
 
-# Infrastructuur
-- GCP account
-- Broker in de cloud
-
-- Sensor query current state
-- Pairing 
-    - Niet default pairing, 
-    - Sensor id registratie. Iedere sensor wordt op een apart sub topic geregistreerd 
-- Commands 
-    - Hebben we hier de broker voor nodig?
-- Queue tussen broker en applicatie
-   
-# Backend
-- CI/CD pipeline
-- Opslaan van events - ttl
-- Streaming api
-- Flock eco
-- Graphql simple bindings voor dtos
-
-# Dashboard
-- CI/CD
-- React 
-- Streaming met RSocket
-- React hooks voor state
-- Grafiek met historie
-
-# Regen detectie
-- Buienradar/Buienalarm registratie
+<h4 align="center">An iot platform to monitor the Flock. office. Built with Kotlin, Kotlin Coroutines, RSocket, and Svelte </h4>
 
 
-## Create / update indexes for google data store
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#blog">Blog</a> •
+  <a href="#you-may-also-like">You may also like</a>
+</p>
 
-To ensure efficient querying, we added composite indexes to the data store in gcp
+![screenshot](https://raw.githubusercontent.com/flock-community/office-monitoring/master/office-monitoring.gif)
 
-```bash
-$ gcloud datastore indexes create office-backend/index.yaml
-```
+## Key Features
+
+* mqtt2queue-connector
+  
+* office-backend
+    * sensor ingestion
+    * client API
+    * rule based alerting
+* office frontend
+    - A dashboard built in Svelte and RSocket to monitor
+
+## Blog 
+In August 2021 a blogpost was published about this project: [View blogpost on Medium](https://medium.com/@flock-blogs/close-the-hatch-its-going-to-rain-568503c19fca?source=friends_link&sk=9fdaedc9437a0f5865c4f43efdd94f54)
+
+
+## You may also like...
+
+- [Flock. community](https://flock.community) - A software engineering community
