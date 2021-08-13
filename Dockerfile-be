@@ -1,0 +1,49 @@
+# Use the official maven/Java 11 image to create a build artifact.
+# https://hub.docker.com/_/maven
+FROM maven:3.6.3-openjdk-11-slim as builder
+
+WORKDIR app
+
+COPY pom.xml .
+#RUN ./mvnw
+
+#COPY . .
+#ENTRYPOINT [ "/bin/sh", "ls -l", "."]
+RUN mvn dependency:go-offline -B -N
+
+# Copy all pom files
+COPY utils/pom.xml ./utils/pom.xml
+COPY mqtt-to-queue-connector/pom.xml ./mqtt-to-queue-connector/pom.xml
+COPY queue-messages/pom.xml ./queue-messages/pom.xml
+COPY office-backend/pom.xml ./office-backend/pom.xml
+
+# Download dependencies from poms
+RUN mvn -B -e \
+        -C org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline \
+        -DexcludeGroupIds=com.github.flock-community
+
+# Copy src files
+COPY utils ./utils
+COPY queue-messages ./queue-messages
+COPY mqtt-to-queue-connector ./mqtt-to-queue-connector
+COPY office-backend ./office-backend
+
+# Build a release artifact.
+RUN mvn verify -am -pl office-backend
+
+# Explode jar
+RUN mkdir -p office-backend/target/dependency && (cd office-backend/target/dependency; jar -xf ../*.jar)
+
+#
+## Runner
+FROM adoptopenjdk/openjdk14:alpine-jre
+
+# Copy necessary contents from build to runner
+ARG DEPENDENCY=/app/office-backend/target/dependency
+COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-cp", "app:app/lib/*", "flock.community.office.monitoring.backend.OfficeBackendApplicationKt"]

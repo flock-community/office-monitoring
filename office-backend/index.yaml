@@ -1,0 +1,18 @@
+indexes:
+  - kind: deviceState
+    properties:
+      - name: deviceId
+      - name: date
+        direction: desc
+  - kind: deviceState
+    properties:
+      - name: deviceId
+      - name: date
+        direction: asc
+  - kind: ruleState
+    properties:
+      - name: active
+      - name: ruleId
+      - name: lastStateChange
+        direction: desc
+
