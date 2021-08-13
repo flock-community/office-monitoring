@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <kotlin.version>1.4.31</kotlin.version>
+        <kotlin.version>1.5.10</kotlin.version>
         <spring-cloud-gcp.version>1.2.5.RELEASE</spring-cloud-gcp.version>
         <kotlin-coroutines.version>1.4.2</kotlin-coroutines.version>
     </properties>
