@@ -1,25 +1,26 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import {beforeUpdate, onMount} from "svelte";
   import * as am4core from "@amcharts/amcharts4/core";
   import * as am4charts from "@amcharts/amcharts4/charts";
   import * as am4plugins_timeline from "@amcharts/amcharts4/plugins/timeline";
   import * as am4plugins_bullets from "@amcharts/amcharts4/plugins/bullets";
   import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
-  import type { TimelineChartRecord } from "./model";
-  import type { Readable } from "svelte/store";
+  import type {TimelineChartRecord} from "./model";
 
-  export let chartData: Readable<TimelineChartRecord[]>;
+  export let chartData: TimelineChartRecord[];
 
   let chart;
   onMount(async () => {
     am4core.ready(initChart);
-    chartData.subscribe((data) => {
-      if (chart.data.length != data.length) {
-        chart.data = data;
-      }
-    });
   });
+
+  beforeUpdate(() => {
+    if (chartData != null && chart != null && chart.data.length != chartData.length) {
+      chart.data = chartData;
+    }
+  })
+
 
   function initChart() {
     am4core.useTheme(am4themes_animated);
@@ -137,3 +138,4 @@
 <div class="p-3 h-full w-full">
   <div class="w-full h-full" id="chartdiv" />
 </div>
+<!--<pre>{JSON.stringify(chartData, null, 4)}</pre>-->
