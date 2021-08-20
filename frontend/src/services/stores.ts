@@ -18,11 +18,6 @@ devices.subscribe((devices) => {
   date.setHours(date.getHours() - 10);
   devices.forEach(
     (device) => eventBus.request(new DeviceStateSubscription(device.id, date))
-    // TODO kan dit weg
-    // setTimeout(
-    //   () => eventBus.request(new DeviceStateSubscription(device.id, date)),
-    //   500
-    // )
   );
 });
 

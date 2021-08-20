@@ -1,13 +1,17 @@
 <script lang="ts">
-  import { deviceStates } from "../../../services/stores";
-  import DeviceHistoryChart from "./DeviceHistoryChart.svelte";
-  import { derived, get, writable } from "svelte/store";
+    import { deviceStates } from "../../../services/stores";
+    import DeviceHistoryChart from "./DeviceHistoryChart.svelte";
+    import { createChartRecords } from "../../../services/AllDevicesChartDataResolver";
+    import { debounceMaxInterval } from "../../_utils";
 
-  import { createChartRecords } from "../../../services/AllDevicesChartDataResolver";
+    const updateChartData = debounceMaxInterval(states => {
+        chartData = createChartRecords(states)
+    }, 333);
 
-  let chartData = derived(deviceStates, (states) => {
-    return createChartRecords(states);
-  });
+    let chartData = [];
+    deviceStates.subscribe(async (states) => {
+        await updateChartData(states);
+    });
 </script>
 
-<DeviceHistoryChart {chartData} />
+<DeviceHistoryChart {chartData}/>
