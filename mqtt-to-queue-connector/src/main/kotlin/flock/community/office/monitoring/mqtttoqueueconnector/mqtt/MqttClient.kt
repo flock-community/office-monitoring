@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import flock.community.office.monitoring.mqtttoqueueconnector.queue.Publisher
 import flock.community.office.monitoring.queue.message.DeviceStateEventQueueMessage
 import flock.community.office.monitoring.utils.logging.loggerFor
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttCallback
+import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.MqttClient
-import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
@@ -20,7 +18,9 @@ class MqttClient(
 
     init {
         MqttClient(mqttSettings.endpoint, "mqtt-to-queue-connector").apply {
-            connect()
+            connect(MqttConnectOptions().apply {
+                isAutomaticReconnect = true
+            })
             setCallback(flockMqttCallback)
             subscribe(mqttSettings.topicFilter)
         }
@@ -37,7 +37,6 @@ class FlockMqttCallback(
 
     override fun connectionLost(cause: Throwable) {
         logger.error("Lost connection to MQTT broker", cause)
-        // TODO: Find out if it automatically reconnects
     }
 
     override fun messageArrived(topic: String, message: MqttMessage) = DeviceStateEventQueueMessage(topic, message.asString())
