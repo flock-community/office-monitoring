@@ -64,3 +64,23 @@ alerting:
           channel: "SIGNAL"
       meta-data :
         what-ever-i-put-here: "IsParsedInAMap"
+    - id: "alerting-for-linker-deur-state"
+      type: "CONTACT_SENSOR"
+      name: "Notify when Linker deur changed state"
+      alerting-window: 4h
+      device-ids: "99f9fb1b-fe98-414c-8562-68156ed3cc12" # Deur dakterras
+#      device-ids : "d6464c70-3981-4db9-b2c5-5d08828ae686" # Linker deur
+      cancel-message:
+        message: "ℹ️ {{deviceName}} is closed"
+        channel: SIGNAL
+      alerts:
+        door-open:
+          time-to-deadline: 3h
+          message: "ℹ️ {{deviceName}} is open"
+          channel: SIGNAL
+      meta-data:
+        what-ever-i-put-here: "IsParsedInAMap"
+
+
+
+

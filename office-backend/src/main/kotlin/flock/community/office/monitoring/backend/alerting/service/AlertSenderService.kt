@@ -33,7 +33,7 @@ class AlertSenderService(
         return send(alert.message, alert.channel, properties)
     }
 
-    suspend fun send(message: String, channel: AlertChannel, properties: Map<String, String>): Boolean =
+    suspend fun send(message: String, channel: AlertChannel, properties: Map<String, String> = emptyMap()): Boolean =
         when (channel) {
             AlertChannel.SIGNAL -> sendSignalMessage(message, properties)
         }
@@ -50,7 +50,7 @@ class AlertSenderService(
                 try {
                     signalAlertClient.sendMessage(it, interpretedMessage)
                 } catch (t: Throwable) {
-                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
+                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage", t)
                 }
             } else {
                 log.info("Not sending alert over API (api is disabled)")

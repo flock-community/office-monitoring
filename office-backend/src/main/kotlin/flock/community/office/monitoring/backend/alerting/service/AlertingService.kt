@@ -20,7 +20,8 @@ import java.time.Duration
 @Service
 class AlertingService(
     private val alertingConfiguration: AlertingConfigurationProperties,
-    private val ruleExecutorManager: RuleExecutorManager
+    private val ruleExecutorManager: RuleExecutorManager,
+    private val alertSenderService: AlertSenderService
 ) : DisposableBean {
 
     private val scope = CoroutineScope(CoroutineName("AlertingService"))
@@ -37,9 +38,16 @@ class AlertingService(
 
     private fun CoroutineScope.monitorRule(it: Rule): Job = launch(CoroutineName("Alert #${it.id.value}")) {
         // Launch each rule in its own coroutine
-        ruleExecutorManager.start(it)
-            .merge()
-            .collect()
+        try {
+            ruleExecutorManager.start(it)
+                .merge()
+                .collect()
+        } catch (e: Exception) {
+            val alertMessage = e.message ?: "Unknown error occurred while starting alerting for rule ${it.name}"
+            alertSenderService.send("$alertMessage. Rule is NOT monitored (NOTE: no notification if error is fixed)", it.cancelMessage.channel)
+
+            log.error(alertMessage, e);
+        }
     }
 
     override fun destroy() {
