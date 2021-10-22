@@ -2,7 +2,7 @@
 <h1 align="center" style="background-color:black; color:white; padding:10px; border-radius:0">
   <br>
 
-  <a href="https://flock.community"><img src="https://raw.githubusercontent.com/flock-community/office-monitoring/master/flock_logo_svg" alt="Flock" width="200"></a>
+  <a href="https://flock.community"><img src="https://raw.githubusercontent.com/flock-community/office-monitoring/master/flock_logo.svg" alt="Flock" width="200"></a>
   <br>
   Flock Office Monitoring
   <br>
