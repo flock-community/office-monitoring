@@ -45,4 +45,6 @@ build/
 Sending-tcp**
 paho**
 
+.env
 
+!frontend/.env
