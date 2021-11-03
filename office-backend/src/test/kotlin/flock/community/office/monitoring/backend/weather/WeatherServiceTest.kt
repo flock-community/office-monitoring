@@ -3,6 +3,7 @@ package flock.community.office.monitoring.backend.weather
 import flock.community.office.monitoring.backend.weather.service.OpenWeatherMapConfig
 import flock.community.office.monitoring.backend.weather.service.WeatherClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -12,6 +13,16 @@ internal class WeatherServiceTest (){
     private val apiKey = OpenWeatherMapConfig("fakeKey", 1.2,2.3)
     private val mockedWebclient: WebClient = mock(WebClient::class.java)
     private val testService = WeatherClient(mockedWebclient, apiKey)
+
+    @Test
+    fun bla(){
+        val numbers = listOf(5, 2, 10, 4)
+
+        val simpleSum = numbers.reduce { sum, element -> sum + element }
+        println(simpleSum)
+        val sumDoubled = numbers.scan(0) { sum, element -> sum + element * 2 }
+        println(sumDoubled)
+    }
 
 //    @Test
 //    fun `test get weather object`() = runBlockingTest {

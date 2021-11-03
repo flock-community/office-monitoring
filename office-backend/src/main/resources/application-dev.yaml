@@ -4,9 +4,8 @@ logging:
     flock.community.office.monitoring.backend.device.gcp: INFO
 
 
-alerting.signal-alert-api.enabled: false
+alerting.signal-alert-api.enabled: true
 device.device-state-updates.save-to-database: false
-
 
 pubsub:
   subscription-name: projects/${spring.cloud.gcp.project-id}/subscriptions/office-backend-local-test

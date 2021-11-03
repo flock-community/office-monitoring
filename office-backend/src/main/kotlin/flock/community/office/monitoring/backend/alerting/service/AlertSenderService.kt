@@ -50,7 +50,7 @@ class AlertSenderService(
                 try {
                     signalAlertClient.sendMessage(it, interpretedMessage)
                 } catch (t: Throwable) {
-                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage")
+                    log.warn("Could not send alert to ${it.garbled()}: $interpretedMessage", t)
                 }
             } else {
                 log.info("Not sending alert over API (api is disabled)")

@@ -31,8 +31,9 @@ internal class AlertSenderServiceTest{
         println(interpolate)
         assertEquals("Hallo world {{otherName}}", interpolate)
     }
+
     @Test
-    fun `testing it 3`(){
+    fun `testing superfluous parameter map`(){
         val message = """
             Hallo {{name}} {{otherName}}
         """.trimIndent()
@@ -40,4 +41,15 @@ internal class AlertSenderServiceTest{
         println(interpolate)
         assertEquals("Hallo world {{otherName}}", interpolate)
     }
+
+    @Test
+    fun `testing it 4`(){
+        val message = """
+            Hallo {{name}} {{otherName
+        """.trimIndent()
+        val interpolate = alertService.interpolate(message, mapOf("name" to "world", "123" to "hello"))
+        println(interpolate)
+        assertEquals("Hallo world {{otherName", interpolate)
+    }
+
 }

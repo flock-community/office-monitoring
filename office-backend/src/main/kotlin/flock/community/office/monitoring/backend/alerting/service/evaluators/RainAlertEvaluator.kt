@@ -7,7 +7,7 @@ import flock.community.office.monitoring.backend.alerting.domain.Rule
 import flock.community.office.monitoring.backend.alerting.domain.AlertState
 import flock.community.office.monitoring.backend.alerting.domain.SentAlert
 import flock.community.office.monitoring.backend.alerting.domain.toAlertId
-import flock.community.office.monitoring.backend.alerting.executor.RainCheckSensorData
+import flock.community.office.monitoring.backend.alerting.executor.RainAlertData
 import flock.community.office.monitoring.backend.alerting.service.AlertSenderService
 import flock.community.office.monitoring.backend.alerting.service.AlertStateService
 import flock.community.office.monitoring.backend.alerting.service.TimedUpdateRequest
@@ -22,21 +22,15 @@ import java.time.Instant
 
 typealias ConfiguredAlert = Map.Entry<String, AlertConfig>
 
-data class RainCheckSensorAlertCheckData(
-    val rule: Rule,
-    val alertState: AlertState,
-    val rainCheckSensorData: RainCheckSensorData
-)
-
 @Component
-class AlertCheckEvaluator(
+class RainAlertEvaluator(
     private val timedUpdatesEventBus: TimedUpdatesEventBus,
     private val alertSenderService: AlertSenderService,
     private val alertStateService: AlertStateService,
     @Qualifier("alerts") private val alerts: Map<AlertId, Alert>,
 ) {
 
-    private val log = loggerFor<AlertCheckEvaluator>()
+    private val log = loggerFor<RainAlertEvaluator>()
 
     fun subscribeToUpdates(rule: Rule): Flow<TimedUpdateRequest> {
         return timedUpdatesEventBus.subscribe(rule)
@@ -44,16 +38,16 @@ class AlertCheckEvaluator(
 
     suspend fun handleUpdate(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData,
+        rainAlertData: RainAlertData,
         previousAlertState: AlertState,
     ): AlertState {
-        if (canAlertStateBeReset(rule, rainCheckSensorData, previousAlertState)) {
-            return resetAlertState(rule, rainCheckSensorData)
+        if (canAlertStateBeReset(rule, rainAlertData, previousAlertState)) {
+            return resetAlertState(rule, rainAlertData)
         }
 
-        val alertToSend: Alert? = evaluateAlerts(previousAlertState, rainCheckSensorData, rule)
+        val alertToSend: Alert? = evaluateAlerts(previousAlertState, rainAlertData, rule)
         return if (alertToSend != null) {
-            val sentAlert = sendAlert(alertToSend, rainCheckSensorData, rule)
+            val sentAlert = sendAlert(alertToSend, rainAlertData, rule)
             previousAlertState.copy(
                 sentAlerts = previousAlertState.sentAlerts + sentAlert,
                 lastStateChange = Instant.now()
@@ -65,11 +59,11 @@ class AlertCheckEvaluator(
 
     private suspend fun sendAlert(
         alertToSend: Alert,
-        rainCheckSensorData: RainCheckSensorData,
+        rainAlertData: RainAlertData,
         rule: Rule
     ): SentAlert {
         log.info("Reached timeLimit for alert ${alertToSend.alertId.value} at ${alertToSend.timeToDeadline} before rain")
-        val properties = getAlertProperties(rainCheckSensorData, rule)
+        val properties = getAlertProperties(rainAlertData, rule)
         alertSenderService.send(alertToSend, properties)
 
         return SentAlert(
@@ -80,27 +74,27 @@ class AlertCheckEvaluator(
 
     private suspend fun resetAlertState(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData
+        rainAlertData: RainAlertData
     ): AlertState {
         alertStateService.clearByRuleId(rule.id)
-        val createNewAlertState = alertStateService.createNewAlertState(rule.id)
+        val newAlertState = alertStateService.createNewAlertState(rule.id)
 
         log.info("Sending cancel message for rule ${rule.id.value}")
         val alertToSend = rule.cancelMessage
-        val properties = getAlertProperties(rainCheckSensorData, rule)
+        val properties = getAlertProperties(rainAlertData, rule)
         alertSenderService.send(alertToSend, properties)
-        return createNewAlertState
+        return newAlertState
     }
 
     private fun canAlertStateBeReset(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData,
+        rainAlertData: RainAlertData,
         previousAlertState: AlertState
     ): Boolean {
         val haveSentAlertsBefore = previousAlertState.sentAlerts.isNotEmpty()
 
-        val allContactSensorsClosed = rainCheckSensorData.openedContactSensors.isEmpty()
-        val rainForecast = rainCheckSensorData.rainForecast
+        val allContactSensorsClosed = rainAlertData.openedContactSensors.isEmpty()
+        val rainForecast = rainAlertData.rainForecast
         val rainExpectedOutsideAlertingWindow = rainForecast != null
                 && Duration.between(Instant.now(), rainForecast.dateTime) > rule.alertingWindow
 
@@ -110,7 +104,7 @@ class AlertCheckEvaluator(
                     log.debug(
                         "RuleState can be reset (apparently): " +
                                 "previousAlertState: $previousAlertState, " +
-                                "rainCheckSensorData: $rainCheckSensorData, " +
+                                "rainAlertData: $rainAlertData, " +
                                 "rule: $rule"
                     )
                 }
@@ -119,17 +113,17 @@ class AlertCheckEvaluator(
 
     private fun evaluateAlerts(
         alertState: AlertState,
-        rainCheckSensorData: RainCheckSensorData,
+        rainAlertData: RainAlertData,
         rule: Rule
     ): Alert? {
         // Check if alerts are needed
-        if (rainCheckSensorData.openedContactSensors.isEmpty() || rainCheckSensorData.rainForecast == null) return null
+        if (rainAlertData.openedContactSensors.isEmpty() || rainAlertData.rainForecast == null) return null
 
         // check which alert has been sent (check latest alert (of this type)
         val latestSentAlert: SentAlert? = alertState.sentAlerts.maxByOrNull { it.dateTime }
         val alertsToSend: List<ConfiguredAlert> = rule.alerts.getAlertsToSend(latestSentAlert, alertState)
         val alertToSend: ConfiguredAlert? = alertsToSend.firstOrNull { e ->
-            Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime) < e.value.timeToDeadline
+            Duration.between(Instant.now(), rainAlertData.rainForecast.dateTime) < e.value.timeToDeadline
         }
 
         return alertToSend?.let {
@@ -145,8 +139,8 @@ class AlertCheckEvaluator(
 //
 //            log.debug(
 //                "Not sending an alert for Rule ${rule.id.value}. " +
-//                        "OpenContactSensors: ${rainCheckSensorData.openedContactSensors}, " +
-//                        "RainForecast: ${rainCheckSensorData.rainForecast}. " +
+//                        "OpenContactSensors: ${rainAlertData.openedContactSensors}, " +
+//                        "RainForecast: ${rainAlertData.rainForecast}. " +
 //                        "AlertsToSend: $alertsToSend"
 //            )
 //            null
@@ -176,17 +170,17 @@ class AlertCheckEvaluator(
 
 
     private fun getAlertProperties(
-        rainCheckSensorData: RainCheckSensorData,
+        rainAlertData: RainAlertData,
         rule: Rule
     ) = mapOf(
-        "openContactSensors" to rainCheckSensorData.openedContactSensors.mapNotNull(String::toDeviceName).toString(),
+        "openContactSensors" to rainAlertData.openedContactSensors.mapNotNull(String::toDeviceName).toString(),
         "closedContactSensors" to
-                rule.deviceIds.subtract(rainCheckSensorData.openedContactSensors).mapNotNull(String::toDeviceName)
+                rule.deviceIds.subtract(rainAlertData.openedContactSensors).mapNotNull(String::toDeviceName)
                     .toString(),
-        "timeToRain" to if (rainCheckSensorData.rainForecast != null)
-            "${Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime).toMinutes()}m" else ">9000m",
-        "precipitationProb" to "${rainCheckSensorData.rainForecast?.precipitationChance?.times(100) ?: "?"}%",
-        "precipitationVolume" to "${rainCheckSensorData.rainForecast?.precipitationVolume ?: "?"}mm"
+        "timeToRain" to if (rainAlertData.rainForecast != null)
+            "${Duration.between(Instant.now(), rainAlertData.rainForecast.dateTime).toMinutes()}m" else ">9000m",
+        "precipitationProb" to "${rainAlertData.rainForecast?.precipitationChance?.times(100) ?: "?"}%",
+        "precipitationVolume" to "${rainAlertData.rainForecast?.precipitationVolume ?: "?"}mm"
     )
 
     suspend fun scheduleUpdate(timedUpdateRequest: TimedUpdateRequest): Boolean =

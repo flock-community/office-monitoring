@@ -4,7 +4,7 @@ import org.springframework.cloud.gcp.data.datastore.repository.DatastoreReposito
 import org.springframework.stereotype.Repository
 
 @Repository
-interface RainCheckSensorRepository : DatastoreRepository<RainCheckSensorEntity, String> {
-    fun findByRuleId(ruleId: String): RainCheckSensorEntity?
+interface RainAlertRepository : DatastoreRepository<RainAlertEntity, String> {
+    fun findByRuleId(ruleId: String): RainAlertEntity?
 }
 

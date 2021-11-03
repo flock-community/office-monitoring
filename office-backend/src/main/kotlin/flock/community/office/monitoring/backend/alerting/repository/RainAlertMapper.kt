@@ -3,14 +3,14 @@ package flock.community.office.monitoring.backend.alerting.repository
 import flock.community.office.monitoring.backend.alerting.domain.HourlyRainForecast
 import flock.community.office.monitoring.backend.alerting.domain.RuleId
 import flock.community.office.monitoring.backend.alerting.domain.Weather
-import flock.community.office.monitoring.backend.alerting.executor.RainCheckSensorData
-import flock.community.office.monitoring.backend.alerting.executor.RainCheckSensorDataId
+import flock.community.office.monitoring.backend.alerting.executor.RainAlertData
+import flock.community.office.monitoring.backend.alerting.executor.RainAlertDataId
 import org.springframework.stereotype.Service
 
 @Service
-class RainCheckSensorMapper {
-    fun internalize(e: RainCheckSensorEntity) = RainCheckSensorData(
-        id = RainCheckSensorDataId(e.id),
+class RainAlertMapper {
+    fun internalize(e: RainAlertEntity) = RainAlertData(
+        id = RainAlertDataId(e.id),
         ruleId = RuleId(e.ruleId),
         openedContactSensors = e.openedContactSensors,
         rainForecast = e.rainForecast.internalize(),
@@ -18,7 +18,7 @@ class RainCheckSensorMapper {
 
     )
 
-    fun externalize(i: RainCheckSensorData) = RainCheckSensorEntity(
+    fun externalize(i: RainAlertData) = RainAlertEntity(
         id = i.id.value,
         ruleId = i.ruleId.value,
         openedContactSensors = i.openedContactSensors,

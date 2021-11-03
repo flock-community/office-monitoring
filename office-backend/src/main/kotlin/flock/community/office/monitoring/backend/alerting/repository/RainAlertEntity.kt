@@ -4,8 +4,8 @@ import org.springframework.cloud.gcp.data.datastore.core.mapping.Entity
 import org.springframework.data.annotation.Id
 import java.time.Instant
 
-@Entity(name = "rainCheckSensorEntity")
-data class RainCheckSensorEntity(
+@Entity(name = "rainAlertEntity")
+data class RainAlertEntity(
     @Id
     val id: String,
     val ruleId: String,
