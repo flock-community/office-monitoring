@@ -29,7 +29,6 @@ class SignalAlertClient(
             .awaitExchange {
                 it.verifyHttpStatus()
             }
-
         return true;
     }
 }
