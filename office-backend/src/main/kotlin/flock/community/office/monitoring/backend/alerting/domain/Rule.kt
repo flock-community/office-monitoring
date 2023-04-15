@@ -22,6 +22,7 @@ data class CancelAlert(
 )
 
 enum class RuleType{
-    RAIN_CHECK_CONTACT_SENSOR
+    RAIN_CHECK_CONTACT_SENSOR,
+    CONTACT_SENSOR
 }
 

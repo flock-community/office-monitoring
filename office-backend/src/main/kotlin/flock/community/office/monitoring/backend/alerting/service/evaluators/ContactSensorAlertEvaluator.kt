@@ -7,7 +7,7 @@ import flock.community.office.monitoring.backend.alerting.domain.Rule
 import flock.community.office.monitoring.backend.alerting.domain.AlertState
 import flock.community.office.monitoring.backend.alerting.domain.SentAlert
 import flock.community.office.monitoring.backend.alerting.domain.toAlertId
-import flock.community.office.monitoring.backend.alerting.executor.RainCheckSensorData
+import flock.community.office.monitoring.backend.alerting.domain.ContactSensorAlertData
 import flock.community.office.monitoring.backend.alerting.service.AlertSenderService
 import flock.community.office.monitoring.backend.alerting.service.AlertStateService
 import flock.community.office.monitoring.backend.alerting.service.TimedUpdateRequest
@@ -20,23 +20,16 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.Instant
 
-typealias ConfiguredAlert = Map.Entry<String, AlertConfig>
-
-data class RainCheckSensorAlertCheckData(
-    val rule: Rule,
-    val alertState: AlertState,
-    val rainCheckSensorData: RainCheckSensorData
-)
 
 @Component
-class AlertCheckEvaluator(
+class ContactSensorAlertEvaluator(
     private val timedUpdatesEventBus: TimedUpdatesEventBus,
     private val alertSenderService: AlertSenderService,
     private val alertStateService: AlertStateService,
     @Qualifier("alerts") private val alerts: Map<AlertId, Alert>,
 ) {
 
-    private val log = loggerFor<AlertCheckEvaluator>()
+    private val log = loggerFor<ContactSensorAlertEvaluator>()
 
     fun subscribeToUpdates(rule: Rule): Flow<TimedUpdateRequest> {
         return timedUpdatesEventBus.subscribe(rule)
@@ -44,16 +37,16 @@ class AlertCheckEvaluator(
 
     suspend fun handleUpdate(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData,
+        contactSensorAlertData: ContactSensorAlertData,
         previousAlertState: AlertState,
     ): AlertState {
-        if (canAlertStateBeReset(rule, rainCheckSensorData, previousAlertState)) {
-            return resetAlertState(rule, rainCheckSensorData)
+        if (canAlertStateBeReset(rule, contactSensorAlertData, previousAlertState)) {
+            return resetAlertState(rule, contactSensorAlertData)
         }
 
-        val alertToSend: Alert? = evaluateAlerts(previousAlertState, rainCheckSensorData, rule)
+        val alertToSend: Alert? = evaluateAlerts(previousAlertState, contactSensorAlertData, rule)
         return if (alertToSend != null) {
-            val sentAlert = sendAlert(alertToSend, rainCheckSensorData, rule)
+            val sentAlert = sendAlert(alertToSend, contactSensorAlertData, rule)
             previousAlertState.copy(
                 sentAlerts = previousAlertState.sentAlerts + sentAlert,
                 lastStateChange = Instant.now()
@@ -65,11 +58,11 @@ class AlertCheckEvaluator(
 
     private suspend fun sendAlert(
         alertToSend: Alert,
-        rainCheckSensorData: RainCheckSensorData,
+        rainCheckSensorData: ContactSensorAlertData,
         rule: Rule
     ): SentAlert {
-        log.info("Reached timeLimit for alert ${alertToSend.alertId.value} at ${alertToSend.timeToDeadline} before rain")
-        val properties = getAlertProperties(rainCheckSensorData, rule)
+        log.info("Reached correct state for alert ${alertToSend.alertId.value}")
+        val properties = getAlertProperties(rule)
         alertSenderService.send(alertToSend, properties)
 
         return SentAlert(
@@ -80,37 +73,33 @@ class AlertCheckEvaluator(
 
     private suspend fun resetAlertState(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData
+        rainCheckSensorData: ContactSensorAlertData
     ): AlertState {
         alertStateService.clearByRuleId(rule.id)
         val createNewAlertState = alertStateService.createNewAlertState(rule.id)
 
         log.info("Sending cancel message for rule ${rule.id.value}")
         val alertToSend = rule.cancelMessage
-        val properties = getAlertProperties(rainCheckSensorData, rule)
+        val properties = getAlertProperties(rule)
         alertSenderService.send(alertToSend, properties)
         return createNewAlertState
     }
 
     private fun canAlertStateBeReset(
         rule: Rule,
-        rainCheckSensorData: RainCheckSensorData,
+        contactSensorAlertData: ContactSensorAlertData,
         previousAlertState: AlertState
     ): Boolean {
         val haveSentAlertsBefore = previousAlertState.sentAlerts.isNotEmpty()
+        val allContactSensorsClosed = contactSensorAlertData.openedContactSensors.isEmpty()
 
-        val allContactSensorsClosed = rainCheckSensorData.openedContactSensors.isEmpty()
-        val rainForecast = rainCheckSensorData.rainForecast
-        val rainExpectedOutsideAlertingWindow = rainForecast != null
-                && Duration.between(Instant.now(), rainForecast.dateTime) > rule.alertingWindow
-
-        return haveSentAlertsBefore && (allContactSensorsClosed || rainExpectedOutsideAlertingWindow)
+        return haveSentAlertsBefore && (allContactSensorsClosed )
             .also {
                 if (it) {
                     log.debug(
                         "RuleState can be reset (apparently): " +
                                 "previousAlertState: $previousAlertState, " +
-                                "rainCheckSensorData: $rainCheckSensorData, " +
+                                "rainCheckSensorData: $contactSensorAlertData, " +
                                 "rule: $rule"
                     )
                 }
@@ -119,18 +108,16 @@ class AlertCheckEvaluator(
 
     private fun evaluateAlerts(
         alertState: AlertState,
-        rainCheckSensorData: RainCheckSensorData,
+        contactSensorAlertData: ContactSensorAlertData,
         rule: Rule
     ): Alert? {
         // Check if alerts are needed
-        if (rainCheckSensorData.openedContactSensors.isEmpty() || rainCheckSensorData.rainForecast == null) return null
+        if (contactSensorAlertData.openedContactSensors.isEmpty()) return null
 
         // check which alert has been sent (check latest alert (of this type)
         val latestSentAlert: SentAlert? = alertState.sentAlerts.maxByOrNull { it.dateTime }
         val alertsToSend: List<ConfiguredAlert> = rule.alerts.getAlertsToSend(latestSentAlert, alertState)
-        val alertToSend: ConfiguredAlert? = alertsToSend.firstOrNull { e ->
-            Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime) < e.value.timeToDeadline
-        }
+        val alertToSend: ConfiguredAlert? = alertsToSend.firstOrNull()
 
         return alertToSend?.let {
             val alertId = alertToSend.toAlertId(rule.id)
@@ -141,7 +128,7 @@ class AlertCheckEvaluator(
     /**
      * Alerts with deadline left to send are:
      *  - alerts that have not been sent yet.
-     *  - alerts that have a tighter (i.e. shorten, smaller duration) deadline than the latest alert sent
+     *  - alerts that have a tighter (i.e. shorter, smaller duration) deadline than the latest alert sent
      *
      *  @return a sorted List of the map entries of this map of alerts
      */
@@ -163,17 +150,11 @@ class AlertCheckEvaluator(
 
 
     private fun getAlertProperties(
-        rainCheckSensorData: RainCheckSensorData,
         rule: Rule
-    ) = mapOf(
-        "openContactSensors" to rainCheckSensorData.openedContactSensors.mapNotNull(String::toDeviceName).toString(),
-        "closedContactSensors" to
-                rule.deviceIds.subtract(rainCheckSensorData.openedContactSensors).mapNotNull(String::toDeviceName)
-                    .toString(),
-        "timeToRain" to if (rainCheckSensorData.rainForecast != null)
-            "${Duration.between(Instant.now(), rainCheckSensorData.rainForecast.dateTime).toMinutes()}m" else ">9000m",
-        "precipitationProb" to "${rainCheckSensorData.rainForecast?.precipitationChance?.times(100) ?: "?"}%",
-        "precipitationVolume" to "${rainCheckSensorData.rainForecast?.precipitationVolume ?: "?"}mm"
-    )
+    ): Map<String, String> {
+        return mapOf(
+            "deviceName" to (rule.deviceIds.firstOrNull()?.let(String::toDeviceName) ?: "<????>"),
+        )
+    }
 
 }
