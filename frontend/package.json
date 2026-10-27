@@ -13,7 +13,7 @@
     "@amcharts/amcharts4": "^4.10.13",
     "@types/rsocket-core": "0.0.6",
     "@types/rsocket-websocket-client": "0.0.3",
-    "compression": "^1.7.1",
+    "compression": "^1.8.2",
     "express": "^4.17.1",
     "polka": "next",
     "rsocket-core": "0.0.22",
